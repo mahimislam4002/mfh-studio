@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ doc.full_name or 'CV' }} — EuroPass style</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #e8eef5; color: #1e293b; }
+  .page {
+    max-width: 920px; margin: 24px auto; background: #fff;
+    display: grid; grid-template-columns: 260px 1fr; min-height: 1100px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.12);
+  }
+  .side { background: #0b5ea8; color: #fff; padding: 28px 20px; }
+  .side h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin: 20px 0 10px; opacity: 0.95; border-bottom: 1px solid rgba(255,255,255,0.35); padding-bottom: 4px; }
+  .side p, .side li { font-size: 0.8rem; line-height: 1.45; opacity: 0.95; }
+  .photo { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 14px; border: 3px solid rgba(255,255,255,0.5); }
+  .photo-ph { width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,0.2); margin: 0 auto 14px; }
+  .main { padding: 28px 28px 32px; }
+  .main h1 { font-size: 1.7rem; color: #0b5ea8; line-height: 1.15; margin-bottom: 6px; }
+  .main .loc { color: #64748b; font-size: 0.9rem; margin-bottom: 18px; }
+  .main h2 { font-size: 1rem; color: #0b5ea8; border-bottom: 2px solid #0b5ea8; padding-bottom: 4px; margin: 18px 0 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .job { margin-bottom: 14px; padding-left: 14px; border-left: 2px solid #cbd5e1; }
+  .job h3 { font-size: 0.95rem; }
+  .job .meta { font-size: 0.78rem; color: #64748b; margin: 2px 0 6px; }
+  .job ul { padding-left: 16px; font-size: 0.82rem; }
+  .job p { font-size: 0.82rem; color: #334155; }
+  .toolbar { max-width: 920px; margin: 16px auto 0; display: flex; gap: 10px; }
+  .toolbar a { background: #0b5ea8; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; }
+  .note { font-size: 0.8rem; color: #94a3b8; font-style: italic; }
+  @media print { .toolbar { display: none; } body { background: #fff; } .page { margin: 0; box-shadow: none; } }
+  @media (max-width: 700px) { .page { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <a href="{{ url_for('resume_builder', step='write', template_id=doc.template_id) }}">← Edit</a>
+  <a href="javascript:window.print()">Print / PDF</a>
+</div>
+<div class="page">
+  <aside class="side">
+    {% if doc.photo %}<img class="photo" src="{{ doc.photo }}" alt="">{% else %}<div class="photo-ph"></div>{% endif %}
+    <h2>Contact</h2>
+    <p>
+      {% if doc.phone %}Phone<br>{{ doc.phone }}<br><br>{% endif %}
+      {% if doc.email %}Email<br>{{ doc.email }}<br><br>{% endif %}
+      {% if doc.address %}Address<br>{{ doc.address }}{% endif %}
+      {% if doc.web %}<br><br>Web<br>{{ doc.web }}{% endif %}
+    </p>
+    <h2>Education</h2>
+    {% if doc.ai_education %}
+      {% for e in doc.ai_education %}
+      <p style="margin-bottom:10px;"><strong>{{ e.year or '' }}</strong><br>{{ e.degree or '' }}<br>{{ e.school or '' }}{% if e.group %}<br>{{ e.group }}{% endif %}</p>
+      {% endfor %}
+    {% elif doc.education_raw %}
+      <p style="white-space:pre-wrap;">{{ doc.education_raw }}</p>
+    {% else %}
+      <p class="note">—</p>
+    {% endif %}
+    <h2>Skills</h2>
+    {% if doc.ai_skills %}
+    <ul style="padding-left:16px;margin-bottom:10px;">
+      {% for s in doc.ai_skills %}<li>{{ s.name }}{% if s.level %} ({{ s.level }}%){% endif %}</li>{% endfor %}
+    </ul>
+    {% else %}
+    <p class="note">Skills will appear after AI generate</p>
+    {% endif %}
+    <h2>Languages</h2>
+    {% if doc.ai_languages %}
+    <ul style="padding-left:16px;">
+      {% for l in doc.ai_languages %}<li>{{ l.name }} — {{ l.level }}</li>{% endfor %}
+    </ul>
+    {% else %}
+    <p class="note">—</p>
+    {% endif %}
+    {% if doc.personal_raw %}
+    <h2>Personal details</h2>
+    <p style="white-space:pre-wrap;">{{ doc.personal_raw }}</p>
+    {% endif %}
+  </aside>
+  <main class="main">
+    <h1>{{ doc.full_name or 'Your Name' }}</h1>
+    <div class="loc">
+      {% if doc.ai_generated_headline %}{{ doc.ai_generated_headline }}{% else %}<span class="note">Professional headline (AI)</span>{% endif %}
+      {% if doc.address %} · {{ doc.address }}{% endif %}
+    </div>
+    <h2>Profile</h2>
+    {% if doc.ai_about %}
+    <p style="font-size:0.88rem;line-height:1.5;color:#334155;">{{ doc.ai_about }}</p>
+    {% elif doc.magic_box %}
+    <p style="font-size:0.88rem;line-height:1.5;color:#334155;white-space:pre-wrap;">{{ doc.magic_box }}</p>
+    <p class="note" style="margin-top:8px;">Raw Magic Box text — AI will polish this after Generate.</p>
+    {% else %}
+    <p class="note">Profile will appear after AI generate</p>
+    {% endif %}
+    <h2>Work experience</h2>
+    {% if doc.ai_experience %}
+      {% for e in doc.ai_experience %}
+      <div class="job">
+        <div class="meta">{{ e.start or '' }} – {% if e.present %}Present{% else %}{{ e.end or '' }}{% endif %}{% if e.location %} · {{ e.location }}{% endif %}</div>
+        <h3>{{ e.title or 'Role' }}{% if e.company %} ({{ e.company }}){% endif %}</h3>
+        {% if e.bullets %}<ul>{% for b in e.bullets %}<li>{{ b }}</li>{% endfor %}</ul>
+        {% elif e.raw_description %}<p>{{ e.raw_description }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="note">Experience bullets will appear after AI generate</p>
+    {% endif %}
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Cover Letter{% endblock %}
+{% block topbar_title %}Cover Letter{% endblock %}
+{% block content %}
+<style>
+.hub-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;max-width:720px}
+.hub-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:28px 22px;text-decoration:none;color:inherit;box-shadow:0 4px 16px rgba(0,0,0,.05);transition:.15s}
+.hub-card:hover{border-color:#a5b4fc;transform:translateY(-2px)}
+.hub-card h3{margin:0 0 8px;font-size:1.15rem}
+.hub-card p{margin:0;color:#64748b;font-size:.9rem}
+.template-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.template-card{background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 2px 12px rgba(0,0,0,.06);display:flex;flex-direction:column}
+.template-preview-frame{height:220px;overflow:hidden;position:relative;background:#0a0a0c}
+.template-preview-frame iframe{position:absolute;top:0;left:0;width:900px;height:700px;border:0;transform:scale(0.34);transform-origin:top left;pointer-events:none}
+.template-info{padding:16px;flex:1;display:flex;flex-direction:column}
+.template-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.premium-card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:28px;box-shadow:0 8px 30px rgba(15,23,42,.06);max-width:720px}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.field-grid{grid-template-columns:1fr}}
+.field label{display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;margin-bottom:6px}
+.field input,.field textarea{width:100%;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;background:#f8fafc;font:inherit}
+.field.full{grid-column:1/-1}
+.letter-list{display:flex;flex-direction:column;gap:12px;max-width:800px}
+.letter-item{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+</style>
+
+<div class="page-header">
+  <div>
+    <h1>Cover Letter Builder</h1>
+    <p class="text-muted">Pick a design, tailor to each company from your CV data, then preview and download.</p>
+  </div>
+</div>
+
+{% if mode == 'hub' or mode is none %}
+<div class="hub-grid">
+  <a class="hub-card" href="{{ url_for('cover_letter_build') }}">
+    <h3>Build Cover Letter</h3>
+    <p>Open the template gallery, choose a design, and generate from your CV/Resume profile.</p>
+  </a>
+  <a class="hub-card" href="{{ url_for('cover_letter_edit_list') }}">
+    <h3>My Cover Letters</h3>
+    <p>View, edit company details, regenerate, or print letters you already created.</p>
+  </a>
+</div>
+
+{% elif mode == 'build' %}
+<p style="margin-bottom:14px;"><a class="btn btn-outline btn-sm" href="{{ url_for('cover_letter_builder') }}">← Back</a></p>
+<div class="template-grid">
+  {% for t in templates %}
+  <div class="template-card">
+    <div class="template-preview-frame">
+      <iframe src="{{ url_for('cover_letter_thumb', tid=t.id) }}" loading="lazy" title="{{ t.name }}"></iframe>
+    </div>
+    <div class="template-info">
+      <h3 style="margin:0 0 6px;">{{ t.name }}</h3>
+      <p class="text-muted small" style="margin:0 0 12px;">{{ t.desc }}</p>
+      <div class="template-actions">
+        <a href="{{ url_for('cover_letter_thumb', tid=t.id) }}" target="_blank" class="btn btn-outline btn-sm">View</a>
+        <form method="POST" action="{{ url_for('cover_select_template') }}" style="display:inline;">
+          <input type="hidden" name="template_id" value="{{ t.id }}">
+          <button type="submit" class="btn btn-success btn-sm">Use this design</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <p class="text-muted">No templates loaded. Apply the Cover Letter pack update.</p>
+  {% endfor %}
+</div>
+
+{% elif mode == 'generate' %}
+<div class="premium-card">
+  <p style="margin-bottom:14px;"><a href="{{ url_for('cover_letter_build') }}">← Templates</a></p>
+  <h2 style="margin-bottom:8px;">Generate cover letter</h2>
+  <p class="text-muted" style="margin-bottom:16px;">
+    Template: <strong>{{ selected.name if selected else '—' }}</strong><br>
+    Uses your saved CV/Resume facts only — nothing invented.
+    {% if cv_doc and cv_doc.full_name %} Profile: <strong>{{ cv_doc.full_name }}</strong>{% endif %}
+  </p>
+  <form method="POST" action="{{ url_for('cover_letter_generate_page') }}">
+    <input type="hidden" name="template_id" value="{{ selected.id if selected else '' }}">
+    <div class="field-grid">
+      <div class="field"><label>Company name</label><input type="text" name="company_name" placeholder="Company name" required></div>
+      <div class="field"><label>Hiring manager (optional)</label><input type="text" name="employer_name" placeholder="Name"></div>
+      <div class="field full"><label>Job title</label><input type="text" name="job_title" placeholder="Position" required></div>
+      <div class="field full"><label>Job description / posting notes (optional)</label><textarea name="job_description" rows="3" placeholder="Paste key requirements or a short note"></textarea></div>
+      <div class="field"><label>Date</label><input type="text" name="letter_date" placeholder="October 12, 2026"></div>
+      <div class="field"><label>Tone note (optional)</label><input type="text" name="extra_notes" placeholder="Formal, confident…"></div>
+    </div>
+    <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button type="submit" class="btn btn-primary" style="background:#16a34a;border-color:#16a34a;">Generate with AI</button>
+    </div>
+  </form>
+</div>
+
+{% elif mode == 'edit' %}
+<p style="margin-bottom:14px;"><a class="btn btn-outline btn-sm" href="{{ url_for('cover_letter_builder') }}">← Back</a>
+<a class="btn btn-primary btn-sm" href="{{ url_for('cover_letter_build') }}">Build new</a></p>
+{% if letters %}
+<div class="letter-list">
+  {% for L in letters %}
+  <div class="letter-item">
+    <div>
+      <strong>{{ L.template_name or L.template_id }}</strong>
+      {% if L.company_name %} · {{ L.company_name }}{% endif %}
+      {% if L.job_title %}<br><span class="text-muted small">{{ L.job_title }}</span>{% endif %}
+      <br><span class="text-muted small">{{ L.created_at or '' }} · {{ L.ai_status or '' }}</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a class="btn btn-outline btn-sm" href="{{ url_for('cover_letter_preview', letter_id=L.id) }}" target="_blank">View</a>
+      <a class="btn btn-primary btn-sm" href="{{ url_for('cover_letter_edit_one', letter_id=L.id) }}">Edit</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No cover letters yet. <a href="{{ url_for('cover_letter_build') }}">Build one</a>.</p>
+{% endif %}
+
+{% elif mode == 'edit_form' %}
+<div class="premium-card">
+  <p style="margin-bottom:14px;"><a href="{{ url_for('cover_letter_edit_list') }}">← My Cover Letters</a></p>
+  <h2 style="margin-bottom:8px;">Edit application details</h2>
+  <p class="text-muted" style="margin-bottom:16px;">Change company / employer / job. CV facts stay the same. Regenerate adapts only this letter.</p>
+  <form method="POST">
+    <div class="field-grid">
+      <div class="field"><label>Company name</label><input type="text" name="company_name" value="{{ edit_letter.company_name or '' }}"></div>
+      <div class="field"><label>Hiring manager</label><input type="text" name="employer_name" value="{{ edit_letter.employer_name or '' }}"></div>
+      <div class="field full"><label>Job title</label><input type="text" name="job_title" value="{{ edit_letter.job_title or '' }}"></div>
+      <div class="field full"><label>Job description notes</label><textarea name="job_description" rows="3">{{ edit_letter.job_description or '' }}</textarea></div>
+      <div class="field full"><label>Extra notes</label><textarea name="extra_notes" rows="2">{{ edit_letter.extra_notes or '' }}</textarea></div>
+    </div>
+    <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button type="submit" class="btn btn-primary" style="background:#16a34a;border-color:#16a34a;">Regenerate with AI</button>
+      <a class="btn btn-outline" href="{{ url_for('cover_letter_preview', letter_id=edit_letter.id) }}" target="_blank">View / Print</a>
+    </div>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

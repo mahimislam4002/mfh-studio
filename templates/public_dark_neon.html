@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ portfolio.full_name or 'Portfolio' }} | Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f; --surface: #12121a; --surface2: #1a1a24;
+  --border: #2a2a3a; --text: #f0f0f5; --muted: #8888a0;
+  --accent: #b4f000; --accent-dim: rgba(180,240,0,0.15);
+  --radius: 16px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; }
+
+.nav { position:fixed; top:0; left:0; right:0; z-index:100; background:rgba(10,10,15,0.9); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); height:64px; padding:0 32px; display:flex; align-items:center; justify-content:space-between; }
+.nav-brand { display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.1rem; color:var(--text); text-decoration:none; }
+.nav-logo { width:32px; height:32px; border-radius:8px; background:var(--accent); color:#0a0a0f; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; }
+.nav-links { display:flex; gap:4px; }
+.nav-links a { color:var(--muted); padding:8px 14px; border-radius:8px; font-size:0.9rem; font-weight:500; text-decoration:none; transition:all .15s; }
+.nav-links a:hover { color:var(--accent); }
+
+.hero { min-height:100vh; display:flex; align-items:center; padding:100px 40px 60px; max-width:1200px; margin:0 auto; gap:48px; }
+.hero-photo-wrap { position:relative; flex-shrink:0; width:340px; }
+.hero-photo { width:340px; height:400px; border-radius:50% 50% 40% 40% / 40% 40% 50% 50%; overflow:hidden; background:var(--surface2); border:3px solid var(--border); display:flex; align-items:center; justify-content:center; }
+.hero-photo img { width:100%; height:100%; object-fit:cover; }
+.hero-photo .initials { font-size:5rem; font-weight:800; color:var(--accent); opacity:0.4; }
+.hero-content { flex:1; }
+.hero-greeting { color:var(--accent); font-size:1rem; font-weight:600; margin-bottom:8px; }
+.hero h1 { font-size:clamp(2.2rem,5vw,3.4rem); font-weight:800; line-height:1.15; margin-bottom:4px; letter-spacing:-0.02em; }
+.hero h1 em { font-family:'Playfair Display',serif; font-style:italic; color:var(--accent); font-weight:700; }
+.hero .role { font-size:1.15rem; color:var(--muted); margin-bottom:20px; }
+.hero .bio { color:var(--muted); max-width:480px; margin-bottom:28px; font-size:1rem; }
+.hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
+.btn { display:inline-flex; align-items:center; gap:8px; padding:12px 24px; border-radius:10px; font-weight:600; font-size:0.95rem; border:none; cursor:pointer; transition:all .2s; text-decoration:none; }
+.btn-primary { background:var(--accent); color:#0a0a0f; }
+.btn-primary:hover { opacity:0.9; text-decoration:none; color:#0a0a0f; transform:translateY(-2px); }
+.btn-outline { background:transparent; border:1.5px solid var(--border); color:var(--text); }
+.btn-outline:hover { border-color:var(--accent); color:var(--accent); text-decoration:none; }
+
+section { max-width:1100px; margin:0 auto; padding:80px 40px; }
+.section-label { font-size:0.8rem; font-weight:700; color:var(--accent); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:8px; }
+.section-title { font-size:1.8rem; font-weight:800; margin-bottom:12px; }
+.section-title em { font-family:'Playfair Display',serif; font-style:italic; color:var(--accent); }
+.section-desc { color:var(--muted); margin-bottom:40px; max-width:520px; }
+
+.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+.about-text p { color:var(--muted); margin-bottom:16px; }
+.check-list { list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:20px 0; }
+.check-list li { color:var(--text); font-size:0.9rem; font-weight:500; }
+.check-list li::before { content:"✓ "; color:var(--accent); font-weight:700; }
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.stat-box { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; text-align:center; }
+.stat-box .num { font-size:1.8rem; font-weight:800; color:var(--text); }
+.stat-box .lbl { font-size:0.85rem; color:var(--muted); margin-top:4px; }
+
+.skills-grid { display:flex; flex-wrap:wrap; gap:12px; }
+.skill-tag { background:var(--surface); border:1px solid var(--border); padding:12px 20px; border-radius:10px; font-weight:600; font-size:0.9rem; transition:all .15s; }
+.skill-tag:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-dim); }
+
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; transition:all .2s; }
+.card:hover { border-color:var(--accent); transform:translateY(-3px); }
+.card .icon { width:44px; height:44px; border-radius:10px; background:var(--accent-dim); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.2rem; margin-bottom:14px; }
+.card h3 { font-size:1.05rem; font-weight:700; margin-bottom:6px; }
+.card .company { color:var(--accent); font-size:0.9rem; font-weight:500; }
+.card .period { color:var(--muted); font-size:0.85rem; margin-bottom:8px; }
+.card p { color:var(--muted); font-size:0.9rem; }
+
+.projects-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+.project-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; transition:all .2s; }
+.project-card:hover { border-color:var(--accent); transform:translateY(-3px); }
+.project-img { height:160px; background:linear-gradient(135deg,#1a1a2e,#2a2a4a); display:flex; align-items:center; justify-content:center; font-size:2.5rem; }
+.project-body { padding:18px; }
+.project-body h3 { font-size:1.05rem; font-weight:700; margin-bottom:6px; }
+.project-body p { color:var(--muted); font-size:0.9rem; margin-bottom:10px; }
+.project-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.project-tag { background:var(--accent-dim); color:var(--accent); padding:3px 10px; border-radius:6px; font-size:0.75rem; font-weight:600; }
+.project-links a { font-size:0.9rem; font-weight:600; margin-right:14px; }
+
+.edu-item { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px 24px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
+.edu-item h3 { font-size:1rem; font-weight:700; }
+.edu-item .school { color:var(--accent); font-size:0.9rem; }
+.edu-item .period { color:var(--muted); font-size:0.85rem; }
+
+.contact-box { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:40px; display:grid; grid-template-columns:1fr 1fr; gap:36px; }
+.contact-box h3 { font-size:1.4rem; font-weight:800; margin-bottom:10px; }
+.contact-box h3 em { font-family:'Playfair Display',serif; font-style:italic; color:var(--accent); }
+.contact-box p { color:var(--muted); margin-bottom:20px; }
+.contact-item { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.contact-icon { width:40px; height:40px; border-radius:10px; background:var(--accent-dim); color:var(--accent); display:flex; align-items:center; justify-content:center; }
+.contact-item .label { font-size:0.8rem; color:var(--muted); }
+.contact-item .value { font-weight:600; }
+.social-row { display:flex; gap:10px; flex-wrap:wrap; }
+.social-btn { padding:10px 16px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); font-weight:600; font-size:0.85rem; text-decoration:none; transition:all .15s; }
+.social-btn:hover { border-color:var(--accent); color:var(--accent); text-decoration:none; }
+
+.footer { text-align:center; padding:36px; color:var(--muted); font-size:0.85rem; border-top:1px solid var(--border); }
+.empty { color:var(--muted); font-style:italic; padding:16px 0; }
+
+@media (max-width:900px) {
+  .hero { flex-direction:column; text-align:center; padding:90px 24px 50px; }
+  .hero-photo-wrap, .hero-photo { width:240px; height:280px; margin:0 auto; }
+  .hero .bio { margin-left:auto; margin-right:auto; }
+  .hero-actions { justify-content:center; }
+  .about-grid, .contact-box { grid-template-columns:1fr; }
+  .nav-links { display:none; }
+  section { padding:60px 24px; }
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="#" class="nav-brand">
+    <div class="nav-logo">{{ (portfolio.full_name or portfolio.username or 'P')[0]|upper }}</div>
+    {{ portfolio.full_name or portfolio.username or 'Portfolio' }}
+  </a>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#experience">Experience</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<section class="hero" id="home">
+  <div class="hero-photo-wrap">
+    <div class="hero-photo">
+      {% if portfolio.photo %}<img src="{{ portfolio.photo }}" alt="{{ portfolio.full_name }}">
+      {% else %}<span class="initials">{{ (portfolio.full_name or portfolio.username or 'P')[0]|upper }}</span>{% endif %}
+    </div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-greeting">Hi, I'm {{ portfolio.full_name or portfolio.username or 'You' }}</div>
+    <h1>A {{ portfolio.role or 'Professional' }}</h1>
+    <div class="role">{{ portfolio.role or 'UI/UX Designer & Developer' }}</div>
+    <p class="bio">{{ portfolio.bio or 'Dedicated professional with a passion for creating exceptional digital experiences.' }}</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn btn-primary">Get In Touch</a>
+      <a href="#projects" class="btn btn-outline">View Projects</a>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="section-label">About Me</div>
+  <h2 class="section-title">Best {{ portfolio.role or 'Professional' }} <em>in the field</em></h2>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>{{ portfolio.about or portfolio.bio or 'I am a dedicated professional passionate about delivering high-quality results and building meaningful client relationships.' }}</p>
+      {% if portfolio.skills %}
+      <ul class="check-list">
+        {% for s in portfolio.skills[:6] %}<li>{{ s }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+      <a href="#contact" class="btn btn-primary" style="margin-top:12px;">Get In Touch Now</a>
+    </div>
+    <div class="stats-grid">
+      {% if portfolio.years_exp %}<div class="stat-box"><div class="num">{{ portfolio.years_exp }}+</div><div class="lbl">Years Experience</div></div>{% endif %}
+      {% if portfolio.projects %}<div class="stat-box"><div class="num">{{ portfolio.projects|length }}+</div><div class="lbl">Projects</div></div>{% endif %}
+      <div class="stat-box"><div class="num">{{ portfolio.skills|length if portfolio.skills else 0 }}+</div><div class="lbl">Skills</div></div>
+      {% if portfolio.location %}<div class="stat-box"><div class="num" style="font-size:1.1rem;">{{ portfolio.location }}</div><div class="lbl">Based In</div></div>{% endif %}
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="section-label">My Skills</div>
+  <h2 class="section-title">Skills & <em>Expertise</em></h2>
+  <p class="section-desc">Technologies and tools I work with every day.</p>
+  {% if portfolio.skills %}
+  <div class="skills-grid">{% for s in portfolio.skills %}<span class="skill-tag">{{ s }}</span>{% endfor %}</div>
+  {% else %}<p class="empty">No skills added yet.</p>{% endif %}
+</section>
+
+<section id="experience">
+  <div class="section-label">Experience</div>
+  <h2 class="section-title">My Best Quality <em>Service</em></h2>
+  {% if portfolio.experience %}
+  <div class="cards-grid">
+    {% for e in portfolio.experience %}
+    <div class="card">
+      <div class="icon">💼</div>
+      <h3>{{ e.title }}</h3>
+      <div class="company">{{ e.company }}</div>
+      <div class="period">{{ e.period }}</div>
+      <p>{{ e.description }}</p>
+      {% if e.proof_link %}<p style="margin-top:8px;"><a href="{{ e.proof_link }}" target="_blank">View Proof →</a></p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}<p class="empty">No experience added yet.</p>{% endif %}
+</section>
+
+<section id="projects">
+  <div class="section-label">Projects</div>
+  <h2 class="section-title">Featured <em>Projects</em></h2>
+  {% if portfolio.projects %}
+  <div class="projects-grid">
+    {% for p in portfolio.projects %}
+    <div class="project-card">
+      <div class="project-img">{{ p.icon or '📁' }}</div>
+      <div class="project-body">
+        <h3>{{ p.title }}</h3>
+        <p>{{ p.description }}</p>
+        {% if p.tags %}<div class="project-tags">{% for t in p.tags %}<span class="project-tag">{{ t }}</span>{% endfor %}</div>{% endif %}
+        <div class="project-links">
+          {% if p.link %}<a href="{{ p.link }}" target="_blank">Live →</a>{% endif %}
+          {% if p.github %}<a href="{{ p.github }}" target="_blank">GitHub →</a>{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}<p class="empty">No projects added yet.</p>{% endif %}
+</section>
+
+{% if portfolio.education %}
+<section id="education">
+  <div class="section-label">Education</div>
+  <h2 class="section-title">Academic <em>Background</em></h2>
+  {% for e in portfolio.education %}
+  <div class="edu-item">
+    <div><h3>{{ e.degree }}</h3><div class="school">{{ e.school }}</div></div>
+    <div class="period">{{ e.period }}</div>
+  </div>
+  {% endfor %}
+</section>
+{% endif %}
+
+<section id="contact">
+  <div class="section-label">Contact</div>
+  <h2 class="section-title">Get In Touch <em>Today</em></h2>
+  <div class="contact-box">
+    <div>
+      <h3>Let's talk</h3>
+      <p>Ready to start your next project? Reach out anytime.</p>
+      {% if portfolio.email %}<div class="contact-item"><div class="contact-icon">✉</div><div><div class="label">Email</div><div class="value"><a href="mailto:{{ portfolio.email }}">{{ portfolio.email }}</a></div></div></div>{% endif %}
+      {% if portfolio.phone %}<div class="contact-item"><div class="contact-icon">☎</div><div><div class="label">Phone</div><div class="value">{{ portfolio.phone }}</div></div></div>{% endif %}
+      {% if portfolio.location %}<div class="contact-item"><div class="contact-icon">📍</div><div><div class="label">Location</div><div class="value">{{ portfolio.location }}</div></div></div>{% endif %}
+    </div>
+    <div>
+      <h3>Follow me</h3>
+      <p>Connect on social media.</p>
+      <div class="social-row">
+        {% if portfolio.social and portfolio.social.github %}<a href="{{ portfolio.social.github }}" target="_blank" class="social-btn">GitHub</a>{% endif %}
+        {% if portfolio.social and portfolio.social.linkedin %}<a href="{{ portfolio.social.linkedin }}" target="_blank" class="social-btn">LinkedIn</a>{% endif %}
+        {% if portfolio.social and portfolio.social.twitter %}<a href="{{ portfolio.social.twitter }}" target="_blank" class="social-btn">Twitter</a>{% endif %}
+        {% if portfolio.social and portfolio.social.website %}<a href="{{ portfolio.social.website }}" target="_blank" class="social-btn">Website</a>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">&copy; {{ portfolio.full_name or 'Portfolio' }} · Powered by Portfolio SaaS</footer>
+</body>
+</html>

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "cover_charcoal_header",
+    "name": "Charcoal Contact Ribbon",
+    "kind": "cover_letter",
+    "desc": "A dramatic charcoal nameplate and full-width contact strip above a clean formal letter.",
+    "template": "templates/charcoal_header.html",
+    "preview": "previews/charcoal_header.html",
+    "pagePolicy": "one_A4_page",
+    "preview_color": "#0f172a"
+  },
+  {
+    "id": "cover_green_serif",
+    "name": "Green Serif Minimal",
+    "kind": "cover_letter",
+    "desc": "Oversized serif name, right-aligned contact details, fine divider and calm green typography.",
+    "template": "templates/green_serif.html",
+    "preview": "previews/green_serif.html",
+    "pagePolicy": "one_A4_page",
+    "preview_color": "#0f172a"
+  },
+  {
+    "id": "cover_digital_marketer",
+    "name": "Soft Shapes Marketer",
+    "kind": "cover_letter",
+    "desc": "Modern split identity/contact heading with muted mint and peach edge shapes.",
+    "template": "templates/digital_marketer.html",
+    "preview": "previews/digital_marketer.html",
+    "pagePolicy": "one_A4_page",
+    "preview_color": "#0f172a"
+  },
+  {
+    "id": "cover_blue_wave",
+    "name": "Blue Wave Application",
+    "kind": "cover_letter",
+    "desc": "Large editorial serif identity with layered blue corner waves and clear job reference.",
+    "template": "templates/blue_wave.html",
+    "preview": "previews/blue_wave.html",
+    "pagePolicy": "one_A4_page",
+    "preview_color": "#0f172a"
+  },
+  {
+    "id": "cover_green_contact_bar",
+    "name": "Green Contact Band",
+    "kind": "cover_letter",
+    "desc": "Large green name header, contrasting contact band and balanced recipient/date row.",
+    "template": "templates/green_contact_bar.html",
+    "preview": "previews/green_contact_bar.html",
+    "pagePolicy": "one_A4_page",
+    "preview_color": "#0f172a"
+  },
+  {
+    "id": "cover_black_yellow",
+    "name": "Black Yellow Portrait",
+    "kind": "cover_letter",
+    "desc": "Bold dark masthead, circular portrait placeholder, yellow side band and crisp body copy.",
+    "template": "templates/black_yellow.html",
+    "preview": "previews/black_yellow.html",
+    "pagePolicy": "one_A4_page",
+    "preview_color": "#0f172a"
+  },
+  {
+    "id": "cover_gradient_academic",
+    "name": "Gradient Academic",
+    "kind": "cover_letter",
+    "desc": "Warm paper tone, portrait and large serif identity, recipient/contact arranged in two columns.",
+    "template": "templates/gradient_academic.html",
+    "preview": "previews/gradient_academic.html",
+    "pagePolicy": "one_A4_page",
+    "preview_color": "#0f172a"
+  },
+  {
+    "id": "cover_green_geometry",
+    "name": "Green Geometry HR",
+    "kind": "cover_letter",
+    "desc": "Graphic abstract monogram, right-aligned identity and green vertical rule for a modern business letter.",
+    "template": "templates/green_geometry.html",
+    "preview": "previews/green_geometry.html",
+    "pagePolicy": "one_A4_page",
+    "preview_color": "#0f172a"
+  },
+  {
+    "id": "cover_brown_hr",
+    "name": "Brown HR Portrait",
+    "kind": "cover_letter",
+    "desc": "Portrait block paired with warm brown name typography and a structured recipient section.",
+    "template": "templates/brown_hr.html",
+    "preview": "previews/brown_hr.html",
+    "pagePolicy": "one_A4_page",
+    "preview_color": "#0f172a"
+  },
+  {
+    "id": "cover_mono_diagonal",
+    "name": "Monochrome Diagonal",
+    "kind": "cover_letter",
+    "desc": "Classic serif identity and contact details framed by sharp black-and-white diagonal corner accents.",
+    "template": "templates/mono_diagonal.html",
+    "preview": "previews/mono_diagonal.html",
+    "pagePolicy": "one_A4_page",
+    "preview_color": "#0f172a"
+  }
+]

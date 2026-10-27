@@ -1,0 +1,202 @@
+[
+  {
+    "id": "cv_black_white",
+    "kind": "cv",
+    "name": "Midnight Sidebar CV",
+    "layout": "sidebar",
+    "description": "Navy left rail, circular portrait, dashed rules and a right-side experience timeline.",
+    "preview": "previews/cv_black_white.html",
+    "template": "templates/cv/cv_black_white.html",
+    "pagePolicy": "multi_page_content_flow"
+  },
+  {
+    "id": "resume_black_white",
+    "kind": "resume",
+    "name": "Midnight Sidebar Resume",
+    "layout": "sidebar",
+    "description": "Navy left rail, circular portrait, dashed rules and a right-side experience timeline.",
+    "preview": "previews/resume_black_white.html",
+    "template": "templates/resume/resume_black_white.html",
+    "pagePolicy": "one_page_compact"
+  },
+  {
+    "id": "cv_blue_brown",
+    "kind": "cv",
+    "name": "Warm Editorial CV",
+    "layout": "topgray",
+    "description": "Wide gray portrait masthead, narrow left biography column and broad timeline experience column.",
+    "preview": "previews/cv_blue_brown.html",
+    "template": "templates/cv/cv_blue_brown.html",
+    "pagePolicy": "multi_page_content_flow"
+  },
+  {
+    "id": "resume_blue_brown",
+    "kind": "resume",
+    "name": "Warm Editorial Resume",
+    "layout": "topgray",
+    "description": "Wide gray portrait masthead, narrow left biography column and broad timeline experience column.",
+    "preview": "previews/resume_blue_brown.html",
+    "template": "templates/resume/resume_blue_brown.html",
+    "pagePolicy": "one_page_compact"
+  },
+  {
+    "id": "cv_brown_creative",
+    "kind": "cv",
+    "name": "Taupe Blocks CV",
+    "layout": "taupe",
+    "description": "Taupe identity banner, dark contact/education rail and warm section bars.",
+    "preview": "previews/cv_brown_creative.html",
+    "template": "templates/cv/cv_brown_creative.html",
+    "pagePolicy": "multi_page_content_flow"
+  },
+  {
+    "id": "resume_brown_creative",
+    "kind": "resume",
+    "name": "Taupe Blocks Resume",
+    "layout": "taupe",
+    "description": "Taupe identity banner, dark contact/education rail and warm section bars.",
+    "preview": "previews/resume_brown_creative.html",
+    "template": "templates/resume/resume_brown_creative.html",
+    "pagePolicy": "one_page_compact"
+  },
+  {
+    "id": "cv_professional_blue",
+    "kind": "cv",
+    "name": "Cool Split CV",
+    "layout": "split",
+    "description": "Large nameplate above pale-blue contact rail and right-hand experience timeline.",
+    "preview": "previews/cv_professional_blue.html",
+    "template": "templates/cv/cv_professional_blue.html",
+    "pagePolicy": "multi_page_content_flow"
+  },
+  {
+    "id": "resume_professional_blue",
+    "kind": "resume",
+    "name": "Cool Split Resume",
+    "layout": "split",
+    "description": "Large nameplate above pale-blue contact rail and right-hand experience timeline.",
+    "preview": "previews/resume_professional_blue.html",
+    "template": "templates/resume/resume_professional_blue.html",
+    "pagePolicy": "one_page_compact"
+  },
+  {
+    "id": "cv_purple_minimal",
+    "kind": "cv",
+    "name": "Lavender Timeline CV",
+    "layout": "purple",
+    "description": "Purple portrait rail, stacked name labels and spacious education/work timeline.",
+    "preview": "previews/cv_purple_minimal.html",
+    "template": "templates/cv/cv_purple_minimal.html",
+    "pagePolicy": "multi_page_content_flow"
+  },
+  {
+    "id": "resume_purple_minimal",
+    "kind": "resume",
+    "name": "Lavender Timeline Resume",
+    "layout": "purple",
+    "description": "Purple portrait rail, stacked name labels and spacious education/work timeline.",
+    "preview": "previews/resume_purple_minimal.html",
+    "template": "templates/resume/resume_purple_minimal.html",
+    "pagePolicy": "one_page_compact"
+  },
+  {
+    "id": "cv_blue_gold",
+    "kind": "cv",
+    "name": "Navy Gold Classic CV",
+    "layout": "gold",
+    "description": "Portrait/name header, gold divider, navy skills rail and gold-accented timeline.",
+    "preview": "previews/cv_blue_gold.html",
+    "template": "templates/cv/cv_blue_gold.html",
+    "pagePolicy": "multi_page_content_flow"
+  },
+  {
+    "id": "resume_blue_gold",
+    "kind": "resume",
+    "name": "Navy Gold Classic Resume",
+    "layout": "gold",
+    "description": "Portrait/name header, gold divider, navy skills rail and gold-accented timeline.",
+    "preview": "previews/resume_blue_gold.html",
+    "template": "templates/resume/resume_blue_gold.html",
+    "pagePolicy": "one_page_compact"
+  },
+  {
+    "id": "cv_modern_blue",
+    "kind": "cv",
+    "name": "Rounded Navy CV",
+    "layout": "rounded",
+    "description": "Oversized photo and navy title slab, pill-shaped section labels and asymmetric columns.",
+    "preview": "previews/cv_modern_blue.html",
+    "template": "templates/cv/cv_modern_blue.html",
+    "pagePolicy": "multi_page_content_flow"
+  },
+  {
+    "id": "resume_modern_blue",
+    "kind": "resume",
+    "name": "Rounded Navy Resume",
+    "layout": "rounded",
+    "description": "Oversized photo and navy title slab, pill-shaped section labels and asymmetric columns.",
+    "preview": "previews/resume_modern_blue.html",
+    "template": "templates/resume/resume_modern_blue.html",
+    "pagePolicy": "one_page_compact"
+  },
+  {
+    "id": "cv_green_infographic",
+    "kind": "cv",
+    "name": "Powder Blue Minimal CV",
+    "layout": "powder",
+    "description": "Pale-blue portrait panel, airy letter-spaced headings and balanced lower columns.",
+    "preview": "previews/cv_green_infographic.html",
+    "template": "templates/cv/cv_green_infographic.html",
+    "pagePolicy": "multi_page_content_flow"
+  },
+  {
+    "id": "resume_green_infographic",
+    "kind": "resume",
+    "name": "Powder Blue Minimal Resume",
+    "layout": "powder",
+    "description": "Pale-blue portrait panel, airy letter-spaced headings and balanced lower columns.",
+    "preview": "previews/resume_green_infographic.html",
+    "template": "templates/resume/resume_green_infographic.html",
+    "pagePolicy": "one_page_compact"
+  },
+  {
+    "id": "cv_blue_designer",
+    "kind": "cv",
+    "name": "Teal Portfolio CV",
+    "layout": "teal",
+    "description": "Offset teal title cards, geometric section ribbons and portfolio-style profile layout.",
+    "preview": "previews/cv_blue_designer.html",
+    "template": "templates/cv/cv_blue_designer.html",
+    "pagePolicy": "multi_page_content_flow"
+  },
+  {
+    "id": "resume_blue_designer",
+    "kind": "resume",
+    "name": "Teal Portfolio Resume",
+    "layout": "teal",
+    "description": "Offset teal title cards, geometric section ribbons and portfolio-style profile layout.",
+    "preview": "previews/resume_blue_designer.html",
+    "template": "templates/resume/resume_blue_designer.html",
+    "pagePolicy": "one_page_compact"
+  },
+  {
+    "id": "cv_navy_yellow",
+    "kind": "cv",
+    "name": "Cobalt Signal CV",
+    "layout": "signal",
+    "description": "Bold cobalt header, yellow signal accents, compact skill meters and editorial timeline.",
+    "preview": "previews/cv_navy_yellow.html",
+    "template": "templates/cv/cv_navy_yellow.html",
+    "pagePolicy": "multi_page_content_flow"
+  },
+  {
+    "id": "resume_navy_yellow",
+    "kind": "resume",
+    "name": "Cobalt Signal Resume",
+    "layout": "signal",
+    "description": "Bold cobalt header, yellow signal accents, compact skill meters and editorial timeline.",
+    "preview": "previews/resume_navy_yellow.html",
+    "template": "templates/resume/resume_navy_yellow.html",
+    "pagePolicy": "one_page_compact"
+  }
+]

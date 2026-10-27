@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Us - {{ site_name }}</title>
+{% if site_logo %}<link rel="icon" href="{{ site_logo }}">{% endif %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body{font-family:Inter,system-ui,sans-serif;background:#0b1020;color:#f1f5f9;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.card{background:#121a2f;border:1px solid #1e293b;border-radius:16px;padding:28px;width:100%;max-width:440px;}
+h1{margin:0 0 8px;font-size:1.4rem;}
+p{color:#94a3b8;margin:0 0 20px;font-size:0.95rem;}
+label{display:block;font-size:0.85rem;margin-bottom:6px;color:#cbd5e1;}
+input,textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #334155;background:#0b1020;color:#fff;margin-bottom:14px;box-sizing:border-box;}
+button{width:100%;padding:12px;border:0;border-radius:10px;background:#6366f1;color:#fff;font-weight:600;cursor:pointer;}
+a{color:#22d3ee;}
+.flash{padding:10px;border-radius:8px;margin-bottom:12px;background:#14532d;color:#bbf7d0;font-size:0.9rem;}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Contact Us</h1>
+  <p>Send a message to the platform team. Admins will see it in Notifications.</p>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}<div class="flash">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+  <form method="POST">
+    <label>Name</label>
+    <input type="text" name="name" required>
+    <label>Email</label>
+    <input type="email" name="email">
+    <label>Message</label>
+    <textarea name="message" rows="5" required></textarea>
+    <button type="submit">Send Message</button>
+  </form>
+  <p style="margin-top:16px;"><a href="/">← Back to home</a></p>
+</div>
+</body>
+</html>

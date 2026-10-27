@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment - {{ site_name or 'Portfolio SaaS' }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0b1220; --card:#111827; --mut:#94a3b8; --ac:#6366f1; --text:#f1f5f9; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 40px 20px 60px; }
+    h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 8px; }
+    .lead { color: var(--mut); margin-bottom: 28px; }
+    .price-box {
+      background: linear-gradient(135deg, #1e1b4b, #0f172a);
+      border: 1px solid #312e81; border-radius: 16px; padding: 24px; margin-bottom: 28px; text-align: center;
+    }
+    .price-box .label { color: var(--mut); font-size: 0.9rem; margin-bottom: 6px; }
+    .price-box .amount { font-size: 2.4rem; font-weight: 800; }
+    .price-box .items { color: var(--mut); font-size: 0.85rem; margin-top: 10px; }
+    .methods { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .method {
+      background: var(--card); border: 2px solid #1e293b; border-radius: 14px; padding: 16px 12px;
+      text-align: center; cursor: pointer; transition: .15s; position: relative;
+    }
+    .method:hover { border-color: #475569; }
+    .method.is-on { border-color: var(--ac); box-shadow: 0 0 0 2px var(--ac); }
+    .method .logo {
+      width: 48px; height: 48px; border-radius: 12px; margin: 0 auto 10px;
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; color: #fff;
+    }
+    .method h3 { font-size: 0.95rem; margin-bottom: 4px; }
+    .method p { font-size: 0.75rem; color: var(--mut); }
+    .detail {
+      display: none; background: var(--card); border: 1px solid #1e293b; border-radius: 16px;
+      padding: 22px; margin-bottom: 20px;
+    }
+    .detail.show { display: block; }
+    .detail h2 { font-size: 1.15rem; margin-bottom: 8px; }
+    .detail p { color: var(--mut); font-size: 0.9rem; margin-bottom: 12px; line-height: 1.5; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; width: 100%;
+      padding: 14px; border: none; border-radius: 12px; font-weight: 700; font-size: 1rem;
+      cursor: pointer; background: linear-gradient(135deg, var(--ac), #4f46e5); color: #fff;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .back { display: inline-block; margin-top: 16px; color: var(--mut); font-size: 0.9rem; }
+    input[type=radio] { position: absolute; opacity: 0; pointer-events: none; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Choose payment method</h1>
+  <p class="lead">This is a design preview. Live charging will be enabled later — final step shows Coming Soon.</p>
+
+  <div class="price-box">
+    <div class="label">Amount due</div>
+    <div class="amount">${{ '%.2f'|format(total or 0) }}</div>
+    <div class="items">
+      {% if full_access %}Full Access
+      {% elif product_names %}{{ product_names|join(' · ') }}
+      {% else %}Selected package
+      {% endif %}
+      {% if plan_key %} · Plan: {{ plan_key }}{% endif %}
+    </div>
+  </div>
+
+  <form method="POST" id="payForm">
+    <div class="methods">
+      {% for m in methods %}
+      <label class="method" data-id="{{ m.id }}">
+        <input type="radio" name="method" value="{{ m.id }}">
+        <div class="logo" style="background:{{ m.color }};">{{ m.name[:2]|upper }}</div>
+        <h3>{{ m.name }}</h3>
+        <p>{{ m.hint }}</p>
+      </label>
+      {% endfor %}
+    </div>
+
+    {% for m in methods %}
+    <div class="detail" id="detail-{{ m.id }}">
+      <h2>{{ m.name }}</h2>
+      <p>You selected <strong>{{ m.name }}</strong>. In the full release you will complete payment with this provider. For now this screen is UI only.</p>
+      <p style="color:#cbd5e1;">Amount: <strong>${{ '%.2f'|format(total or 0) }}</strong></p>
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn" id="payBtn" disabled>Continue to pay</button>
+  </form>
+  <a class="back" href="{{ url_for('dashboard') }}">← Back to dashboard</a>
+</div>
+<script>
+(function(){
+  var methods = document.querySelectorAll('.method');
+  var btn = document.getElementById('payBtn');
+  var details = document.querySelectorAll('.detail');
+  methods.forEach(function(el){
+    el.addEventListener('click', function(){
+      methods.forEach(function(x){ x.classList.remove('is-on'); });
+      el.classList.add('is-on');
+      var id = el.getAttribute('data-id');
+      var radio = el.querySelector('input');
+      if (radio) radio.checked = true;
+      details.forEach(function(d){ d.classList.remove('show'); });
+      var panel = document.getElementById('detail-' + id);
+      if (panel) panel.classList.add('show');
+      if (btn) btn.disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

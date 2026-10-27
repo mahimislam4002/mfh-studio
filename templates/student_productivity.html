@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student Productivity System — {{ site_name }}</title>
+<style>
+:root{
+  --bg:#f3faf7; --ink:#0f172a; --muted:#5b6b63; --accent:#059669; --accent2:#d97706;
+  --side:#022c22; --side2:#064e3b; --danger:#dc2626; --ok:#047857; --warn:#d97706;
+  --card:#fff; --line:#d1e7dd;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+a{color:var(--accent);text-decoration:none}
+.side{position:fixed;inset:0 auto 0 0;width:260px;background:linear-gradient(180deg,var(--side),var(--side2));color:#e2e8f0;display:flex;flex-direction:column;z-index:20}
+.side-brand{padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.side-brand a{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:15px}
+.side-brand .ico{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#10b981,#f59e0b);display:grid;place-items:center;font-size:18px}
+.side-scroll{flex:1;overflow-y:auto;padding:10px 10px 20px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
+.side-scroll::-webkit-scrollbar{width:4px}
+.side-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:4px}
+.nav-group{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;padding:14px 12px 6px;font-weight:700}
+.nav{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:#cbd5e1;font-size:13.5px;font-weight:500;margin-bottom:2px}
+.nav:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav.active{background:linear-gradient(90deg,rgba(16,185,129,.4),rgba(245,158,11,.2));color:#fff;box-shadow:inset 0 0 0 1px rgba(52,211,153,.35)}
+.nav .g{width:20px;text-align:center;opacity:.9}
+.side-foot{padding:12px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.side-foot .av,.side-foot .av-img{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#334155;display:grid;place-items:center;font-weight:700;color:#fff;font-size:14px}
+.side-foot .meta{flex:1;min-width:0}
+.side-foot .meta strong{display:block;font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-foot .meta span{font-size:11px;color:#94a3b8}
+.exit-btn{padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.08);color:#e2e8f0;font-size:12px;font-weight:600;border:0;cursor:pointer}
+.exit-btn:hover{background:rgba(255,255,255,.14)}
+.main{margin-left:260px;min-height:100vh}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px;background:rgba(255,255,255,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.top h1{margin:0;font-size:20px;font-weight:800}
+.top .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.search-wrap{position:relative}
+.search-row{display:flex;align-items:center;gap:8px}
+.search-row input{height:40px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;min-width:220px;font:inherit}
+.search-row button{height:40px;border:0;border-radius:10px;padding:0 14px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+.search-dd{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;min-width:320px;max-height:360px;overflow:auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 40px rgba(15,23,42,.12);z-index:50;padding:6px}
+.search-dd.open{display:block}
+.search-dd .hit{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;text-decoration:none;color:inherit}
+.search-dd .hit:hover{background:#f1f5f9}
+.search-dd .hit .k{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--accent);min-width:72px}
+.search-dd .empty-hit{padding:14px 12px;color:var(--muted);font-size:13px}
+.btn-back{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:var(--ink);font-weight:600;font-size:13px;cursor:pointer;text-decoration:none}
+.btn-back:hover{border-color:var(--accent);color:var(--accent)}
+.wrap{padding:20px 24px 40px;max-width:1200px}
+.hero{background:linear-gradient(135deg,#059669 0%,#0d9488 50%,#f59e0b 100%);color:#fff;border-radius:18px;padding:28px 28px;margin-bottom:18px;box-shadow:0 12px 40px rgba(5,150,105,.28)}
+.hero h2{margin:0 0 6px;font-size:24px}
+.hero p{margin:0;opacity:.92;font-size:14px;max-width:560px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:6px;transition:.15s}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,23,42,.06)}
+.kpi span{font-size:12px;color:var(--muted);font-weight:600}
+.kpi b{font-size:26px;font-weight:800;line-height:1}
+.kpi-c1{background:linear-gradient(145deg,#ecfdf5,#fff);border-color:#a7f3d0}.kpi-c1 b{color:#047857}
+.kpi-c2{background:linear-gradient(145deg,#fffbeb,#fff);border-color:#fde68a}.kpi-c2 b{color:#b45309}
+.kpi-c3{background:linear-gradient(145deg,#f0fdfa,#fff);border-color:#99f6e4}.kpi-c3 b{color:#0f766e}
+.kpi-c4{background:linear-gradient(145deg,#ecfdf5,#fff);border-color:#6ee7b7}.kpi-c4 b{color:#065f46}
+.kpi-c5{background:linear-gradient(145deg,#fef2f2,#fff);border-color:#fecaca}.kpi-c5 b{color:#b91c1c}
+.kpi-c6{background:linear-gradient(145deg,#fff7ed,#fff);border-color:#fed7aa}.kpi-c6 b{color:#c2410c}
+.kpi-c7{background:linear-gradient(145deg,#f0f9ff,#fff);border-color:#bae6fd}.kpi-c7 b{color:#0369a1}
+.kpi-c8{background:linear-gradient(145deg,#fdf4ff,#fff);border-color:#e9d5ff}.kpi-c8 b{color:#7e22ce}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.panel h3{margin:0 0 12px;font-size:15px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;color:var(--ink)}
+.btn:hover{background:#f8fafc}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#047857}
+.btn-qa{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn-qa:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-danger{background:#fef2f2;color:var(--danger);border-color:#fecaca}
+.btn-ok{background:#ecfdf5;color:var(--ok);border-color:#a7f3d0}
+.btn-sm{padding:6px 10px;font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}.side{width:72px}.main{margin-left:72px}.side .nav span.lbl,.side-brand span.lbl,.side-foot .meta{display:none}}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid #e2e8f0;border-radius:10px;font:inherit;background:#fff}
+.field textarea{min-height:72px;resize:vertical}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.card h4{margin:0;font-size:15px}
+.card .meta{font-size:12px;color:var(--muted)}
+.badge{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700;background:#ecfdf5;color:#065f46}
+.badge-todo,.badge-upcoming{background:#eef2ff;color:#3730a3}
+.badge-doing,.badge-in-progress{background:#fff7ed;color:#9a3412}
+.badge-done,.badge-completed,.badge-passed{background:#ecfdf5;color:#065f46}
+.badge-overdue,.badge-failed{background:#fef2f2;color:#991b1b}
+.badge-active{background:#ecfdf5;color:#065f46}
+.card-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
+.empty{color:var(--muted);padding:20px 0;text-align:center;font-size:14px}
+.flash{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px}
+.flash.danger{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.guide-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.guide-card h4{margin:0 0 6px;font-size:14px}
+.guide-card p{margin:0 0 12px;font-size:13px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:520px;max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal h3{margin:0 0 14px;font-size:17px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.qa{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+</style>
+</head>
+<body>
+<aside class="side">
+  <div class="side-brand">
+    <a href="{{ url_for('student_productivity', page='home') }}">
+      <span class="ico">🎓</span>
+      <span class="lbl">Student Productivity</span>
+    </a>
+  </div>
+  <div class="side-scroll" id="spNav">
+    <div class="nav-group">Workspace</div>
+    <a class="nav {% if page=='home' %}active{% endif %}" href="{{ url_for('student_productivity', page='home') }}"><span class="g">⌂</span><span class="lbl">Overview</span></a>
+    <a class="nav {% if page=='start-here' %}active{% endif %}" href="{{ url_for('student_productivity', page='start-here') }}"><span class="g">🚀</span><span class="lbl">Start Here</span></a>
+    <a class="nav {% if page=='schedule' %}active{% endif %}" href="{{ url_for('student_productivity', page='schedule') }}"><span class="g">📅</span><span class="lbl">Study Plan</span></a>
+    <a class="nav {% if page=='timetable' %}active{% endif %}" href="{{ url_for('student_productivity', page='timetable') }}"><span class="g">🗓</span><span class="lbl">Weekly Timetable</span></a>
+    <div class="nav-group">Academics</div>
+    <a class="nav {% if page=='classes' %}active{% endif %}" href="{{ url_for('student_productivity', page='classes') }}"><span class="g">📚</span><span class="lbl">Classes <small style="opacity:.7">({{ counts.classes }})</small></span></a>
+    <a class="nav {% if page=='assignments' %}active{% endif %}" href="{{ url_for('student_productivity', page='assignments') }}"><span class="g">📝</span><span class="lbl">Assignments{% if counts.open_assignments %} <small style="opacity:.7">({{ counts.open_assignments }})</small>{% endif %}</span></a>
+    <a class="nav {% if page=='exams' %}active{% endif %}" href="{{ url_for('student_productivity', page='exams') }}"><span class="g">📋</span><span class="lbl">Exams{% if counts.upcoming_exams %} <small style="opacity:.7">({{ counts.upcoming_exams }})</small>{% endif %}</span></a>
+    <a class="nav {% if page=='gpa' %}active{% endif %}" href="{{ url_for('student_productivity', page='gpa') }}"><span class="g">📊</span><span class="lbl">GPA Tracker</span></a>
+    <div class="nav-group">Learn</div>
+    <a class="nav {% if page=='notes' %}active{% endif %}" href="{{ url_for('student_productivity', page='notes') }}"><span class="g">🗒</span><span class="lbl">Notes <small style="opacity:.7">({{ counts.notes }})</small></span></a>
+    <a class="nav {% if page=='flashcards' %}active{% endif %}" href="{{ url_for('student_productivity', page='flashcards') }}"><span class="g">🃏</span><span class="lbl">Flashcards</span></a>
+    <a class="nav {% if page=='review' %}active{% endif %}" href="{{ url_for('student_productivity', page='review') }}"><span class="g">🔁</span><span class="lbl">Card Review</span>{% if counts.due_cards %}<span class="badge">{{ counts.due_cards }}</span>{% endif %}</a>
+    <a class="nav {% if page=='focus' %}active{% endif %}" href="{{ url_for('student_productivity', page='focus') }}"><span class="g">⏱</span><span class="lbl">Focus Timer</span></a>
+    <a class="nav {% if page=='resources' %}active{% endif %}" href="{{ url_for('student_productivity', page='resources') }}"><span class="g">🔗</span><span class="lbl">Resources</span></a>
+    <a class="nav {% if page=='sessions' %}active{% endif %}" href="{{ url_for('student_productivity', page='sessions') }}"><span class="g">⏱</span><span class="lbl">Study log</span></a>
+    <div class="nav-group">Track</div>
+    <a class="nav {% if page=='attendance' %}active{% endif %}" href="{{ url_for('student_productivity', page='attendance') }}"><span class="g">✓</span><span class="lbl">Attendance</span></a>
+    <a class="nav {% if page=='goals' %}active{% endif %}" href="{{ url_for('student_productivity', page='goals') }}"><span class="g">🎯</span><span class="lbl">Goals</span></a>
+    <a class="nav {% if page=='ai' %}active{% endif %}" href="{{ url_for('student_productivity', page='ai') }}"><span class="g">✨</span><span class="lbl">AI Study Assist</span></a>
+    <div class="nav-group">System</div>
+    <a class="nav {% if page=='settings' %}active{% endif %}" href="{{ url_for('student_productivity', page='settings') }}"><span class="g">⚙</span><span class="lbl">Settings & Export</span></a>
+  </div>
+  <div class="side-foot">
+    {% if user.photo %}<img class="av-img" src="{{ user.photo }}" alt="">{% elif user.avatar %}<img class="av-img" src="{{ user.avatar }}" alt="">{% else %}<div class="av">{{ (user.full_name or user.username or 'U')[0]|upper }}</div>{% endif %}
+    <div class="meta"><strong>{{ user.full_name or user.username }}</strong><span>@{{ user.username }}</span></div>
+    <a class="exit-btn" href="{{ url_for('dashboard') }}">Exit</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="top">
+    <div>
+      <h1>{% if page=='home' %}Overview{% elif page=='start-here' %}Start Here{% elif page=='classes' %}Classes{% elif page=='assignments' %}Assignments{% elif page=='exams' %}Exams{% elif page=='notes' %}Notes{% elif page=='schedule' %}Study Plan{% elif page=='gpa' %}GPA Tracker{% elif page=='resources' %}Resources{% elif page=='sessions' %}Study log{% elif page=='flashcards' %}Flashcards{% elif page=='review' %}Card Review{% elif page=='focus' %}Focus Timer{% elif page=='attendance' %}Attendance{% elif page=='goals' %}Goals{% elif page=='ai' %}AI Study Assist{% elif page=='settings' %}Settings{% elif page=='search' %}Search{% else %}{{ page }}{% endif %}</h1>
+      <div class="sub">{{ module.desc or 'Classes, assignments, notes & exams' }}</div>
+    </div>
+    <div class="search-wrap">
+      <form class="search-row" id="spSearchForm" method="get" action="{{ url_for('student_productivity', page='search') }}" autocomplete="off">
+        <input type="search" name="q" id="spSearchInput" value="{{ q }}" placeholder="Search classes, assignments…" autocomplete="off">
+        <button type="submit" id="spSearchBtn">Search</button>
+      </form>
+      <div class="search-dd" id="spSearchDd" role="listbox"></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    {% if page != 'home' %}
+    <div style="margin-bottom:12px">
+      <a class="btn-back" href="{{ url_for('student_productivity', page='home') }}">← Back</a>
+    </div>
+    {% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash {% if cat=='danger' %}danger{% endif %}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    {% if page == 'home' %}
+    <div class="hero">
+      <h2>Student Productivity System</h2>
+      <p>Plan classes, crush assignments, track exams and protect your GPA — one academic workspace.</p>
+    </div>
+    <div class="kpis">
+      <a class="kpi kpi-c1" href="{{ url_for('student_productivity', page='classes') }}"><span>Active classes</span><b>{{ counts.active_classes }}</b></a>
+      <a class="kpi kpi-c2" href="{{ url_for('student_productivity', page='assignments') }}"><span>Open assignments</span><b>{{ counts.open_assignments }}</b></a>
+      <a class="kpi kpi-c3" href="{{ url_for('student_productivity', page='exams') }}"><span>Upcoming exams</span><b>{{ counts.upcoming_exams }}</b></a>
+      <a class="kpi kpi-c4" href="{{ url_for('student_productivity', page='gpa') }}"><span>GPA</span><b>{{ counts.gpa }}</b></a>
+      <a class="kpi kpi-c5" href="{{ url_for('student_productivity', page='assignments') }}"><span>Overdue</span><b>{{ counts.overdue }}</b></a>
+      <a class="kpi kpi-c6" href="{{ url_for('student_productivity', page='sessions') }}"><span>Study hours</span><b>{{ counts.study_hours }}</b></a>
+      <a class="kpi kpi-c7" href="{{ url_for('student_productivity', page='flashcards') }}"><span>Flashcards</span><b>{{ counts.flashcards }}</b></a>
+      <a class="kpi kpi-c8" href="{{ url_for('student_productivity', page='goals') }}"><span>Goals</span><b>{{ counts.goals_open }}</b></a>
+    </div>
+    <div class="panel">
+      <h3>Quick actions</h3>
+      <div class="qa">
+        <button type="button" class="btn btn-qa" onclick="spOpen('modalClass')">+ Class</button>
+        <button type="button" class="btn btn-qa" onclick="spOpen('modalAssignment')">+ Assignment</button>
+        <button type="button" class="btn btn-qa" onclick="spOpen('modalExam')">+ Exam</button>
+        <button type="button" class="btn btn-qa" onclick="spOpen('modalNote')">+ Note</button>
+        <button type="button" class="btn btn-qa" onclick="spOpen('modalSession')">+ Study session</button>
+        <button type="button" class="btn btn-qa" onclick="spOpen('modalFlash')">+ Flashcard</button>
+        <button type="button" class="btn btn-qa" onclick="spOpen('modalGoal')">+ Goal</button>
+        <a class="btn btn-qa" href="{{ url_for('student_productivity', page='ai') }}">✨ AI Assist</a>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Due soon</h3>
+        {% if due_soon %}
+        <table>
+          <thead><tr><th>Item</th><th>Due</th><th></th></tr></thead>
+          <tbody>
+          {% for d in due_soon %}
+            <tr><td><span class="badge">{{ d.kind }}</span> {{ d.title }}</td><td>{{ d.due }}</td>
+            <td><a class="btn btn-sm" href="{{ url_for('student_productivity', page=d.page) }}">Open</a></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% else %}<div class="empty">Nothing due in the next 7 days.</div>{% endif %}
+      </div>
+      <div class="panel">
+        <h3>This semester</h3>
+        <p class="meta" style="color:var(--muted);font-size:13px;margin:0 0 8px">{{ data.settings.semester or 'Current semester' }} · Target GPA {{ data.settings.target_gpa or '—' }}</p>
+        <div class="qa">
+          <a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='start-here') }}">Start Here guide</a>
+          <a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='schedule') }}">Study plan</a>
+          <a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='gpa') }}">GPA tracker</a>
+          <a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='flashcards') }}">Flashcards</a>
+          <a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='attendance') }}">Attendance</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin:0 0 10px">Exam countdown</h3>
+      {% if exam_countdown %}
+      <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
+        {% for e in exam_countdown %}
+        <div class="card" style="border-left:4px solid {% if e.days <= 3 %}#dc2626{% elif e.days <= 7 %}#f59e0b{% else %}#059669{% endif %}">
+          <h4 style="margin:0 0 4px">{{ e.title }}</h4>
+          <div class="meta">{{ e.class_name }} · {{ e.date }}</div>
+          <div style="font-size:28px;font-weight:800;color:var(--accent);margin-top:6px">{% if e.days == 0 %}Today{% else %}{{ e.days }}d{% endif %}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="empty" style="margin:0">No upcoming exams scheduled.</p>
+      {% endif %}
+    </div>
+
+    {% elif page == 'start-here' %}
+    <div class="hero"><h2>Start here</h2><p>Set up your semester in four steps.</p></div>
+    <div class="guide-grid">
+      <div class="guide-card"><h4>1. Add classes</h4><p>Register each course with code, credits and instructor.</p><a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='classes') }}">Open Classes</a></div>
+      <div class="guide-card"><h4>2. Log assignments</h4><p>Track homework with due dates and status.</p><a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='assignments') }}">Open Assignments</a></div>
+      <div class="guide-card"><h4>3. Plan exams</h4><p>Add midterms and finals so nothing sneaks up.</p><a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='exams') }}">Open Exams</a></div>
+      <div class="guide-card"><h4>4. Protect GPA</h4><p>Enter grades and watch your semester GPA update.</p><a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='gpa') }}">Open GPA</a></div>
+      <div class="guide-card"><h4>5. Flashcards</h4><p>Memorize definitions with front/back cards.</p><a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='flashcards') }}">Open Flashcards</a></div>
+      <div class="guide-card"><h4>6. Attendance</h4><p>Log present/absent so you never drop below limit.</p><a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='attendance') }}">Open Attendance</a></div>
+      <div class="guide-card"><h4>7. Goals</h4><p>Semester targets and weekly wins.</p><a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='goals') }}">Open Goals</a></div>
+      <div class="guide-card"><h4>8. AI Study Assist</h4><p>Summarize notes, quiz yourself, plan revision.</p><a class="btn btn-sm btn-qa" href="{{ url_for('student_productivity', page='ai') }}">Open AI</a></div>
+    </div>
+
+    {% elif page == 'classes' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Classes</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Courses for this semester.</p></div>
+      <button type="button" class="btn btn-primary" onclick="spOpen('modalClass')">+ Add class</button>
+    </div>
+    <div class="cards">
+      {% for c in data.classes %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;gap:8px"><h4>{{ c.name }}</h4><span class="badge badge-{{ (c.status or 'active')|lower|replace(' ','-') }}">{{ c.status or 'Active' }}</span></div>
+        <div class="meta">{{ c.code or '—' }} · {{ c.instructor or 'No instructor' }} · {{ c.credits or '0' }} credits</div>
+        <div class="meta">{{ c.schedule or '' }}{% if c.semester %} · {{ c.semester }}{% endif %}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='spEditClass({{ c|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('student_productivity_action') }}" onsubmit="return confirm('Delete class?')">
+            <input type="hidden" name="action" value="delete_class"><input type="hidden" name="page" value="classes">
+            <input type="hidden" name="item_id" value="{{ c.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No classes yet. Add your first course.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'assignments' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Assignments</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Homework and projects with due dates.</p></div>
+      <button type="button" class="btn btn-primary" onclick="spOpen('modalAssignment')">+ Add assignment</button>
+    </div>
+    <div class="cards">
+      {% for a in data.assignments %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;gap:8px"><h4>{{ a.title }}</h4><span class="badge badge-{{ (a.status or 'todo')|lower|replace(' ','-') }}">{{ a.status or 'Todo' }}</span></div>
+        <div class="meta">{{ a._class_name }} · Due {{ a.due or '—' }} · Priority {{ a.priority or 'Medium' }}</div>
+        {% if a.grade %}<div class="meta">Grade: <b>{{ a.grade }}</b></div>{% endif %}
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='spEditAssignment({{ a|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('student_productivity_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_assignment"><input type="hidden" name="page" value="assignments">
+            <input type="hidden" name="item_id" value="{{ a.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No assignments yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'exams' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Exams</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Midterms, finals and quizzes.</p></div>
+      <button type="button" class="btn btn-primary" onclick="spOpen('modalExam')">+ Add exam</button>
+    </div>
+    <div class="cards">
+      {% for e in data.exams %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;gap:8px"><h4>{{ e.title }}</h4><span class="badge badge-{{ (e.status or 'upcoming')|lower|replace(' ','-') }}">{{ e.status or 'Upcoming' }}</span></div>
+        <div class="meta">{{ e._class_name }} · {{ e.date or '—' }}{% if e.location %} · {{ e.location }}{% endif %}</div>
+        {% if e.score %}<div class="meta">Score: <b>{{ e.score }}</b></div>{% endif %}
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='spEditExam({{ e|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('student_productivity_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_exam"><input type="hidden" name="page" value="exams">
+            <input type="hidden" name="item_id" value="{{ e.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No exams yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'notes' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Notes</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Lecture and revision notes by class.</p></div>
+      <button type="button" class="btn btn-primary" onclick="spOpen('modalNote')">+ Add note</button>
+    </div>
+    <div class="cards">
+      {% for n in data.notes %}
+      <div class="card">
+        <h4>{{ n.title }}</h4>
+        <div class="meta">{{ n._class_name }}{% if n.tags %} · {{ n.tags }}{% endif %}</div>
+        <div class="meta" style="white-space:pre-wrap">{{ (n.body or '')[:180] }}{% if (n.body or '')|length > 180 %}…{% endif %}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='spEditNote({{ n|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('student_productivity_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_note"><input type="hidden" name="page" value="notes">
+            <input type="hidden" name="item_id" value="{{ n.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No notes yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'schedule' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Study plan</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Weekly focus blocks and goals.</p></div>
+      <button type="button" class="btn btn-primary" onclick="spOpen('modalPlan')">+ Add plan item</button>
+    </div>
+    <div class="cards">
+      {% for p in data.study_plan %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between"><h4>{{ p.title }}</h4><span class="badge">{{ p.day or 'Any day' }}</span></div>
+        <div class="meta">{{ p._class_name }} · {{ p.duration or '—' }} min · {{ p.status or 'Planned' }}</div>
+        <div class="meta">{{ p.notes or '' }}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='spEditPlan({{ p|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('student_productivity_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_plan"><input type="hidden" name="page" value="schedule">
+            <input type="hidden" name="item_id" value="{{ p.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No study plan items yet.</div>{% endfor %}
+    </div>
+
+
+    {% elif page == 'timetable' %}
+    <div class="panel">
+      <h3 style="margin:0 0 8px">Weekly timetable</h3>
+      <p style="margin:0 0 12px;font-size:13px;color:var(--muted)">Built from each class <b>Schedule</b> field (e.g. "Mon 10:00-11:30, Wed 14:00"). Edit classes to update.</p>
+      <table>
+        <thead><tr><th>Day</th><th>Classes</th></tr></thead>
+        <tbody>
+        {% set days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] %}
+        {% for day in ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] %}
+        <tr>
+          <td><b>{{ day }}</b></td>
+          <td>
+            {% set ns = namespace(found=false) %}
+            {% for c in data.classes if (c.status or 'Active')|lower == 'active' %}
+              {% set sch = (c.schedule or '') %}
+              {% if day[:3]|lower in sch|lower or day|lower in sch|lower %}
+                <div style="margin:4px 0;padding:8px 10px;background:#ecfdf5;border-radius:8px;border:1px solid #a7f3d0">
+                  <b>{{ c.name }}</b> <span class="meta">{{ c.code }} · {{ c.instructor }}</span>
+                  <div class="meta">{{ c.schedule }}</div>
+                </div>
+                {% set ns.found = true %}
+              {% endif %}
+            {% endfor %}
+            {% if not ns.found %}<span class="meta">—</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <h3>All class schedules</h3>
+      <div class="cards">
+        {% for c in data.classes %}
+        <div class="card">
+          <h4>{{ c.name }}</h4>
+          <div class="meta">{{ c.schedule or 'No schedule set' }}</div>
+          {% if c.syllabus %}<div class="meta" style="white-space:pre-wrap;margin-top:8px">{{ c.syllabus[:400] }}{% if c.syllabus|length > 400 %}…{% endif %}</div>{% endif %}
+        </div>
+        {% else %}<div class="empty">Add classes with schedule text.</div>{% endfor %}
+      </div>
+    </div>
+
+    {% elif page == 'gpa' %}
+    <div class="panel">
+      <h3>GPA overview</h3>
+      <p style="font-size:12px;color:var(--muted);margin:6px 0 0">How weighted GPA works: each class grade (A=4.0 … F=0) × credit hours, summed ÷ total credits. Set credits on every class for accuracy.</p>
+      <p style="font-size:28px;font-weight:800;margin:0;color:var(--accent)">{{ counts.gpa }}</p>
+      <p class="meta" style="color:var(--muted);font-size:13px">Weighted by credits from graded classes. Target: {{ data.settings.target_gpa or '—' }}</p>
+    </div>
+    <div class="panel">
+      <h3>Class grades</h3>
+      <table>
+        <thead><tr><th>Class</th><th>Credits</th><th>Grade</th><th>Points</th></tr></thead>
+        <tbody>
+        {% for c in data.classes %}
+          <tr>
+            <td>{{ c.name }}</td>
+            <td>{{ c.credits or '—' }}</td>
+            <td>
+              <form method="post" action="{{ url_for('student_productivity_action') }}" style="display:flex;gap:6px;align-items:center">
+                <input type="hidden" name="action" value="set_class_grade"><input type="hidden" name="page" value="gpa">
+                <input type="hidden" name="item_id" value="{{ c.id }}">
+                <select name="grade" style="padding:6px 8px;border-radius:8px;border:1px solid #e2e8f0">
+                  <option value="">—</option>
+                  {% for g in grade_options %}
+                  <option value="{{ g }}" {% if c.grade==g %}selected{% endif %}>{{ g }}</option>
+                  {% endfor %}
+                </select>
+                <button class="btn btn-sm btn-qa" type="submit">Save</button>
+              </form>
+            </td>
+            <td>{{ c._points if c._points is defined else '—' }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4" class="empty">Add classes first.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% elif page == 'resources' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Resources</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Links, PDFs and study materials.</p></div>
+      <button type="button" class="btn btn-primary" onclick="spOpen('modalResource')">+ Add resource</button>
+    </div>
+    <div class="cards">
+      {% for r in data.resources %}
+      <div class="card">
+        <h4>{{ r.title }}</h4>
+        <div class="meta">{{ r.type or 'Link' }} · {{ r._class_name }}</div>
+        {% if r.url %}<div class="meta"><a href="{{ r.url }}" target="_blank" rel="noopener">Open ↗</a></div>{% endif %}
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='spEditResource({{ r|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('student_productivity_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_resource"><input type="hidden" name="page" value="resources">
+            <input type="hidden" name="item_id" value="{{ r.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No resources yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'sessions' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Study log</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Log focused study sessions.</p></div>
+      <button type="button" class="btn btn-primary" onclick="spOpen('modalSession')">+ Log session</button>
+    </div>
+    <div class="cards">
+      {% for s in data.sessions %}
+      <div class="card">
+        <h4>{{ s.minutes or 0 }} min · {{ s.date }}</h4>
+        <div class="meta">{{ s._class_name }} · {{ s.topic or 'General' }}</div>
+        <div class="meta">{{ s.notes or '' }}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='spEditSession({{ s|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('student_productivity_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_session"><input type="hidden" name="page" value="sessions">
+            <input type="hidden" name="item_id" value="{{ s.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No study sessions logged.</div>{% endfor %}
+    </div>
+
+
+    {% elif page == 'flashcards' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Flashcards</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Front / back cards for active recall. Use Card Review for spaced repetition.</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btn btn-qa" href="{{ url_for('student_productivity', page='review') }}">Start review{% if counts.due_cards %} ({{ counts.due_cards }}){% endif %}</a>
+        <button type="button" class="btn btn-primary" onclick="spOpen('modalFlash')">+ Add card</button>
+      </div>
+    </div>
+    <div class="cards">
+      {% for f in data.flashcards %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between"><h4>{{ f.front }}</h4><span class="badge">{{ f._class_name }}</span></div>
+        <div class="meta" style="white-space:pre-wrap">{{ f.back }}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='spEditFlash({{ f|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('student_productivity_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_flash"><input type="hidden" name="page" value="flashcards">
+            <input type="hidden" name="item_id" value="{{ f.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No flashcards yet. Add your first card.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'review' %}
+    <div class="panel">
+      <h3 style="margin:0 0 6px">Spaced repetition review</h3>
+      <p style="margin:0;font-size:13px;color:var(--muted)">Cards due today: <b>{{ due_cards|length }}</b>. Rate each card — Again / Hard / Good / Easy schedules the next review automatically.</p>
+    </div>
+    {% if due_cards %}
+      {% set card = due_cards[0] %}
+      <div class="panel" style="max-width:640px">
+        <div class="meta" style="margin-bottom:8px">{{ card._class_name }} · reps {{ card.reps or 0 }} · ease {{ card.ease or 2.5 }}</div>
+        <h3 style="margin:0 0 12px;font-size:22px">{{ card.front }}</h3>
+        <details style="margin-bottom:16px">
+          <summary class="btn btn-sm btn-qa" style="cursor:pointer;display:inline-block">Show answer</summary>
+          <div style="margin-top:12px;padding:14px;background:#f0fdf4;border-radius:12px;white-space:pre-wrap;border:1px solid #bbf7d0">{{ card.back }}</div>
+        </details>
+        <form method="post" action="{{ url_for('student_productivity_action') }}" style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="hidden" name="action" value="review_flash">
+          <input type="hidden" name="page" value="review">
+          <input type="hidden" name="item_id" value="{{ card.id }}">
+          <button class="btn btn-sm btn-danger" name="result" value="again" type="submit">Again</button>
+          <button class="btn btn-sm btn-qa" name="result" value="hard" type="submit">Hard</button>
+          <button class="btn btn-sm btn-primary" name="result" value="good" type="submit">Good</button>
+          <button class="btn btn-sm" name="result" value="easy" type="submit" style="background:#059669;color:#fff;border:none">Easy</button>
+        </form>
+        <p class="meta" style="margin-top:12px;color:var(--muted)">{{ due_cards|length - 1 }} more due after this</p>
+      </div>
+    {% else %}
+      <div class="panel empty">No cards due right now. Add flashcards or come back later.</div>
+    {% endif %}
+
+    {% elif page == 'focus' %}
+    <div class="panel">
+      <h3 style="margin:0 0 6px">Focus / Pomodoro timer</h3>
+      <p style="margin:0 0 16px;font-size:13px;color:var(--muted)">Run a focus block, then log it to your study sessions automatically.</p>
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+        <div id="spTimerDisplay" style="font-size:48px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);letter-spacing:1px">25:00</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn-qa sp-timer-btn" id="spTimerStart">Start</button>
+          <button type="button" class="btn btn-qa sp-timer-btn" id="spTimerPause">Pause</button>
+          <button type="button" class="btn btn-qa sp-timer-btn" id="spTimerReset">Reset</button>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn btn-sm btn-qa sp-preset active" data-mins="25" onclick="spSetMins(25)">25 min</button>
+        <button type="button" class="btn btn-sm btn-qa sp-preset" data-mins="50" onclick="spSetMins(50)">50 min</button>
+        <button type="button" class="btn btn-sm btn-qa sp-preset" data-mins="15" onclick="spSetMins(15)">15 min</button>
+        <button type="button" class="btn btn-sm btn-qa sp-preset" data-mins="5" onclick="spSetMins(5)">5 min break</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Log this session</h3>
+      <form method="post" action="{{ url_for('student_productivity_action') }}" class="form-grid">
+        <input type="hidden" name="action" value="log_focus_session">
+        <input type="hidden" name="page" value="focus">
+        <div class="field"><label>Title</label><input name="title" value="Focus session" placeholder="What did you study?"></div>
+        <div class="field"><label>Minutes</label><input name="minutes" id="spLogMins" type="number" min="1" max="180" value="25"></div>
+        <div class="field"><label>Class</label>
+          <select name="class_id"><option value="">—</option>{% for c in data.classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select>
+        </div>
+        <div class="field" style="display:flex;align-items:flex-end"><button class="btn btn-primary" type="submit">Save to study log</button></div>
+      </form>
+    </div>
+    <style>
+      .sp-timer-btn{background:#fff!important;color:#334155!important;border:1px solid #cbd5e1!important}
+      .sp-timer-btn.active{background:#059669!important;color:#fff!important;border-color:#047857!important;box-shadow:0 0 0 2px rgba(5,150,105,.25)}
+      .sp-timer-btn.active#spTimerPause{background:#d97706!important;border-color:#b45309!important}
+      .sp-preset{background:#fff!important;color:#334155!important;border:1px solid #cbd5e1!important}
+      .sp-preset.active{background:#059669!important;color:#fff!important;border-color:#047857!important}
+      .sp-timer-btn, .sp-preset{transition:background .15s,color .15s,box-shadow .15s}
+    </style>
+    <script>
+    (function(){
+      var total=25*60, left=total, timer=null, running=false, paused=false;
+      var el=document.getElementById('spTimerDisplay');
+      var log=document.getElementById('spLogMins');
+      var st=document.getElementById('spTimerStart');
+      var pa=document.getElementById('spTimerPause');
+      var rs=document.getElementById('spTimerReset');
+      function fmt(s){var m=Math.floor(s/60),ss=s%60;return (m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;}
+      function setActiveCtrl(which){
+        [st,pa,rs].forEach(function(b){ if(b) b.classList.remove('active'); });
+        if(which) which.classList.add('active');
+      }
+      function setActivePreset(mins){
+        document.querySelectorAll('.sp-preset').forEach(function(b){
+          b.classList.toggle('active', String(b.getAttribute('data-mins'))===String(mins));
+        });
+      }
+      function tick(){
+        if(left<=0){
+          clearInterval(timer); running=false; paused=false;
+          el.textContent='00:00'; setActiveCtrl(null);
+          if(window.Notification&&Notification.permission==='granted'){ try{ new Notification('Focus session complete'); }catch(e){} }
+          return;
+        }
+        left--; el.textContent=fmt(left);
+      }
+      window.spSetMins=function(m){
+        total=m*60; left=total; el.textContent=fmt(left);
+        if(log) log.value=m;
+        if(running){ clearInterval(timer); running=false; paused=false; }
+        setActiveCtrl(null);
+        setActivePreset(m);
+      };
+      if(st) st.onclick=function(){
+        if(running) return;
+        running=true; paused=false;
+        timer=setInterval(tick,1000);
+        setActiveCtrl(st);
+        if(window.Notification&&Notification.permission==='default') Notification.requestPermission();
+      };
+      if(pa) pa.onclick=function(){
+        if(!running && !paused) return;
+        clearInterval(timer); running=false; paused=true;
+        setActiveCtrl(pa);
+      };
+      if(rs) rs.onclick=function(){
+        clearInterval(timer); running=false; paused=false;
+        left=total; el.textContent=fmt(left);
+        setActiveCtrl(rs);
+        setTimeout(function(){ setActiveCtrl(null); }, 400);
+      };
+      setActivePreset(25);
+    })();
+    </script>
+
+    {% elif page == 'attendance' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Attendance</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Track present / absent / late per class.</p></div>
+      <button type="button" class="btn btn-primary" onclick="spOpen('modalAttendance')">+ Log attendance</button>
+    </div>
+    <div class="panel" style="margin-bottom:14px">
+      <h3>Summary by class</h3>
+      <table>
+        <thead><tr><th>Class</th><th>Present</th><th>Absent</th><th>Late</th><th>Rate</th></tr></thead>
+        <tbody>
+        {% for row in attendance_summary %}
+          <tr><td>{{ row.name }}</td><td>{{ row.present }}</td><td>{{ row.absent }}</td><td>{{ row.late }}</td><td><b>{{ row.rate }}%</b></td></tr>
+        {% else %}
+          <tr><td colspan="5" class="empty">No attendance logged.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="cards">
+      {% for a in data.attendance %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between"><h4>{{ a._class_name }}</h4><span class="badge">{{ a.status }}</span></div>
+        <div class="meta">{{ a.date }}{% if a.note %} · {{ a.note }}{% endif %}</div>
+        <div class="card-actions">
+          <form method="post" action="{{ url_for('student_productivity_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_attendance"><input type="hidden" name="page" value="attendance">
+            <input type="hidden" name="item_id" value="{{ a.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No records yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'goals' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Goals</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Semester and weekly academic goals.</p></div>
+      <button type="button" class="btn btn-primary" onclick="spOpen('modalGoal')">+ Add goal</button>
+    </div>
+    <div class="cards">
+      {% for g in data.goals %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between"><h4>{{ g.title }}</h4><span class="badge">{{ g.status }}</span></div>
+        <div class="meta">{{ g.target_date or 'No deadline' }} · Progress {{ g.progress or 0 }}%</div>
+        <div class="meta">{{ g.notes or '' }}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='spEditGoal({{ g|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('student_productivity_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_goal"><input type="hidden" name="page" value="goals">
+            <input type="hidden" name="item_id" value="{{ g.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No goals yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'ai' %}
+    <div class="panel">
+      <h3>AI Study Assist</h3>
+      <p class="meta" style="color:var(--muted);font-size:13px">Summarize notes, generate quiz questions, or build a revision plan. Uses your OpenAI key from Settings (demo mode without key).</p>
+      <form method="post" action="{{ url_for('student_productivity_action') }}">
+        <input type="hidden" name="action" value="sp_ai_generate"><input type="hidden" name="page" value="ai">
+        <div class="field"><label>Mode</label>
+          <select name="kind">
+            <option value="summarize">Summarize my notes</option>
+            <option value="quiz">Generate quiz questions</option>
+            <option value="explain">Explain a concept simply</option>
+            <option value="plan">Revision plan for this week</option>
+            <option value="general">General study help</option>
+          </select>
+        </div>
+        <div class="field"><label>Your input *</label><textarea name="prompt" rows="6" required placeholder="Paste lecture notes, a topic, or what you need help with…"></textarea></div>
+        <button class="btn btn-primary" type="submit">Generate</button>
+        {% if not data.settings.openai_user_key %}<p class="meta" style="margin-top:8px;color:var(--warn)">No API key set — demo text will be returned. Add a key in Settings for real AI.</p>{% endif %}
+      </form>
+    </div>
+    {% for a in (data.ai_log or [])[:6] %}
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <h3 style="margin:0">{{ a.kind }} · {{ a.created_at[:16] if a.created_at else '' }}</h3>
+        <button type="button" class="btn btn-sm btn-primary" onclick="navigator.clipboard&&navigator.clipboard.writeText(this.getAttribute('data-txt'));this.textContent='Copied!'" data-txt="{{ a.result|e }}">Copy</button>
+      </div>
+      <p class="meta" style="white-space:pre-wrap;font-size:13px;margin-top:10px">{{ a.result }}</p>
+    </div>
+    {% endfor %}
+
+    {% elif page == 'search' %}
+    <div class="panel">
+      <h3>Results for “{{ q }}”</h3>
+      {% if search_hits %}
+      <ul style="margin:0;padding-left:18px">
+        {% for h in search_hits %}
+        <li style="margin:8px 0"><span class="badge">{{ h.kind }}</span> <a href="{{ url_for('student_productivity', page=h.page) }}"><b>{{ h.title }}</b></a></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="empty">No results found for “{{ q }}”</div>
+      {% endif %}
+    </div>
+
+    {% elif page == 'settings' %}
+    <div class="grid2">
+      <div class="panel">
+        <h3>Preferences</h3>
+        <form method="post" action="{{ url_for('student_productivity_action') }}">
+          <input type="hidden" name="action" value="save_sp_settings"><input type="hidden" name="page" value="settings">
+          <div class="field"><label>Semester label</label><input name="semester" value="{{ data.settings.semester or '' }}" placeholder="Fall 2026"></div>
+          <div class="field"><label>Target GPA</label><input name="target_gpa" value="{{ data.settings.target_gpa or '' }}" placeholder="3.5"></div>
+          <div class="field"><label>Timezone</label>
+            <select name="timezone">
+              {% for tz in ['Asia/Dhaka','Asia/Kolkata','UTC','America/New_York','Europe/London','Asia/Dubai','Asia/Singapore'] %}
+              <option value="{{ tz }}" {% if data.settings.timezone==tz %}selected{% endif %}>{{ tz }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field"><label>Week starts on</label>
+            <select name="week_starts_on">
+              <option value="6" {% if data.settings.week_starts_on==6 %}selected{% endif %}>Saturday</option>
+              <option value="0" {% if data.settings.week_starts_on==0 %}selected{% endif %}>Sunday</option>
+              <option value="1" {% if data.settings.week_starts_on in [1, none] %}selected{% endif %}>Monday</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" type="submit">Save settings</button>
+        </form>
+        <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+        <h3>OpenAI API key</h3>
+        <form method="post" action="{{ url_for('student_productivity_action') }}">
+          <input type="hidden" name="action" value="save_sp_openai_key"><input type="hidden" name="page" value="settings">
+          <div class="field"><label>API key</label><input type="password" name="openai_user_key" placeholder="sk-... or clear" value=""></div>
+          <p style="font-size:12px;color:var(--muted)">Status: {% if data.settings.openai_user_key %}<span class="badge">Configured</span>{% else %}<span class="badge" style="background:#fef2f2;color:#991b1b">Not configured</span>{% endif %}</p>
+          <button class="btn btn-primary" type="submit">Save key</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h3>Backup &amp; Export</h3>
+        <form method="post" action="{{ url_for('student_productivity_action') }}" style="margin-bottom:12px">
+          <input type="hidden" name="action" value="export_sp"><input type="hidden" name="page" value="settings">
+          <button class="btn btn-primary" type="submit">Download JSON backup</button>
+        </form>
+        <form method="post" action="{{ url_for('student_productivity_action') }}" enctype="multipart/form-data">
+          <input type="hidden" name="action" value="import_sp"><input type="hidden" name="page" value="settings">
+          <div class="field"><label>Import &amp; merge</label><input type="file" name="file" accept=".json,application/json"></div>
+          <button class="btn" type="submit">Import &amp; merge</button>
+        </form>
+      </div>
+    </div>
+
+    {% else %}
+    <div class="panel"><div class="empty">Page not found.</div></div>
+    {% endif %}
+  </div>
+</main>
+
+{% macro class_options(selected='') %}
+<option value="">— Select class —</option>
+{% for c in data.classes %}<option value="{{ c.id }}" {% if selected==c.id %}selected{% endif %}>{{ c.name }}{% if c.code %} ({{ c.code }}){% endif %}</option>{% endfor %}
+{% endmacro %}
+
+<div class="modal-bg" id="modalClass"><div class="modal">
+  <h3 id="classModalTitle">Add class</h3>
+  <form method="post" action="{{ url_for('student_productivity_action') }}">
+    <input type="hidden" name="action" id="classAction" value="add_class"><input type="hidden" name="page" value="classes">
+    <input type="hidden" name="item_id" id="classId" value="">
+    <div class="field"><label>Name *</label><input name="name" id="className" required></div>
+    <div class="grid2">
+      <div class="field"><label>Code</label><input name="code" id="classCode" placeholder="CSE-101"></div>
+      <div class="field"><label>Credits</label><input name="credits" id="classCredits" placeholder="3"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Instructor</label><input name="instructor" id="classInstructor"></div>
+      <div class="field"><label>Status</label><select name="status" id="classStatus"><option>Active</option><option>Completed</option><option>Dropped</option></select></div>
+    </div>
+    <div class="field"><label>Schedule</label><input name="schedule" id="classSchedule" placeholder="Mon/Wed 10:00"></div>
+        <div class="field" style="grid-column:1/-1"><label>Syllabus / topics</label><textarea name="syllabus" rows="3" placeholder="Week-by-week topics, textbooks, links…"></textarea></div>
+
+    <div class="field"><label>Semester</label><input name="semester" id="classSemester" value="{{ data.settings.semester or '' }}"></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="spClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<div class="modal-bg" id="modalAssignment"><div class="modal">
+  <h3 id="asgModalTitle">Add assignment</h3>
+  <form method="post" action="{{ url_for('student_productivity_action') }}">
+    <input type="hidden" name="action" id="asgAction" value="add_assignment"><input type="hidden" name="page" value="assignments">
+    <input type="hidden" name="item_id" id="asgId" value="">
+    <div class="field"><label>Title *</label><input name="title" id="asgTitle" required></div>
+    <div class="grid2">
+      <div class="field"><label>Class</label><select name="class_id" id="asgClass">{{ class_options() }}</select></div>
+      <div class="field"><label>Due date</label><input type="date" name="due" id="asgDue"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Status</label><select name="status" id="asgStatus"><option>Todo</option><option>Doing</option><option>Done</option><option>Overdue</option></select></div>
+      <div class="field"><label>Priority</label><select name="priority" id="asgPriority"><option>Low</option><option selected>Medium</option><option>High</option></select></div>
+    </div>
+    <div class="field"><label>Grade</label><input name="grade" id="asgGrade" placeholder="Optional"></div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="asgNotes" rows="2"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="spClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<div class="modal-bg" id="modalExam"><div class="modal">
+  <h3 id="examModalTitle">Add exam</h3>
+  <form method="post" action="{{ url_for('student_productivity_action') }}">
+    <input type="hidden" name="action" id="examAction" value="add_exam"><input type="hidden" name="page" value="exams">
+    <input type="hidden" name="item_id" id="examId" value="">
+    <div class="field"><label>Title *</label><input name="title" id="examTitle" required></div>
+    <div class="grid2">
+      <div class="field"><label>Class</label><select name="class_id" id="examClass">{{ class_options() }}</select></div>
+      <div class="field"><label>Date</label><input type="date" name="date" id="examDate"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Location</label><input name="location" id="examLocation"></div>
+      <div class="field"><label>Status</label><select name="status" id="examStatus"><option>Upcoming</option><option>Completed</option><option>Missed</option></select></div>
+    </div>
+    <div class="field"><label>Score</label><input name="score" id="examScore" placeholder="Optional"></div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="examNotes" rows="2"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="spClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<div class="modal-bg" id="modalNote"><div class="modal">
+  <h3 id="noteModalTitle">Add note</h3>
+  <form method="post" action="{{ url_for('student_productivity_action') }}">
+    <input type="hidden" name="action" id="noteAction" value="add_note"><input type="hidden" name="page" value="notes">
+    <input type="hidden" name="item_id" id="noteId" value="">
+    <div class="field"><label>Title *</label><input name="title" id="noteTitle" required></div>
+    <div class="grid2">
+      <div class="field"><label>Class</label><select name="class_id" id="noteClass">{{ class_options() }}</select></div>
+      <div class="field"><label>Tags</label><input name="tags" id="noteTags" placeholder="lecture, revision"></div>
+    </div>
+    <div class="field"><label>Body</label><textarea name="body" id="noteBody" rows="6"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="spClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<div class="modal-bg" id="modalPlan"><div class="modal">
+  <h3 id="planModalTitle">Add plan item</h3>
+  <form method="post" action="{{ url_for('student_productivity_action') }}">
+    <input type="hidden" name="action" id="planAction" value="add_plan"><input type="hidden" name="page" value="schedule">
+    <input type="hidden" name="item_id" id="planId" value="">
+    <div class="field"><label>Title *</label><input name="title" id="planTitle" required></div>
+    <div class="grid2">
+      <div class="field"><label>Class</label><select name="class_id" id="planClass">{{ class_options() }}</select></div>
+      <div class="field"><label>Day</label><select name="day" id="planDay"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option><option>Any day</option></select></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Duration (min)</label><input name="duration" id="planDuration" placeholder="60"></div>
+      <div class="field"><label>Status</label><select name="status" id="planStatus"><option>Planned</option><option>Done</option><option>Skipped</option></select></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="planNotes" rows="2"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="spClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<div class="modal-bg" id="modalResource"><div class="modal">
+  <h3 id="resModalTitle">Add resource</h3>
+  <form method="post" action="{{ url_for('student_productivity_action') }}">
+    <input type="hidden" name="action" id="resAction" value="add_resource"><input type="hidden" name="page" value="resources">
+    <input type="hidden" name="item_id" id="resId" value="">
+    <div class="field"><label>Title *</label><input name="title" id="resTitle" required></div>
+    <div class="grid2">
+      <div class="field"><label>Type</label><select name="type" id="resType"><option>Link</option><option>PDF</option><option>Video</option><option>Other</option></select></div>
+      <div class="field"><label>Class</label><select name="class_id" id="resClass">{{ class_options() }}</select></div>
+    </div>
+    <div class="field"><label>URL</label><input name="url" id="resUrl" placeholder="https://"></div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="resNotes" rows="2"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="spClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<div class="modal-bg" id="modalSession"><div class="modal">
+  <h3 id="sesModalTitle">Log study session</h3>
+  <form method="post" action="{{ url_for('student_productivity_action') }}">
+    <input type="hidden" name="action" id="sesAction" value="add_session"><input type="hidden" name="page" value="sessions">
+    <input type="hidden" name="item_id" id="sesId" value="">
+    <div class="grid2">
+      <div class="field"><label>Date</label><input type="date" name="date" id="sesDate" value="{{ today }}"></div>
+      <div class="field"><label>Minutes *</label><input name="minutes" id="sesMinutes" required placeholder="45"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Class</label><select name="class_id" id="sesClass">{{ class_options() }}</select></div>
+      <div class="field"><label>Topic</label><input name="topic" id="sesTopic"></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="sesNotes" rows="2"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="spClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+
+<div class="modal-bg" id="modalFlash"><div class="modal">
+  <h3 id="flashModalTitle">Add flashcard</h3>
+  <form method="post" action="{{ url_for('student_productivity_action') }}">
+    <input type="hidden" name="action" id="flashAction" value="add_flash"><input type="hidden" name="page" value="flashcards">
+    <input type="hidden" name="item_id" id="flashId" value="">
+    <div class="field"><label>Front *</label><input name="front" id="flashFront" required placeholder="Question or term"></div>
+    <div class="field"><label>Back *</label><textarea name="back" id="flashBack" rows="3" required placeholder="Answer or definition"></textarea></div>
+    <div class="field"><label>Class</label><select name="class_id" id="flashClass">{{ class_options() }}</select></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="spClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+<div class="modal-bg" id="modalAttendance"><div class="modal">
+  <h3>Log attendance</h3>
+  <form method="post" action="{{ url_for('student_productivity_action') }}">
+    <input type="hidden" name="action" value="add_attendance"><input type="hidden" name="page" value="attendance">
+    <div class="field"><label>Class *</label><select name="class_id" required>{{ class_options() }}</select></div>
+    <div class="grid2">
+      <div class="field"><label>Date</label><input type="date" name="date" value="{{ today }}"></div>
+      <div class="field"><label>Status</label><select name="status"><option>Present</option><option>Absent</option><option>Late</option></select></div>
+    </div>
+    <div class="field"><label>Note</label><input name="note" placeholder="Optional"></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="spClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+<div class="modal-bg" id="modalGoal"><div class="modal">
+  <h3 id="goalModalTitle">Add goal</h3>
+  <form method="post" action="{{ url_for('student_productivity_action') }}">
+    <input type="hidden" name="action" id="goalAction" value="add_goal"><input type="hidden" name="page" value="goals">
+    <input type="hidden" name="item_id" id="goalId" value="">
+    <div class="field"><label>Title *</label><input name="title" id="goalTitle" required></div>
+    <div class="grid2">
+      <div class="field"><label>Target date</label><input type="date" name="target_date" id="goalDate"></div>
+      <div class="field"><label>Progress %</label><input name="progress" id="goalProgress" placeholder="0"></div>
+    </div>
+    <div class="field"><label>Status</label><select name="status" id="goalStatus"><option>Open</option><option>Doing</option><option>Done</option></select></div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="goalNotes" rows="2"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="spClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+<script>
+function spOpen(id){ document.getElementById(id).classList.add('open'); }
+function spClose(){ document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open')); }
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click', e=>{ if(e.target===bg) spClose(); });
+});
+(function(){
+  const el=document.getElementById('spNav'); if(!el) return;
+  const k='sp_nav_scroll';
+  const v=sessionStorage.getItem(k); if(v) el.scrollTop=parseInt(v,10)||0;
+  el.addEventListener('scroll',()=>sessionStorage.setItem(k, String(el.scrollTop)));
+})();
+
+function spEditClass(c){
+  document.getElementById('classModalTitle').textContent='Edit class';
+  document.getElementById('classAction').value='update_class';
+  document.getElementById('classId').value=c.id||'';
+  document.getElementById('className').value=c.name||'';
+  document.getElementById('classCode').value=c.code||'';
+  document.getElementById('classCredits').value=c.credits||'';
+  document.getElementById('classInstructor').value=c.instructor||'';
+  document.getElementById('classStatus').value=c.status||'Active';
+  document.getElementById('classSchedule').value=c.schedule||'';
+  document.getElementById('classSemester').value=c.semester||'';
+  spOpen('modalClass');
+}
+function spEditAssignment(a){
+  document.getElementById('asgModalTitle').textContent='Edit assignment';
+  document.getElementById('asgAction').value='update_assignment';
+  document.getElementById('asgId').value=a.id||'';
+  document.getElementById('asgTitle').value=a.title||'';
+  document.getElementById('asgClass').value=a.class_id||'';
+  document.getElementById('asgDue').value=a.due||'';
+  document.getElementById('asgStatus').value=a.status||'Todo';
+  document.getElementById('asgPriority').value=a.priority||'Medium';
+  document.getElementById('asgGrade').value=a.grade||'';
+  document.getElementById('asgNotes').value=a.notes||'';
+  spOpen('modalAssignment');
+}
+function spEditExam(e){
+  document.getElementById('examModalTitle').textContent='Edit exam';
+  document.getElementById('examAction').value='update_exam';
+  document.getElementById('examId').value=e.id||'';
+  document.getElementById('examTitle').value=e.title||'';
+  document.getElementById('examClass').value=e.class_id||'';
+  document.getElementById('examDate').value=e.date||'';
+  document.getElementById('examLocation').value=e.location||'';
+  document.getElementById('examStatus').value=e.status||'Upcoming';
+  document.getElementById('examScore').value=e.score||'';
+  document.getElementById('examNotes').value=e.notes||'';
+  spOpen('modalExam');
+}
+function spEditNote(n){
+  document.getElementById('noteModalTitle').textContent='Edit note';
+  document.getElementById('noteAction').value='update_note';
+  document.getElementById('noteId').value=n.id||'';
+  document.getElementById('noteTitle').value=n.title||'';
+  document.getElementById('noteClass').value=n.class_id||'';
+  document.getElementById('noteTags').value=n.tags||'';
+  document.getElementById('noteBody').value=n.body||'';
+  spOpen('modalNote');
+}
+function spEditPlan(p){
+  document.getElementById('planModalTitle').textContent='Edit plan item';
+  document.getElementById('planAction').value='update_plan';
+  document.getElementById('planId').value=p.id||'';
+  document.getElementById('planTitle').value=p.title||'';
+  document.getElementById('planClass').value=p.class_id||'';
+  document.getElementById('planDay').value=p.day||'Monday';
+  document.getElementById('planDuration').value=p.duration||'';
+  document.getElementById('planStatus').value=p.status||'Planned';
+  document.getElementById('planNotes').value=p.notes||'';
+  spOpen('modalPlan');
+}
+function spEditResource(r){
+  document.getElementById('resModalTitle').textContent='Edit resource';
+  document.getElementById('resAction').value='update_resource';
+  document.getElementById('resId').value=r.id||'';
+  document.getElementById('resTitle').value=r.title||'';
+  document.getElementById('resType').value=r.type||'Link';
+  document.getElementById('resClass').value=r.class_id||'';
+  document.getElementById('resUrl').value=r.url||'';
+  document.getElementById('resNotes').value=r.notes||'';
+  spOpen('modalResource');
+}
+function spEditSession(s){
+  document.getElementById('sesModalTitle').textContent='Edit session';
+  document.getElementById('sesAction').value='update_session';
+  document.getElementById('sesId').value=s.id||'';
+  document.getElementById('sesDate').value=s.date||'';
+  document.getElementById('sesMinutes').value=s.minutes||'';
+  document.getElementById('sesClass').value=s.class_id||'';
+  document.getElementById('sesTopic').value=s.topic||'';
+  document.getElementById('sesNotes').value=s.notes||'';
+  spOpen('modalSession');
+}
+
+
+function spEditFlash(f){
+  document.getElementById('flashModalTitle').textContent='Edit flashcard';
+  document.getElementById('flashAction').value='update_flash';
+  document.getElementById('flashId').value=f.id||'';
+  document.getElementById('flashFront').value=f.front||'';
+  document.getElementById('flashBack').value=f.back||'';
+  document.getElementById('flashClass').value=f.class_id||'';
+  spOpen('modalFlash');
+}
+function spEditGoal(g){
+  document.getElementById('goalModalTitle').textContent='Edit goal';
+  document.getElementById('goalAction').value='update_goal';
+  document.getElementById('goalId').value=g.id||'';
+  document.getElementById('goalTitle').value=g.title||'';
+  document.getElementById('goalDate').value=g.target_date||'';
+  document.getElementById('goalProgress').value=g.progress||'0';
+  document.getElementById('goalStatus').value=g.status||'Open';
+  document.getElementById('goalNotes').value=g.notes||'';
+  spOpen('modalGoal');
+}
+
+(function(){
+  const input=document.getElementById('spSearchInput');
+  const form=document.getElementById('spSearchForm');
+  const dd=document.getElementById('spSearchDd');
+  const btn=document.getElementById('spSearchBtn');
+  if(!input||!form||!dd) return;
+  let timer=null;
+  const apiUrl="{{ url_for('student_productivity_search_api') }}";
+  function hide(){ dd.classList.remove('open'); dd.innerHTML=''; }
+  function esc(s){ return String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function showHits(results, q){
+    if(!q){ hide(); return; }
+    if(!results||!results.length){
+      dd.innerHTML='<div class="empty-hit">No results found for "'+esc(q)+'"</div>';
+      dd.classList.add('open'); return;
+    }
+    dd.innerHTML=results.map(r=>'<a class="hit" href="'+(r.url||'#')+'"><span class="k">'+esc(r.kind)+'</span><span>'+esc(r.title)+'</span></a>').join('');
+    dd.classList.add('open');
+  }
+  function runSearch(goFirst){
+    const q=(input.value||'').trim();
+    if(!q){ hide(); return; }
+    fetch(apiUrl+'?q='+encodeURIComponent(q), {credentials:'same-origin'})
+      .then(r=>r.json()).then(data=>{
+        const results=data.results||[];
+        showHits(results, q);
+        if(goFirst && results.length===1) window.location.href=results[0].url;
+      }).catch(()=>form.submit());
+  }
+  input.addEventListener('input', ()=>{ clearTimeout(timer); timer=setTimeout(()=>runSearch(false), 220); });
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); runSearch(true);} else if(e.key==='Escape') hide(); });
+  form.addEventListener('submit', e=>{ e.preventDefault(); runSearch(true); });
+  if(btn) btn.addEventListener('click', e=>{ e.preventDefault(); runSearch(true); });
+  document.addEventListener('click', e=>{ if(!dd.contains(e.target) && e.target!==input && e.target!==btn) hide(); });
+})();
+</script>
+</body>
+</html>

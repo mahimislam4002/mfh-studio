@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ module.name }} · Ultimate Second Brain</title>
+<style>
+:root{
+  --navy:#0b1220; --navy2:#111827; --violet:#4f46e5; --violet2:#6366f1;
+  --canvas:#eef1f6; --paper:#ffffff; --ink:#0f172a; --muted:#64748b;
+  --line:#e2e8f0; --shadow:0 8px 28px rgba(15,23,42,.08);
+}
+*{box-sizing:border-box} body{margin:0;background:var(--canvas);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:inherit} button,input,select,textarea{font:inherit}
+.shell{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+.side{background:var(--navy);color:#e2e8f0;height:100vh;position:sticky;top:0;display:flex;flex-direction:column}
+.side-brand{flex:none;padding:18px 16px 12px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.side-brand a{text-decoration:none;color:#fff;display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;letter-spacing:-.2px}
+.mark{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:grid;place-items:center;font-size:16px}
+.side-scroll{flex:1;overflow-y:auto;padding:12px 10px 16px;scrollbar-width:thin;scrollbar-color:#334155 transparent}
+.side-scroll::-webkit-scrollbar{width:5px}
+.side-scroll::-webkit-scrollbar-thumb{background:#334155;border-radius:8px}
+.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#64748b;font-weight:700;padding:12px 10px 6px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:10px;color:#94a3b8;text-decoration:none;font-size:13px;margin-bottom:2px}
+.nav a:hover{background:rgba(255,255,255,.06);color:#e2e8f0}
+.nav a.active{background:rgba(99,102,241,.22);color:#fff;font-weight:600}
+.nav .glyph{width:18px;text-align:center;font-size:14px}
+.nav .badge{margin-left:auto;font-size:10px;background:rgba(255,255,255,.08);padding:2px 7px;border-radius:999px;color:#cbd5e1}
+.side-foot{flex:none;border-top:1px solid rgba(255,255,255,.08);padding:12px 14px;display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;border-radius:50%;background:#334155;display:grid;place-items:center;font-weight:700;font-size:12px;overflow:hidden;color:#fff}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.side-foot .meta{flex:1;min-width:0}
+.side-foot .meta strong{display:block;font-size:12px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-foot .meta span{font-size:10px;color:#94a3b8}
+.exit-btn{border:0;background:#1e293b;color:#e2e8f0;border-radius:8px;padding:7px 10px;font-size:11px;text-decoration:none}
+.main{min-width:0;padding:22px clamp(16px,3vw,40px) 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.back{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;text-decoration:none;font-size:13px;color:var(--ink)}
+.hero{background:linear-gradient(135deg,#0f172a 0%,#312e81 55%,#4f46e5 100%);color:#fff;border-radius:22px;padding:28px 26px;margin-bottom:18px;box-shadow:var(--shadow)}
+.hero h1{margin:0 0 6px;font-size:1.55rem;letter-spacing:-.3px}
+.hero p{margin:0;color:#c7d2fe;max-width:56ch}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+.pills a{padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.12);color:#e0e7ff;text-decoration:none;font-size:12px;font-weight:600}
+.pills a:hover,.pills a.active{background:#fff;color:#312e81}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.kpi{display:block;text-decoration:none;background:linear-gradient(180deg,#1e293b,#0f172a);color:#fff;border-radius:16px;padding:16px;border:1px solid #334155}
+.kpi span{display:block;color:#94a3b8;font-size:12px}
+.kpi b{display:block;font-size:1.55rem;margin-top:4px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 4px 16px rgba(15,23,42,.04)}
+.panel h2,.panel h3{margin:0 0 12px;font-size:1.05rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.row input,.row select,.row textarea, .field input,.field select,.field textarea{
+  border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:#f8fafc;min-width:140px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;flex:1}
+.field label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.btn{border:0;border-radius:10px;padding:9px 14px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--violet2);color:#fff}
+.btn-outline{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn-sm{padding:6px 10px;font-size:12px}
+.list{list-style:none;padding:0;margin:0}
+.list li{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #f1f5f9}
+.list li:last-child{border-bottom:0}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#4338ca}
+.badge.high{background:#fef2f2;color:#b91c1c}
+.badge.low{background:#f0fdf4;color:#15803d}
+.muted{color:var(--muted);font-size:13px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.progress{height:8px;background:#e2e8f0;border-radius:6px;overflow:hidden;margin-top:8px}
+.progress i{display:block;height:100%;background:var(--violet2)}
+.board{display:grid;grid-template-columns:repeat(5,minmax(160px,1fr));gap:10px;overflow-x:auto}
+.col{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:10px;min-height:180px}
+.col h4{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.card-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;font-size:13px}
+.habit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.habit-cell{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;background:#f8fafc}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-cell{border:1px solid var(--line);border-radius:8px;padding:8px;min-height:64px;background:#fff;font-size:11px}
+.flash{padding:10px 14px;border-radius:10px;margin-bottom:12px;background:#eef2ff;color:#3730a3}
+@media(max-width:900px){.shell{grid-template-columns:1fr}.side{position:relative;height:auto}.board{grid-template-columns:repeat(2,minmax(140px,1fr))}}
+
+.sb-search-wrap{position:relative;width:100%;max-width:560px;margin-bottom:14px}
+.sb-search-row{display:flex;align-items:center;gap:10px;width:100%}
+.sb-search-row input,
+.sb-search-row input[type="text"],
+.sb-search-row input[type="search"]{
+  flex:1 1 auto;min-width:0;width:100%;height:42px;box-sizing:border-box;margin:0;padding:0 16px;
+  border:1.5px solid var(--line);border-radius:12px;background:#fff;font:inherit;font-size:14px;
+  line-height:42px;color:var(--ink);outline:none
+}
+.sb-search-row input:focus{
+  border-color:var(--violet2);box-shadow:0 0 0 3px rgba(99,102,241,.15)
+}
+.sb-search-row .btn-search{
+  flex:0 0 auto;height:42px;box-sizing:border-box;margin:0;padding:0 20px;border-radius:12px;
+  display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;
+  white-space:nowrap;background:var(--violet2)!important;color:#fff!important;border:0!important
+}
+.sb-search-drop{
+  display:none;position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:50;
+  background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 40px rgba(15,23,42,.14);
+  max-height:360px;overflow-y:auto
+}
+.sb-search-drop.open{display:block}
+.sb-search-drop .item{
+  display:block;padding:10px 14px;text-decoration:none;color:inherit;border-bottom:1px solid var(--line)
+}
+.sb-search-drop .item:last-child{border-bottom:0}
+.sb-search-drop .item:hover,.sb-search-drop .item:focus{background:#f1f5f9}
+.sb-search-drop .kind{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--accent);letter-spacing:.04em}
+.sb-search-drop .title{font-size:13px;font-weight:600;color:var(--ink)}
+.sb-search-drop .snip{font-size:12px;color:var(--muted);margin-top:2px}
+.sb-search-drop .empty{padding:14px;color:var(--muted);font-size:13px}
+.sb-toast{
+  position:fixed;bottom:24px;right:24px;z-index:100;background:#0f172a;color:#fff;
+  padding:12px 18px;border-radius:12px;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.25);
+  opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none
+}
+.sb-toast.show{opacity:1;transform:translateY(0)}
+.habit-cell.interactive{cursor:pointer;user-select:none;transition:.15s}
+.habit-cell.interactive:hover{border-color:var(--accent);background:#eef2ff}
+.habit-cell.interactive.on{background:#ecfdf5;border-color:#6ee7b7}
+
+
+.btn-danger{color:#b91c1c;border-color:#fecaca;background:#fef2f2}
+.btn-danger:hover{background:#fee2e2}
+.list .empty-msg{padding:20px;text-align:center;color:var(--muted)}
+.edit-panel{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.edit-panel.open{display:block}
+.board{min-width:0;max-width:100%}
+.board .col{min-width:0}
+.content-board-fix{max-width:100%;overflow-x:hidden}
+
+/* —— Unified form row alignment (fixes thin/thick mismatch) —— */
+.form-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.form-row > input[type="text"],
+.form-row > input[type="date"],
+.form-row > input[type="url"],
+.form-row > input[type="number"],
+.form-row > input[type="search"],
+.form-row > select,
+.form-row > button,
+.form-row > .btn{
+  height:42px;box-sizing:border-box;margin:0;
+  border:1.5px solid var(--line);border-radius:12px;
+  padding:0 12px;background:#f8fafc;font:inherit;line-height:40px;
+  display:inline-flex;align-items:center
+}
+.form-row > input[type="text"],
+.form-row > input[type="date"],
+.form-row > input[type="url"],
+.form-row > input[type="number"]{min-width:0}
+.form-row > select{padding-right:28px;cursor:pointer}
+.form-row > .btn,
+.form-row > button.btn{
+  border:0;background:var(--violet2);color:#fff;font-weight:600;cursor:pointer;
+  padding:0 16px;line-height:42px;white-space:nowrap;flex-shrink:0
+}
+.form-row > .btn-outline{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.form-row > .btn-danger{background:#fef2f2;border:1.5px solid #fecaca;color:#b91c1c}
+.form-row .grow{flex:1 1 160px}
+.field-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field-pair .field input,
+.field-pair .field select{height:42px;box-sizing:border-box;width:100%;border:1.5px solid var(--line);border-radius:12px;padding:0 12px;background:#f8fafc}
+.field-triple{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.field-triple .field input,
+.field-triple .field select{height:42px;box-sizing:border-box;width:100%;border:1.5px solid var(--line);border-radius:12px;padding:0 12px;background:#f8fafc}
+.inline-pair{display:inline-flex;align-items:center;gap:8px}
+.inline-pair input[type="number"],
+.inline-pair input[type="text"]{height:36px;width:72px;box-sizing:border-box;border:1.5px solid var(--line);border-radius:10px;padding:0 10px;background:#f8fafc}
+.inline-pair .btn{height:36px;padding:0 12px;line-height:36px}
+/* Button roles */
+.btn-danger{background:#fef2f2!important;border:1px solid #fecaca!important;color:#b91c1c!important}
+.btn-danger:hover{background:#fee2e2!important}
+.btn-edit{background:#eef2ff!important;border:1px solid #c7d2fe!important;color:#3730a3!important}
+.btn-success{background:#ecfdf5!important;border:1px solid #a7f3d0!important;color:#047857!important}
+.btn-soft{background:#f1f5f9!important;border:1px solid #e2e8f0!important;color:#334155!important}
+.btn-primary{background:var(--violet2)!important;color:#fff!important;border:0!important}
+.btn-outline{background:#fff!important;border:1px solid var(--line)!important;color:var(--ink)!important}
+.top-brand-dup{display:none!important}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.guide-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:0 4px 16px rgba(15,23,42,.04)}
+.guide-card h3{margin:0 0 8px;font-size:15px;display:flex;align-items:center;gap:8px}
+.guide-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.guide-card .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:800px){.settings-grid{grid-template-columns:1fr}.field-pair,.field-triple{grid-template-columns:1fr}}
+.settings-sub{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:16px}
+.file-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.file-row input[type="file"]{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.file-label{height:42px;display:inline-flex;align-items:center;padding:0 14px;border:1.5px dashed #94a3b8;border-radius:12px;background:#fff;cursor:pointer;font-size:13px;color:#334155}
+.file-label:hover{border-color:var(--violet2);color:var(--violet2)}
+.file-name{font-size:12px;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge-status{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;letter-spacing:.02em}
+.badge-status.on{background:#dcfce7;color:#166534}
+.badge-status.off{background:#ffedd5;color:#9a3412}
+.sb-key-row{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+.sb-key-row input[type="password"],
+.sb-key-row input[type="text"]{flex:1 1 auto;min-width:0;height:42px;border:1.5px solid var(--line);border-radius:12px;padding:0 12px;font:inherit;font-size:14px;box-sizing:border-box}
+.sb-key-row .btn{height:42px;flex:0 0 auto;white-space:nowrap;padding:0 16px}
+.prefs-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:8px}
+@media(max-width:800px){.prefs-grid{grid-template-columns:1fr}.sb-key-row{flex-wrap:wrap}}
+
+.card-item{overflow:hidden}
+.card-item{box-sizing:border-box;padding:12px!important}
+.card-item select{width:100%;max-width:100%;box-sizing:border-box;display:block}
+.board .col{min-width:0;overflow:hidden}
+
+.shortcut-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+.shortcut-row a{font-size:12px;padding:6px 12px;border-radius:999px;background:#eef2ff;color:#3730a3;text-decoration:none;font-weight:600}
+.shortcut-row a:hover{background:#e0e7ff}
+
+
+/* thin sidebar scrollbar */
+.sb-nav, .nav-scroll, aside .nav, #sbNav, .sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #475569 transparent;
+}
+.sb-nav::-webkit-scrollbar, .nav-scroll::-webkit-scrollbar, #sbNav::-webkit-scrollbar, .sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.sb-nav::-webkit-scrollbar-thumb, .nav-scroll::-webkit-scrollbar-thumb, #sbNav::-webkit-scrollbar-thumb {
+  background: #475569; border-radius: 4px;
+}
+</style>
+</head>
+<body>
+{% set uname = user.username if user else session.get('user') %}
+{% set dname = user.full_name if user and user.full_name else (user.username if user else session.get('user')) %}
+{% set photo = user.photo if user and user.photo else '' %}
+{% set initials = (dname or 'U')[:1]|upper %}
+
+<div class="shell">
+  <aside class="side">
+    <div class="side-brand">
+      <a href="{{ url_for('second_brain_entry') }}">
+        <span class="mark">🧠</span>
+        <span>Ultimate Second Brain</span>
+      </a>
+    </div>
+    <div class="side-scroll">
+      <div class="nav-label">Home</div>
+      <nav class="nav">
+        <a href="{{ url_for('second_brain', page='home') }}" class="{% if page=='home' %}active{% endif %}"><span class="glyph">⌂</span> Dashboard</a>
+        <a href="{{ url_for('second_brain', page='start-here') }}" class="{% if page=='start-here' %}active{% endif %}"><span class="glyph">★</span> Start Here</a>
+      </nav>
+      <div class="nav-label">Plan</div>
+      <nav class="nav">
+        <a href="{{ url_for('second_brain', page='planner') }}" class="{% if page=='planner' %}active{% endif %}"><span class="glyph">📅</span> Daily Planner</a>
+        <a href="{{ url_for('second_brain', page='weekly-review') }}" class="{% if page=='weekly-review' %}active{% endif %}"><span class="glyph">🗓</span> Weekly Review</a>
+        <a href="{{ url_for('second_brain', page='habits') }}" class="{% if page=='habits' %}active{% endif %}"><span class="glyph">✓</span> Habit Tracker</a>
+        <a href="{{ url_for('second_brain', page='goals') }}" class="{% if page=='goals' %}active{% endif %}"><span class="glyph">🎯</span> Goals</a>
+        <a href="{{ url_for('second_brain', page='projects') }}" class="{% if page=='projects' %}active{% endif %}"><span class="glyph">📁</span> Projects</a>
+        <a href="{{ url_for('second_brain', page='tasks') }}" class="{% if page=='tasks' %}active{% endif %}"><span class="glyph">☑</span> Tasks <span class="badge">{{ counts.open_tasks }}</span></a>
+      </nav>
+      <div class="nav-label">Capture & Learn</div>
+      <nav class="nav">
+        <a href="{{ url_for('second_brain', page='capture') }}" class="{% if page=='capture' %}active{% endif %}"><span class="glyph">⚡</span> Quick Capture <span class="badge">{{ counts.inbox }}</span></a>
+        <a href="{{ url_for('second_brain', page='notes') }}" class="{% if page=='notes' %}active{% endif %}"><span class="glyph">📝</span> Notes</a>
+        <a href="{{ url_for('second_brain', page='content') }}" class="{% if page=='content' %}active{% endif %}"><span class="glyph">🎬</span> Content Ideas</a>
+        <a href="{{ url_for('second_brain', page='resources') }}" class="{% if page=='resources' %}active{% endif %}"><span class="glyph">🔗</span> Resources</a>
+    <a class="nav {% if page=='templates' %}active{% endif %}" href="{{ url_for('second_brain', page='templates') }}"><span class="g">📦</span><span class="lbl">Templates</span></a>
+    <a class="nav {% if page=='focus' %}active{% endif %}" href="{{ url_for('second_brain', page='focus') }}"><span class="g">⏱</span><span class="lbl">Focus Timer</span></a>
+      </nav>
+      <div class="nav-label">Help</div>
+      <nav class="nav">
+        <a href="{{ url_for('second_brain', page='guide') }}" class="{% if page=='guide' %}active{% endif %}"><span class="glyph">?</span> User Guide</a>
+        <a href="{{ url_for('second_brain', page='databases') }}" class="{% if page=='databases' %}active{% endif %}"><span class="glyph">☰</span> All Databases</a>
+        <a href="{{ url_for('second_brain', page='settings') }}" class="{% if page=='settings' %}active{% endif %}"><span class="glyph">⚙</span> Settings & Export</a>
+      </nav>
+    </div>
+    <div class="side-foot">
+      <div class="avatar">{% if photo %}<img src="{{ photo }}" alt="">{% else %}{{ initials }}{% endif %}</div>
+      <div class="meta"><strong>{{ dname }}</strong><span>@{{ uname }}</span></div>
+      <a class="exit-btn" href="{{ url_for('dashboard') }}">Exit</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="sb-search-wrap" id="sbLiveSearch">
+      <div class="sb-search-row">
+        <input type="text" id="sbSearchInput" placeholder="Search tasks, notes, projects, goals…" autocomplete="off" value="{{ q or '' }}" spellcheck="false">
+        <button type="button" class="btn btn-primary btn-search" id="sbSearchBtn">Search</button>
+      </div>
+      <div class="sb-search-drop" id="sbSearchDrop" role="listbox"></div>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+        <div class="flash" data-flash style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <span>{{ msg }}</span>
+          <button type="button" class="btn btn-outline btn-sm" onclick="this.parentElement.remove()">Dismiss</button>
+        </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if page != 'home' %}
+    <div class="topbar">
+      <a class="back" href="javascript:history.back()">← Back</a>
+      <span class="muted">{{ module.name }}</span>
+    </div>
+    {% endif %}
+
+    {% if page == 'home' %}
+    <div class="hero">
+      <h1>🧠 Ultimate Second Brain</h1>
+      <p>Capture fast. Process later. Drive today from one workspace — tasks, projects, goals, habits, planner, and content.</p>
+      <div class="pills">
+        <a href="{{ url_for('second_brain', page='home') }}" class="active">Overview</a>
+        <a href="{{ url_for('second_brain', page='capture') }}">Inbox</a>
+        <a href="{{ url_for('second_brain', page='notes') }}">Notes</a>
+        <a href="{{ url_for('second_brain', page='tasks') }}">Tasks</a>
+        <a href="{{ url_for('second_brain', page='projects') }}">Projects</a>
+        <a href="{{ url_for('second_brain', page='goals') }}">Goals</a>
+        <a href="{{ url_for('second_brain', page='areas') }}">Areas</a>
+      </div>
+    </div>
+    <div class="kpis">
+      <a class="kpi" href="{{ url_for('second_brain', page='capture') }}"><span>Inbox</span><b>{{ counts.inbox }}</b></a>
+      <a class="kpi" href="{{ url_for('second_brain', page='tasks') }}"><span>Open tasks</span><b>{{ counts.open_tasks }}</b></a>
+      <a class="kpi" href="{{ url_for('second_brain', page='notes') }}"><span>Notes</span><b>{{ counts.notes }}</b></a>
+      <a class="kpi" href="{{ url_for('second_brain', page='projects') }}"><span>Active projects</span><b>{{ counts.active_projects }}</b></a>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Today's focus</h3>
+        <form method="POST" action="{{ url_for('second_brain_action') }}" class="form-row">
+          <input type="hidden" name="action" value="set_focus"><input type="hidden" name="page" value="home">
+          <input type="text" class="grow" name="daily_focus" value="{{ data.daily_focus or '' }}" placeholder="What matters most today?">
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h3>Quick capture</h3>
+        <form id="sbQuickCapture" method="POST" action="{{ url_for('second_brain_action') }}" class="form-row">
+          <input type="hidden" name="action" value="add_capture">
+          <input type="hidden" name="page" value="home">
+          <input type="text" class="grow" name="title" id="sbCaptureTitle" placeholder="Thought, task, idea, link…" required>
+          <select name="type"><option>Thought</option><option>Task</option><option>Idea</option><option>Link</option><option>Question</option></select>
+          <button class="btn btn-primary" type="submit">Capture</button>
+        </form>
+        <p id="sbCaptureMsg" class="muted" style="font-size:12px;margin:8px 0 0;display:none"></p>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Recent captures <span class="muted" style="font-weight:500;font-size:13px" id="sbInboxCountLabel">(inbox {{ counts.inbox }})</span></h3>
+      <ul class="list" id="sbRecentCaptures">
+        {% for c in recent_captures or [] %}
+        <li><div><div>{{ c.title }}</div><span class="badge">{{ c.type }}</span></div></li>
+        {% else %}
+        <li class="muted" id="sbRecentEmpty">No unprocessed captures yet.</li>
+        {% endfor %}
+      </ul>
+      <p style="margin-top:10px"><a href="{{ url_for('second_brain', page='capture') }}">Open inbox →</a></p>
+    </div>
+<div class="grid2">
+      <div class="panel">
+        <h3>Open tasks</h3>
+        <ul class="list">
+          {% for t in data.tasks if t.status != 'Done' %}
+            {% if loop.index <= 6 %}
+            <li>
+              <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="toggle_task_done"><input type="hidden" name="item_id" value="{{ t.id }}"><input type="hidden" name="page" value="home"><button class="btn btn-outline btn-sm" type="submit">✓</button></form>
+              <div><div>{{ t.title }}</div><span class="badge {% if t.priority=='High' %}high{% elif t.priority=='Low' %}low{% endif %}">{{ t.priority }}</span></div>
+            </li>
+            {% endif %}
+          {% else %}
+            <li class="muted">No open tasks.</li>
+          {% endfor %}
+        </ul>
+        <p style="margin-top:10px"><a href="{{ url_for('second_brain', page='tasks') }}">All tasks →</a></p>
+      </div>
+      <div class="panel">
+        <h3>Active projects</h3>
+        <ul class="list">
+          {% for p in data.projects if p.status not in ['Completed','done'] %}
+          <li><div><strong>{{ p.name }}</strong><div class="muted">{{ p.area }} · {{ p.status }}</div></div></li>
+          {% else %}<li class="muted">No active projects.</li>{% endfor %}
+        </ul>
+        <p style="margin-top:10px"><a href="{{ url_for('second_brain', page='projects') }}">All projects →</a></p>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Goals snapshot</h3>
+        {% for g in data.goals[:4] %}
+        <div style="margin-bottom:12px"><strong>{{ g.title }}</strong><div class="progress"><i style="width:{{ g.progress or 0 }}%"></i></div><span class="muted">{{ g.progress or 0 }}%</span></div>
+        {% else %}<p class="muted">No goals yet.</p>{% endfor %}
+        <a href="{{ url_for('second_brain', page='goals') }}">Goals →</a>
+      </div>
+      <div class="panel">
+        <h3>Habits today ({{ today }})</h3>
+        <div class="habit-grid" id="sbHabitGrid">
+          {% for h in data.habit_defs %}
+          <button type="button" class="habit-cell interactive {% if habit_today.get(h.id) %}on{% endif %}" data-habit-id="{{ h.id }}" aria-pressed="{{ 'true' if habit_today.get(h.id) else 'false' }}">
+            {{ h.label }}
+            <div class="habit-mark" style="margin-top:6px;font-size:18px">{% if habit_today.get(h.id) %}✅{% else %}⬜{% endif %}</div>
+          </button>
+          {% endfor %}
+        </div>
+        <p class="muted" style="margin-top:10px">Score: <span id="sbHabitScore">{{ habit_today.score or 0 }}</span>/6 · <a href="{{ url_for('second_brain', page='habits') }}">Full tracker →</a></p>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Daily planner</h3>
+        <p class="muted">Energy: {{ planner_today.energy or '—' }}</p>
+        <p>{{ planner_today.top3 or 'No priorities set.' }}</p>
+        <a href="{{ url_for('second_brain', page='planner') }}">Open planner →</a>
+      </div>
+      <div class="panel">
+        <h3>Content ideas</h3>
+        <ul class="list">
+          {% for c in data.content_ideas[:4] %}
+          <li><div>{{ c.idea }} <span class="badge">{{ c.status }}</span></div></li>
+          {% else %}<li class="muted">No content ideas.</li>{% endfor %}
+        </ul>
+        <a href="{{ url_for('second_brain', page='content') }}">Board →</a>
+      </div>
+    </div>
+
+    {% elif page == 'start-here' %}
+    <div class="panel">
+      <h2>Start Here</h2>
+      <p class="muted">A practical daily workflow for this workspace.</p>
+      <h3>Morning</h3>
+      <ol>
+        <li>Set Today's Focus on the dashboard.</li>
+        <li>Check Habits and mark what you will do.</li>
+        <li>Open Daily Planner — energy, Top 3, schedule notes.</li>
+        <li>Scan Tasks due today; move 1–3 into Top 3.</li>
+      </ol>
+      <div class="shortcut-row">
+        <a href="{{ url_for('second_brain', page='home') }}">🏠 Dashboard focus</a>
+        <a href="{{ url_for('second_brain', page='habits') }}">✓ Habits</a>
+        <a href="{{ url_for('second_brain', page='planner') }}">📅 Daily Planner</a>
+        <a href="{{ url_for('second_brain', page='tasks') }}">☑ Tasks</a>
+      </div>
+      <h3>During the day</h3>
+      <ol>
+        <li>Use Quick Capture for anything that pops up — do not organize mid-flow.</li>
+        <li>Work tasks by priority and context (Deep Work vs Quick Win).</li>
+        <li>Park content ideas on the Content board without polishing.</li>
+      </ol>
+      <div class="shortcut-row">
+        <a href="{{ url_for('second_brain', page='capture') }}">⚡ Quick Capture</a>
+        <a href="{{ url_for('second_brain', page='tasks') }}">☑ Tasks</a>
+        <a href="{{ url_for('second_brain', page='content') }}">🎬 Content Ideas</a>
+      </div>
+      <h3>Evening</h3>
+      <ol>
+        <li>Process Inbox: convert to Task / Note or mark processed.</li>
+        <li>Log Wins in Daily Planner; update Habit checkboxes.</li>
+        <li>Move finished tasks to Done; nudge project status if needed.</li>
+      </ol>
+      <div class="shortcut-row">
+        <a href="{{ url_for('second_brain', page='capture') }}">⚡ Process Inbox</a>
+        <a href="{{ url_for('second_brain', page='planner') }}">📅 Log wins</a>
+        <a href="{{ url_for('second_brain', page='projects') }}">📁 Projects</a>
+      </div>
+      <h3>Weekly</h3>
+      <p>Open Weekly Review: wins, lessons, next-week plan, rating. Adjust Goals progress and archive completed projects.</p>
+      <div class="shortcut-row">
+        <a href="{{ url_for('second_brain', page='weekly-review') }}">🗓 Weekly Review</a>
+        <a href="{{ url_for('second_brain', page='goals') }}">🎯 Goals</a>
+        <a href="{{ url_for('second_brain', page='projects') }}">📁 Archive projects</a>
+      </div>
+    </div>
+
+    {% elif page == 'capture' %}
+    <div class="panel">
+      <h2>Quick Capture</h2>
+      <div class="row" style="margin-bottom:12px">
+        <a class="btn btn-sm {% if not status_f %}btn-primary{% else %}btn-outline{% endif %}" href="{{ url_for('second_brain', page='capture') }}">All</a>
+        <a class="btn btn-sm {% if status_f in ['open','unprocessed'] %}btn-primary{% else %}btn-outline{% endif %}" href="{{ url_for('second_brain', page='capture', status='unprocessed') }}">Unprocessed</a>
+        <a class="btn btn-sm {% if status_f=='processed' %}btn-primary{% else %}btn-outline{% endif %}" href="{{ url_for('second_brain', page='capture', status='processed') }}">Processed</a>
+      </div>
+      <form method="POST" action="{{ url_for('second_brain_action') }}" class="form-row" style="margin-bottom:14px">
+        <input type="hidden" name="action" value="add_capture"><input type="hidden" name="page" value="capture">
+        <input type="text" class="grow" name="title" placeholder="Capture anything…" required>
+        <select name="type"><option>Thought</option><option>Task</option><option>Idea</option><option>Link</option><option>Question</option></select>
+        <button class="btn btn-primary" type="submit">Add</button>
+      </form>
+      {% set shown = namespace(n=0) %}
+      <ul class="list">
+        {% for c in data.captures %}
+        {% if (status_f not in ['open','unprocessed'] or not c.processed) and (status_f != 'processed' or c.processed) %}
+        {% set shown.n = shown.n + 1 %}
+        <li>
+          <div style="flex:1"><strong>{{ c.title }}</strong><div class="muted">{{ c.type }} · {{ c.captured|sb_time }}{% if c.processed %} · processed{% endif %}</div></div>
+          {% if not c.processed %}
+          <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="mark_capture_done"><input type="hidden" name="item_id" value="{{ c.id }}"><input type="hidden" name="page" value="capture"><button class="btn btn-success btn-sm" type="submit" title="Mark done">✓ Done</button></form>
+          {% endif %}
+          <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="capture_to_task"><input type="hidden" name="item_id" value="{{ c.id }}"><input type="hidden" name="page" value="capture"><button class="btn btn-soft btn-sm" type="submit">→ Task</button></form>
+          <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="capture_to_note"><input type="hidden" name="item_id" value="{{ c.id }}"><input type="hidden" name="page" value="capture"><button class="btn btn-soft btn-sm" type="submit">→ Note</button></form>
+          <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="toggle_capture_processed"><input type="hidden" name="item_id" value="{{ c.id }}"><input type="hidden" name="page" value="capture"><button class="btn btn-soft btn-sm" type="submit">{% if c.processed %}Unprocess{% else %}Processed{% endif %}</button></form>
+          <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="delete_capture"><input type="hidden" name="item_id" value="{{ c.id }}"><input type="hidden" name="page" value="capture"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete this capture permanently?')">Delete</button></form>
+        </li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+      {% if shown.n == 0 %}
+      <p class="list empty-msg">{% if status_f=='processed' %}No processed items yet.{% elif status_f in ['open','unprocessed'] %}No unprocessed items.{% else %}Inbox empty.{% endif %}</p>
+      {% endif %}
+    </div>
+
+    {% elif page == 'tasks' %}
+    <div class="panel">
+      <h2>Tasks</h2>
+      <div style="margin:0 0 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <a class="btn btn-soft btn-sm" href="{{ url_for('second_brain', page='tasks') }}">Active</a>
+        <a class="btn btn-soft btn-sm" href="{{ url_for('second_brain', page='tasks', archived='1') }}">Archived</a>
+        <form method="POST" action="{{ url_for('second_brain_action') }}" style="display:inline">
+          <input type="hidden" name="action" value="process_recurring_tasks"><input type="hidden" name="page" value="tasks">
+          <button class="btn btn-soft btn-sm" type="submit">Process recurring</button>
+        </form>
+      </div>
+      <form method="POST" action="{{ url_for('second_brain_action') }}" id="bulkTaskForm">
+        <input type="hidden" name="action" value="bulk_tasks"><input type="hidden" name="page" value="tasks">
+        <div style="margin:0 0 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <select name="bulk_op" style="padding:6px 10px;border-radius:8px;border:1px solid #e2e8f0">
+            <option value="complete">Mark Done</option>
+            <option value="todo">Mark Todo</option>
+            <option value="archive">Archive</option>
+            <option value="delete">Delete</option>
+          </select>
+          <button class="btn btn-primary btn-sm" type="submit">Apply to selected</button>
+        </div>
+      </form>
+      <div class="row" style="margin-bottom:12px;flex-wrap:wrap">
+        <a class="btn btn-sm {% if (view or 'list')=='list' %}btn-primary{% else %}btn-outline{% endif %}" href="{% if status_f %}{{ url_for('second_brain', page='tasks', view='list', status=status_f) }}{% else %}{{ url_for('second_brain', page='tasks', view='list') }}{% endif %}">List</a>
+        <a class="btn btn-sm {% if view=='board' %}btn-primary{% else %}btn-outline{% endif %}" href="{% if status_f %}{{ url_for('second_brain', page='tasks', view='board', status=status_f) }}{% else %}{{ url_for('second_brain', page='tasks', view='board') }}{% endif %}">Board</a>
+        <a class="btn btn-sm {% if view=='calendar' %}btn-primary{% else %}btn-outline{% endif %}" href="{% if status_f %}{{ url_for('second_brain', page='tasks', view='calendar', status=status_f) }}{% else %}{{ url_for('second_brain', page='tasks', view='calendar') }}{% endif %}">Calendar</a>
+        <a class="btn btn-sm {% if status_f=='open' %}btn-primary{% else %}btn-outline{% endif %}" href="{{ url_for('second_brain', page='tasks', view=view or 'list', status='open') }}">Open only</a>
+        <a class="btn btn-sm {% if status_f=='Done' %}btn-primary{% else %}btn-outline{% endif %}" href="{{ url_for('second_brain', page='tasks', view=view or 'list', status='Done') }}">Done only</a>
+        <a class="btn btn-sm {% if not status_f %}btn-primary{% else %}btn-outline{% endif %}" href="{{ url_for('second_brain', page='tasks', view=view or 'list') }}">All</a>
+      </div>
+      <form method="POST" action="{{ url_for('second_brain_action') }}" class="form-row" style="margin-bottom:14px">
+        <input type="hidden" name="action" value="add_task"><input type="hidden" name="page" value="tasks">
+        <input type="text" class="grow" name="title" placeholder="New task" required>
+        <select name="priority"><option>Medium</option><option>High</option><option>Low</option></select>
+        <select name="status"><option>Not started</option><option>In progress</option><option>Done</option></select>
+        <select name="context"><option>Quick Win</option><option>Deep Work</option><option>Call</option><option>Errand</option><option>Online</option></select>
+        <input type="date" name="due">
+        <select name="project_id"><option value="">No project</option>{% for p in data.projects %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select>
+        <button class="btn btn-primary" type="submit">Add</button>
+      </form>
+      {% if view == 'board' %}
+      <div class="board" style="grid-template-columns:repeat(3,1fr)">
+        {% for st in ['Not started','In progress','Done'] %}
+        <div class="col"><h4>{{ st }}</h4>
+          {% for t in data.tasks if (t.status or 'Not started')==st %}
+          {% if (status_f != 'open' or t.status != 'Done') and (status_f != 'Done' or t.status == 'Done') %}
+          <div class="card-item">{{ t.title }}<div class="muted">{{ t.priority }} · {{ t.due or 'no due' }}</div>
+            <form method="POST" action="{{ url_for('second_brain_action') }}" style="margin-top:6px"><input type="hidden" name="action" value="toggle_task_done"><input type="hidden" name="item_id" value="{{ t.id }}"><input type="hidden" name="page" value="tasks"><button class="btn btn-outline btn-sm" type="submit">Toggle done</button></form>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      {% elif view == 'calendar' %}
+      <p class="muted">Tasks with due dates</p>
+      <ul class="list">
+        {% for t in data.tasks if t.due %}
+        {% if (status_f != 'open' or t.status != 'Done') and (status_f != 'Done' or t.status == 'Done') %}
+        <li><div><strong>{{ t.due }}</strong> — {{ t.title }} <span class="badge">{{ t.status }}</span></div>
+          <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="toggle_task_done"><input type="hidden" name="item_id" value="{{ t.id }}"><input type="hidden" name="page" value="tasks"><button class="btn btn-outline btn-sm" type="submit">✓</button></form>
+        </li>
+        {% endif %}
+        {% else %}<li class="muted">No dated tasks.</li>{% endfor %}
+      </ul>
+      {% else %}
+      <ul class="list">
+        {% for t in data.tasks if show_archived or not (t.archived or t._archived) %}
+        {% if (status_f != 'open' or t.status != 'Done') and (status_f != 'Done' or t.status == 'Done') %}
+        <li style="flex-wrap:wrap;align-items:flex-start">
+          <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="toggle_task_done"><input type="hidden" name="item_id" value="{{ t.id }}"><input type="hidden" name="page" value="tasks"><button class="btn btn-outline btn-sm" type="submit">✓</button></form>
+          <div style="flex:1;min-width:180px">
+            <div {% if t.status=='Done' %}style="text-decoration:line-through;opacity:.65"{% endif %}><strong>{{ t.title }}</strong></div>
+            <span class="badge {% if t.priority=='High' %}high{% elif t.priority=='Low' %}low{% endif %}">{{ t.priority }}</span>{% if t._project_name %} <span class="badge">{{ t._project_name }}</span>{% endif %}
+            <span class="badge">{{ t.status }}</span>
+            <span class="muted">{{ t.context }}{% if t.due %} · due {{ t.due }}{% endif %}</span>
+            <div class="edit-panel" id="edit-task-{{ t.id }}">
+              <form method="POST" action="{{ url_for('second_brain_action') }}" class="row" style="margin-top:8px">
+                <input type="hidden" name="action" value="update_task"><input type="hidden" name="item_id" value="{{ t.id }}"><input type="hidden" name="page" value="tasks">
+                <input type="text" name="title" value="{{ t.title }}" style="flex:2">
+                <select name="status"><option {% if t.status=='Not started' %}selected{% endif %}>Not started</option><option {% if t.status=='In progress' %}selected{% endif %}>In progress</option><option {% if t.status=='Done' %}selected{% endif %}>Done</option></select>
+                <select name="priority"><option {% if t.priority=='High' %}selected{% endif %}>High</option><option {% if t.priority=='Medium' %}selected{% endif %}>Medium</option><option {% if t.priority=='Low' %}selected{% endif %}>Low</option></select>
+                <select name="context"><option {% if t.context=='Deep Work' %}selected{% endif %}>Deep Work</option><option {% if t.context=='Quick Win' %}selected{% endif %}>Quick Win</option><option {% if t.context=='Call' %}selected{% endif %}>Call</option><option {% if t.context=='Errand' %}selected{% endif %}>Errand</option><option {% if t.context=='Online' %}selected{% endif %}>Online</option></select>
+                <input type="date" name="due" value="{{ t.due or '' }}">
+                <select name="project_id"><option value="">No project</option>{% for p in data.projects %}<option value="{{ p.id }}" {% if t.project_id==p.id %}selected{% endif %}>{{ p.name }}</option>{% endfor %}</select>
+                <button class="btn btn-primary btn-sm" type="submit">Save</button>
+              </form>
+            </div>
+          </div>
+          <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-task-{{ t.id }}').classList.toggle('open')">Edit</button>
+          <label style="display:inline-flex;align-items:center;gap:4px;font-size:12px;margin-right:6px"><input type="checkbox" name="task_ids" value="{{ t.id }}" form="bulkTaskForm"> Select</label>
+          <form method="POST" action="{{ url_for('second_brain_action') }}" style="display:inline"><input type="hidden" name="action" value="duplicate_task"><input type="hidden" name="item_id" value="{{ t.id }}"><input type="hidden" name="page" value="tasks"><button class="btn btn-soft btn-sm" type="submit">Duplicate</button></form>
+          <form method="POST" action="{{ url_for('second_brain_action') }}" style="display:inline"><input type="hidden" name="action" value="{% if t._archived or t.archived %}unarchive_task{% else %}archive_task{% endif %}"><input type="hidden" name="item_id" value="{{ t.id }}"><input type="hidden" name="page" value="tasks"><button class="btn btn-soft btn-sm" type="submit">{% if t._archived or t.archived %}Unarchive{% else %}Archive{% endif %}</button></form>
+          <form method="POST" action="{{ url_for('second_brain_action') }}" style="display:inline"><input type="hidden" name="action" value="delete_task"><input type="hidden" name="item_id" value="{{ t.id }}"><input type="hidden" name="page" value="tasks"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete this task?')">Delete</button></form>
+        </li>
+        {% endif %}
+        {% else %}<li class="muted">No tasks.</li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+
+    {% elif page == 'projects' %}
+    <div class="panel">
+      <h2>Projects</h2>
+      <form method="GET" class="row" style="margin-bottom:12px">
+        <select name="area" onchange="this.form.submit()"><option value="">All areas</option>
+          {% for a in ['Work','Personal','Health','Finance','Learning','Business'] %}<option value="{{ a }}" {% if area_f==a %}selected{% endif %}>{{ a }}</option>{% endfor %}
+        </select>
+      </form>
+      <form method="POST" action="{{ url_for('second_brain_action') }}" class="form-row" style="margin-bottom:14px">
+        <input type="hidden" name="action" value="add_project"><input type="hidden" name="page" value="projects">
+        <input type="text" class="grow" name="name" placeholder="Project name" required>
+        <select name="area">{% for a in ['Work','Personal','Health','Finance','Learning','Business'] %}<option>{{ a }}</option>{% endfor %}</select>
+        <select name="status"><option value="Not Started">Not Started</option><option value="In Progress">In Progress</option><option value="On Hold">On Hold</option><option value="Completed">Completed</option></select>
+        <select name="priority"><option>Medium</option><option>High</option><option>Low</option></select>
+        <input type="text" name="timeline" placeholder="Timeline">
+        <button class="btn btn-primary" type="submit">Create</button>
+      </form>
+      {% for p in data.projects %}
+        {% if not area_f or p.area==area_f %}
+        <div class="panel" style="box-shadow:none">
+          <div class="row" style="align-items:flex-start">
+            <div style="flex:1"><h3 style="margin:0">{{ p.name }}</h3>
+              <span class="badge">{{ p.area }}</span>
+              <span class="badge {% if p.status == 'Completed' %}low{% elif p.status == 'In Progress' %}{% else %}{% endif %}">{{ p.status }}</span>
+              <span class="badge">{{ p.priority }}</span>
+              {% if p.timeline %}<div class="muted">{{ p.timeline }}</div>{% endif %}
+              {% if p.notes %}<p>{{ p.notes }}</p>{% endif %}
+              <p class="muted">Related tasks:
+                {% for t in data.tasks if t.project_id==p.id %}{{ t.title }}; {% else %}none{% endfor %}
+              </p>
+              <div class="edit-panel" id="edit-proj-{{ p.id }}">
+                <form method="POST" action="{{ url_for('second_brain_action') }}" class="form-row" style="margin-top:8px">
+                  <input type="hidden" name="action" value="update_project"><input type="hidden" name="item_id" value="{{ p.id }}"><input type="hidden" name="page" value="projects">
+                  <input type="text" class="grow" name="name" value="{{ p.name }}">
+                  <select name="area">{% for a in ['Work','Personal','Health','Finance','Learning','Business'] %}<option {% if p.area==a %}selected{% endif %}>{{ a }}</option>{% endfor %}</select>
+                  <select name="status"><option {% if p.status=='Not Started' %}selected{% endif %}>Not Started</option><option {% if p.status=='In Progress' %}selected{% endif %}>In Progress</option><option {% if p.status=='On Hold' %}selected{% endif %}>On Hold</option><option {% if p.status=='Completed' %}selected{% endif %}>Completed</option></select>
+                  <select name="priority"><option {% if p.priority=='High' %}selected{% endif %}>High</option><option {% if p.priority=='Medium' %}selected{% endif %}>Medium</option><option {% if p.priority=='Low' %}selected{% endif %}>Low</option></select>
+                  <input type="text" name="timeline" value="{{ p.timeline or '' }}" placeholder="Timeline">
+                  <button class="btn btn-primary btn-sm" type="submit">Save</button>
+                </form>
+              </div>
+            </div>
+            {% if p.status != 'Completed' %}
+            <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="update_project"><input type="hidden" name="item_id" value="{{ p.id }}"><input type="hidden" name="status" value="Completed"><input type="hidden" name="page" value="projects"><button class="btn btn-success btn-sm" type="submit">Complete</button></form>
+            {% endif %}
+            <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-proj-{{ p.id }}').classList.toggle('open')">Edit</button>
+            <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="delete_project"><input type="hidden" name="item_id" value="{{ p.id }}"><input type="hidden" name="page" value="projects"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete this item?')">Delete</button></form>
+          </div>
+        </div>
+        {% endif %}
+      {% else %}<p class="muted">No projects.</p>{% endfor %}
+    </div>
+
+    {% elif page == 'areas' %}
+    <div class="panel">
+      <h2>Areas</h2>
+      <p class="muted">Filter projects by life area.</p>
+      <div class="kpis">
+        {% for a in ['Work','Personal','Health','Finance','Learning','Business'] %}
+        <a class="kpi" href="{{ url_for('second_brain', page='projects', area=a) }}"><span>{{ a }}</span><b>{{ data.projects|selectattr('area','equalto',a)|list|length }}</b></a>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% elif page == 'goals' %}
+    <div class="panel">
+      <h2>Goals</h2>
+      <form method="POST" action="{{ url_for('second_brain_action') }}" class="form-row" style="margin-bottom:14px">
+        <input type="hidden" name="action" value="add_goal"><input type="hidden" name="page" value="goals">
+        <input type="text" class="grow" name="title" placeholder="Goal" required>
+        <select name="category">{% for c in ['Career','Health','Finance','Learning','Personal','Business'] %}<option>{{ c }}</option>{% endfor %}</select>
+        <select name="status"><option>Not Started</option><option>In Progress</option><option>Achieved</option><option>Paused</option></select>
+        <input type="number" name="progress" min="0" max="100" value="0" style="width:80px">
+        <input type="date" name="target_date">
+        <input type="text" class="grow" name="why" placeholder="Why it matters">
+        <button class="btn btn-primary" type="submit">Add</button>
+      </form>
+      {% for g in data.goals %}
+      <div class="panel" style="box-shadow:none">
+        <strong>{{ g.title }}</strong> <span class="badge">{{ g.category }}</span> <span class="badge">{{ g.status }}</span>
+        <div class="progress"><i style="width:{{ g.progress or 0 }}%"></i></div>
+        <p class="muted">{{ g.progress or 0 }}% {% if g.target_date %}· target {{ g.target_date }}{% endif %}</p>
+        {% if g.why %}<p>{{ g.why }}</p>{% endif %}
+        <form method="POST" action="{{ url_for('second_brain_action') }}" class="inline-pair" style="margin-top:8px">
+          <input type="hidden" name="action" value="update_goal"><input type="hidden" name="item_id" value="{{ g.id }}"><input type="hidden" name="page" value="goals">
+          <input type="number" name="progress" min="0" max="100" value="{{ g.progress or 0 }}">
+          <button class="btn btn-soft btn-sm" type="submit">Update %</button>
+        </form>
+        <div style="margin-top:10px">
+          <p class="muted"><strong>Related projects</strong></p>
+          <ul class="list">
+            {% for pid in g.project_ids or [] %}
+              {% for p in data.projects if p.id==pid %}
+              <li><div>{{ p.name }}</div>
+                <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="unlink_goal_project"><input type="hidden" name="goal_id" value="{{ g.id }}"><input type="hidden" name="project_id" value="{{ p.id }}"><input type="hidden" name="page" value="goals"><button class="btn btn-outline btn-sm" type="submit">Unlink</button></form>
+              </li>
+              {% endfor %}
+            {% else %}<li class="muted">None linked</li>{% endfor %}
+          </ul>
+          <form method="POST" action="{{ url_for('second_brain_action') }}" class="form-row" style="margin-top:6px">
+            <input type="hidden" name="action" value="link_goal_project"><input type="hidden" name="goal_id" value="{{ g.id }}"><input type="hidden" name="page" value="goals">
+            <select name="project_id" class="grow"><option value="">Link project…</option>{% for p in data.projects %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select>
+            <button class="btn btn-soft btn-sm" type="submit">Link</button>
+          </form>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-goal-{{ g.id }}').classList.toggle('open')">Edit</button>
+          <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="delete_goal"><input type="hidden" name="item_id" value="{{ g.id }}"><input type="hidden" name="page" value="goals"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete this item?')">Delete</button></form>
+        </div>
+        <div class="edit-panel" id="edit-goal-{{ g.id }}">
+          <form method="POST" action="{{ url_for('second_brain_action') }}" class="form-row">
+            <input type="hidden" name="action" value="update_goal"><input type="hidden" name="item_id" value="{{ g.id }}"><input type="hidden" name="page" value="goals">
+            <input type="text" class="grow" name="title" value="{{ g.title }}">
+            <select name="category">{% for c in ['Career','Health','Finance','Learning','Personal','Business'] %}<option {% if g.category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+            <select name="status"><option {% if g.status=='Not Started' %}selected{% endif %}>Not Started</option><option {% if g.status=='In Progress' %}selected{% endif %}>In Progress</option><option {% if g.status=='Achieved' %}selected{% endif %}>Achieved</option><option {% if g.status=='Paused' %}selected{% endif %}>Paused</option></select>
+            <input type="number" name="progress" min="0" max="100" value="{{ g.progress or 0 }}" style="width:80px">
+            <input type="date" name="target_date" value="{{ g.target_date or '' }}">
+            <input type="text" class="grow" name="why" value="{{ g.why or '' }}" placeholder="Why it matters">
+            <button class="btn btn-primary btn-sm" type="submit">Save</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<p class="muted">No goals.</p>{% endfor %}
+    </div>
+
+    {% elif page == 'habits' %}
+    <div class="panel">
+      <h2 style="margin:0 0 10px">Habit streaks</h2>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        {% for hs in habit_streaks or [] %}
+        <div style="min-width:120px;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,#0f766e,#0ea5e9);color:#fff">
+          <div style="font-size:12px;opacity:.9">{{ hs.label }}</div>
+          <div style="font-size:28px;font-weight:800">{{ hs.streak }}<span style="font-size:13px;font-weight:600"> day{{ 's' if hs.streak != 1 else '' }}</span></div>
+        </div>
+        {% else %}
+        <p class="muted">Check habits daily to build streaks.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Habit Tracker</h2>
+      <form method="POST" action="{{ url_for('second_brain_action') }}">
+        <input type="hidden" name="action" value="save_habits"><input type="hidden" name="page" value="habits">
+        <div class="field"><label>Date</label><input type="date" name="date" value="{{ habit_date or today }}"></div>
+        <div class="habit-grid">
+          {% for h in data.habit_defs %}
+          <label class="habit-cell"><div>{{ h.label }}</div>
+            <input type="checkbox" name="habit_{{ h.id }}" value="1" {% if habit_today.get(h.id) %}checked{% endif %} style="margin-top:8px;width:18px;height:18px">
+          </label>
+          {% endfor %}
+        </div>
+        <p class="muted">Score auto-calculates as completed / 6.</p>
+        <button class="btn btn-primary" type="submit">Save today</button>
+      </form>
+      <h3 style="margin-top:20px">Recent history</h3>
+      <ul class="list">
+        {% for day, entry in data.habits.items()|sort(reverse=true) %}
+        {% if loop.index <= 14 %}
+        <li style="flex-wrap:wrap;align-items:center">
+          <div style="flex:1;min-width:160px">
+            <strong>{{ day }}</strong> · score {{ entry.score or 0 }}/6
+            <div class="edit-panel" id="view-habit-{{ day }}">
+              <p class="muted" style="margin:8px 0 0">Completed that day:</p>
+              <ul style="margin:4px 0 0;padding-left:18px">
+                {% for h in data.habit_defs %}
+                <li>{{ h.label }} — {% if entry.get('checks', {}).get(h.id) or entry.get(h.id) %}✅{% else %}⬜{% endif %}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          <button type="button" class="btn btn-soft btn-sm" onclick="document.getElementById('view-habit-{{ day }}').classList.toggle('open')">View</button>
+          <a class="btn btn-edit btn-sm" href="{{ url_for('second_brain', page='habits', date=day) }}">Edit</a>
+          <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="delete_habit_day"><input type="hidden" name="date" value="{{ day }}"><input type="hidden" name="page" value="habits"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete habit history for {{ day }}?')">Delete</button></form>
+        </li>
+        {% endif %}
+        {% else %}<li class="muted">No history yet.</li>{% endfor %}
+      </ul>
+    </div>
+
+    {% elif page == 'planner' %}
+    <div class="panel">
+      <h2>Daily Planner</h2>
+      <form method="POST" action="{{ url_for('second_brain_action') }}">
+        <input type="hidden" name="action" value="save_planner"><input type="hidden" name="page" value="planner">
+        <div class="row">
+          <div class="field-pair">
+            <div class="field"><label>Date</label><input type="date" name="date" value="{{ planner_today.date or today }}"></div>
+            <div class="field"><label>Energy</label><select name="energy"><option {% if planner_today.energy=='High' %}selected{% endif %}>High</option><option {% if planner_today.energy=='Medium' or not planner_today.energy %}selected{% endif %}>Medium</option><option {% if planner_today.energy=='Low' %}selected{% endif %}>Low</option></select></div>
+          </div>
+        </div>
+        <div class="field"><label>Gratitude</label><textarea name="gratitude" rows="2">{{ planner_today.gratitude or '' }}</textarea></div>
+        <div class="field"><label>Top 3 priorities</label><textarea name="top3" rows="3">{{ planner_today.top3 or '' }}</textarea></div>
+        <div class="field"><label>Schedule notes</label><textarea name="schedule" rows="3">{{ planner_today.schedule or '' }}</textarea></div>
+        <div class="field"><label>Wins</label><textarea name="wins" rows="2">{{ planner_today.wins or '' }}</textarea></div>
+        <button class="btn btn-primary" type="submit">Save day</button>
+      </form>
+    </div>
+
+    {% elif page == 'weekly-review' %}
+    <div class="panel">
+      <h2>Weekly Review</h2>
+      <form method="POST" action="{{ url_for('second_brain_action') }}">
+        <input type="hidden" name="action" value="add_weekly_review"><input type="hidden" name="page" value="weekly-review">
+        <div class="field-triple">
+          <div class="field"><label>Week label</label><input type="text" name="week" placeholder="Week 41"></div>
+          <div class="field"><label>Week of</label><input type="date" name="week_of"></div>
+          <div class="field"><label>Rating</label><select name="rating"><option>Excellent</option><option selected>Good</option><option>Average</option><option>Tough</option></select></div>
+        </div>
+        <div class="field"><label>Weekly focus</label><textarea name="focus" rows="2"></textarea></div>
+        <div class="field"><label>Key wins</label><textarea name="wins" rows="2"></textarea></div>
+        <div class="field"><label>Lessons learned</label><textarea name="lessons" rows="2"></textarea></div>
+        <div class="field"><label>Next week plan</label><textarea name="next_plan" rows="2"></textarea></div>
+        <button class="btn btn-primary" type="submit">Save review</button>
+      </form>
+    </div>
+    {% for r in data.weekly_reviews %}
+    <div class="panel">
+      <strong>{{ r.week or 'Review' }}</strong> · {{ r.week_of }} · <span class="badge">{{ r.rating }}</span>
+      <p><strong>Focus:</strong> {{ r.focus }}</p>
+      <p><strong>Wins:</strong> {{ r.wins }}</p>
+      <p><strong>Lessons:</strong> {{ r.lessons }}</p>
+      <p><strong>Next:</strong> {{ r.next_plan }}</p>
+      <div class="row" style="margin-top:10px">
+        <button type="button" class="btn btn-soft btn-sm" onclick="document.getElementById('view-wr-{{ r.id }}').classList.toggle('open')">View</button>
+        <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-wr-{{ r.id }}').classList.toggle('open')">Edit</button>
+        <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="delete_weekly_review"><input type="hidden" name="item_id" value="{{ r.id }}"><input type="hidden" name="page" value="weekly-review"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete this weekly review permanently?')">Delete</button></form>
+      </div>
+      <div class="edit-panel" id="view-wr-{{ r.id }}">
+        <p><strong>Focus:</strong> {{ r.focus or '—' }}</p>
+        <p><strong>Wins:</strong> {{ r.wins or '—' }}</p>
+        <p><strong>Lessons:</strong> {{ r.lessons or '—' }}</p>
+        <p><strong>Next:</strong> {{ r.next_plan or '—' }}</p>
+        <p class="muted">Rating: {{ r.rating or '—' }} · Week of {{ r.week_of or '—' }}</p>
+      </div>
+      <div class="edit-panel" id="edit-wr-{{ r.id }}">
+        <form method="POST" action="{{ url_for('second_brain_action') }}">
+          <input type="hidden" name="action" value="update_weekly_review"><input type="hidden" name="item_id" value="{{ r.id }}"><input type="hidden" name="page" value="weekly-review">
+          <div class="field-triple">
+            <div class="field"><label>Week label</label><input type="text" name="week" value="{{ r.week or '' }}"></div>
+            <div class="field"><label>Week of</label><input type="date" name="week_of" value="{{ r.week_of or '' }}"></div>
+            <div class="field"><label>Rating</label><select name="rating">{% for rt in ['Excellent','Good','Average','Tough'] %}<option {% if r.rating==rt %}selected{% endif %}>{{ rt }}</option>{% endfor %}</select></div>
+          </div>
+          <div class="field"><label>Focus</label><textarea name="focus" rows="2">{{ r.focus or '' }}</textarea></div>
+          <div class="field"><label>Wins</label><textarea name="wins" rows="2">{{ r.wins or '' }}</textarea></div>
+          <div class="field"><label>Lessons</label><textarea name="lessons" rows="2">{{ r.lessons or '' }}</textarea></div>
+          <div class="field"><label>Next plan</label><textarea name="next_plan" rows="2">{{ r.next_plan or '' }}</textarea></div>
+          <button class="btn btn-primary btn-sm" type="submit">Save changes</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% elif page == 'notes' %}
+    <div class="panel">
+      <h2>Notes & Knowledge Base</h2>
+      <form method="POST" action="{{ url_for('second_brain_action') }}">
+        <input type="hidden" name="action" value="add_note"><input type="hidden" name="page" value="notes">
+        <div class="form-row">
+          <input type="text" class="grow" name="title" placeholder="Title">
+          <select name="type"><option>Idea</option><option>Meeting Note</option><option>Learning Note</option><option>Journal</option><option>Reference</option><option>Book Note</option></select>
+          <select name="project_id"><option value="">Project</option>{% for p in data.projects %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select>
+          <input type="text" name="tags" placeholder="Tags: Work, Learning…">
+        </div>
+        <textarea name="body" rows="5" placeholder="Note body" style="width:100%;margin:10px 0;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:#f8fafc"></textarea>
+        <label><input type="checkbox" name="favorite" value="1"> Favorite</label>
+        <button class="btn btn-primary" type="submit" style="margin-left:10px">Save note</button>
+      </form>
+    </div>
+    {% for n in data.notes %}
+    <div class="panel">
+      <div class="row" style="align-items:flex-start">
+        <div style="flex:1">
+          <h3 style="margin:0">{{ n.title }}{% if n._project_name %} <span class="badge">{{ n._project_name }}</span>{% endif %}{% if n.favorite %} ★{% endif %}</h3>
+          <span class="badge">{{ n.type }}</span>
+          {% for tg in n.tags or [] %}<span class="badge">{{ tg }}</span>{% endfor %}
+          {% if n.body %}<p style="white-space:pre-wrap;margin:10px 0">{{ n.body }}</p>{% endif %}
+          <p class="muted">{{ n.created|sb_time }}{% if n.updated %} · edited {{ n.updated|sb_time }}{% endif %}</p>
+        </div>
+        <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="toggle_note_fav"><input type="hidden" name="item_id" value="{{ n.id }}"><input type="hidden" name="page" value="notes"><button class="btn btn-soft btn-sm" type="submit">{% if n.favorite %}★ Unstar{% else %}☆ Star{% endif %}</button></form>
+        <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-note-{{ n.id }}').classList.toggle('open')">Edit</button>
+        <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="delete_note"><input type="hidden" name="item_id" value="{{ n.id }}"><input type="hidden" name="page" value="notes"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete this note?')">Delete</button></form>
+      </div>
+      <div class="edit-panel" id="edit-note-{{ n.id }}">
+        <form method="POST" action="{{ url_for('second_brain_action') }}">
+          <input type="hidden" name="action" value="update_note"><input type="hidden" name="item_id" value="{{ n.id }}"><input type="hidden" name="page" value="notes">
+          <div class="row">
+            <input type="text" name="title" value="{{ n.title }}" style="flex:2">
+            <select name="type">{% for ty in ['Idea','Meeting Note','Learning Note','Journal','Reference','Book Note'] %}<option {% if n.type==ty %}selected{% endif %}>{{ ty }}</option>{% endfor %}</select>
+            <select name="project_id"><option value="">Project</option>{% for p in data.projects %}<option value="{{ p.id }}" {% if n.project_id==p.id %}selected{% endif %}>{{ p.name }}</option>{% endfor %}</select>
+            <input type="text" name="tags" value="{{ (n.tags or [])|join(', ') }}" placeholder="Tags">
+          </div>
+          <textarea name="body" rows="5" style="width:100%;margin:10px 0;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:#f8fafc">{{ n.body }}</textarea>
+          <button class="btn btn-primary btn-sm" type="submit">Save changes</button>
+        </form>
+      </div>
+    </div>
+    {% else %}
+    <div class="panel"><p class="muted">No notes yet.</p></div>
+    {% endfor %}
+
+    {% elif page == 'content' %}
+    <div class="panel">
+      <h2>Content Ideas Inbox</h2>
+      <form method="POST" action="{{ url_for('second_brain_action') }}" class="form-row" style="margin-bottom:14px">
+        <input type="hidden" name="action" value="add_content"><input type="hidden" name="page" value="content">
+        <input type="text" class="grow" name="idea" placeholder="Idea" required>
+        <select name="format"><option>Video</option><option>Reel-Short</option><option>Carousel</option><option>Post</option><option>Article</option><option>Thread</option></select>
+        <select name="priority"><option>Medium</option><option>High</option><option>Low</option></select>
+        <input type="text" name="hook" placeholder="Hook / angle">
+        <input type="date" name="publish_date">
+        <button class="btn btn-primary" type="submit">Add</button>
+      </form>
+      <div class="board content-board-fix" style="grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+        {% for st in ['Inbox','Scripting','Creating','Scheduled','Published'] %}
+        <div class="col"><h4>{{ st }}</h4>
+          {% for c in data.content_ideas if (c.status or 'Inbox')==st %}
+          <div class="card-item">
+            <strong>{{ c.idea }}</strong>
+            <div class="muted">{{ c.format }} · {{ c.priority }}</div>
+            {% if c.hook %}<div class="muted">{{ c.hook }}</div>{% endif %}
+            <div style="margin-top:10px">
+              <span class="badge">{{ c.status or 'Inbox' }}</span>
+            </div>
+            <form method="POST" action="{{ url_for('second_brain_action') }}" style="margin-top:8px;width:100%">
+              <input type="hidden" name="action" value="move_content"><input type="hidden" name="item_id" value="{{ c.id }}"><input type="hidden" name="page" value="content">
+              <select name="status" onchange="this.form.submit()" style="width:100%;max-width:100%;box-sizing:border-box;font-size:12px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:#f8fafc">
+                {% for s in ['Inbox','Scripting','Creating','Scheduled','Published'] %}<option value="{{ s }}" {% if (c.status or 'Inbox')==s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+              </select>
+            </form>
+            <div class="row" style="margin-top:8px;gap:6px">
+              <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-c-{{ c.id }}').classList.toggle('open')">Edit</button>
+              <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="delete_content"><input type="hidden" name="item_id" value="{{ c.id }}"><input type="hidden" name="page" value="content"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete this item?')">Delete</button></form>
+            </div>
+            <div class="edit-panel" id="edit-c-{{ c.id }}">
+              <form method="POST" action="{{ url_for('second_brain_action') }}" class="row">
+                <input type="hidden" name="action" value="update_content"><input type="hidden" name="item_id" value="{{ c.id }}"><input type="hidden" name="page" value="content">
+                <input type="text" name="idea" value="{{ c.idea }}" style="flex:2">
+                <select name="format">{% for f in ['Video','Reel-Short','Carousel','Post','Article','Thread'] %}<option {% if c.format==f %}selected{% endif %}>{{ f }}</option>{% endfor %}</select>
+                <select name="priority"><option {% if c.priority=='High' %}selected{% endif %}>High</option><option {% if c.priority=='Medium' %}selected{% endif %}>Medium</option><option {% if c.priority=='Low' %}selected{% endif %}>Low</option></select>
+                <input type="text" name="hook" value="{{ c.hook or '' }}" placeholder="Hook">
+                <input type="date" name="publish_date" value="{{ c.publish_date or '' }}">
+                <button class="btn btn-primary btn-sm" type="submit">Save</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% elif page == 'resources' %}
+    <div class="panel">
+      <h2>Resources & Bookmarks</h2>
+      <form method="POST" action="{{ url_for('second_brain_action') }}" class="form-row" style="margin-bottom:14px">
+        <input type="hidden" name="action" value="add_resource"><input type="hidden" name="page" value="resources">
+        <input type="text" class="grow" name="name" placeholder="Name" required>
+        <input type="url" class="grow" name="link" placeholder="https://…">
+        <select name="category"><option>Article</option><option>Video</option><option>Tool</option><option>Course</option><option>Book</option><option>Podcast</option><option>Template</option></select>
+        <select name="rating"><option>5-Essential</option><option>4-Great</option><option selected>3-Useful</option><option>2-Okay</option><option>1-Skip</option></select>
+        <select name="status"><option>To Review</option><option>In Progress</option><option>Reviewed</option></select>
+        <input type="text" name="tags" placeholder="Tags">
+        <button class="btn btn-primary" type="submit">Add</button>
+      </form>
+      <ul class="list">
+        {% for r in data.resources %}
+        <li style="flex-wrap:wrap;align-items:flex-start">
+          <div style="flex:1;min-width:200px">
+            <strong>{% if r.link %}<a href="{{ r.link }}" target="_blank" rel="noopener">{{ r.name }}</a>{% else %}{{ r.name }}{% endif %}</strong>
+            <div class="muted">{{ r.category }} · {{ r.rating }} · {{ r.status }}</div>
+            {% if r.tags %}<div class="muted">{% for tg in r.tags %}<span class="badge">{{ tg }}</span> {% endfor %}</div>{% endif %}
+            <div class="edit-panel" id="edit-res-{{ r.id }}">
+              <form method="POST" action="{{ url_for('second_brain_action') }}" class="row" style="margin-top:8px">
+                <input type="hidden" name="action" value="update_resource"><input type="hidden" name="item_id" value="{{ r.id }}"><input type="hidden" name="page" value="resources">
+                <input type="text" name="name" value="{{ r.name }}">
+                <input type="url" name="link" value="{{ r.link or '' }}" placeholder="https://…">
+                <select name="category">{% for c in ['Article','Video','Tool','Course','Book','Podcast','Template'] %}<option {% if r.category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+                <select name="rating">{% for rt in ['5-Essential','4-Great','3-Useful','2-Okay','1-Skip'] %}<option {% if r.rating==rt %}selected{% endif %}>{{ rt }}</option>{% endfor %}</select>
+                <select name="status">{% for s in ['To Review','In Progress','Reviewed'] %}<option {% if r.status==s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+                <input type="text" name="tags" value="{{ (r.tags or [])|join(', ') }}" placeholder="Tags">
+                <button class="btn btn-primary btn-sm" type="submit">Save</button>
+              </form>
+            </div>
+          </div>
+          <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-res-{{ r.id }}').classList.toggle('open')">Edit</button>
+          <form method="POST" action="{{ url_for('second_brain_action') }}"><input type="hidden" name="action" value="delete_resource"><input type="hidden" name="item_id" value="{{ r.id }}"><input type="hidden" name="page" value="resources"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete this item?')">Delete</button></form>
+        </li>
+        {% else %}<li class="muted">No resources.</li>{% endfor %}
+      </ul>
+    </div>
+
+    {% elif page == 'databases' %}
+    <div class="panel">
+      <h2>All Databases</h2>
+      <div class="kpis">
+        <a class="kpi" href="{{ url_for('second_brain', page='capture') }}"><span>Quick Capture</span><b>{{ counts.captures }}</b></a>
+        <a class="kpi" href="{{ url_for('second_brain', page='tasks') }}"><span>Tasks</span><b>{{ data.tasks|length }}</b></a>
+        <a class="kpi" href="{{ url_for('second_brain', page='projects') }}"><span>Projects</span><b>{{ data.projects|length }}</b></a>
+        <a class="kpi" href="{{ url_for('second_brain', page='goals') }}"><span>Goals</span><b>{{ data.goals|length }}</b></a>
+        <a class="kpi" href="{{ url_for('second_brain', page='habits') }}"><span>Habit days</span><b>{{ data.habits|length }}</b></a>
+        <a class="kpi" href="{{ url_for('second_brain', page='planner') }}"><span>Planner days</span><b>{{ data.planners|length }}</b></a>
+        <a class="kpi" href="{{ url_for('second_brain', page='weekly-review') }}"><span>Weekly reviews</span><b>{{ counts.reviews }}</b></a>
+        <a class="kpi" href="{{ url_for('second_brain', page='notes') }}"><span>Notes</span><b>{{ counts.notes }}</b></a>
+        <a class="kpi" href="{{ url_for('second_brain', page='content') }}"><span>Content ideas</span><b>{{ counts.content }}</b></a>
+        <a class="kpi" href="{{ url_for('second_brain', page='resources') }}"><span>Resources</span><b>{{ counts.resources }}</b></a>
+      </div>
+    </div>
+
+    {% elif page == 'guide' %}
+    <div class="panel">
+      <h2>User Guide</h2>
+      <p class="muted" style="margin-bottom:16px">All labels and instructions are in English so any user can follow them.</p>
+      <div class="guide-grid">
+        <div class="guide-card">
+          <h3>⚡ Quick Capture</h3>
+          <p>Write raw thoughts, tasks, ideas, links, or questions. Later process into a Task or Note, or mark Processed.</p>
+          <div class="tags"><span class="badge">Thought</span><span class="badge">Task</span><span class="badge">Idea</span><span class="badge">Link</span></div>
+        </div>
+        <div class="guide-card">
+          <h3>☑ Tasks</h3>
+          <p>Track work with status, priority, due date, project link, and context.</p>
+          <div class="tags"><span class="badge">List</span><span class="badge">Board</span><span class="badge">Calendar</span><span class="badge">Deep Work</span></div>
+        </div>
+        <div class="guide-card">
+          <h3>📁 Projects</h3>
+          <p>Name, area, status, priority, timeline. Related tasks appear under each project.</p>
+          <div class="tags"><span class="badge">Work</span><span class="badge">Business</span><span class="badge">Status</span></div>
+        </div>
+        <div class="guide-card">
+          <h3>🎯 Goals</h3>
+          <p>Progress %, status, target date, why it matters. Link related projects.</p>
+          <div class="tags"><span class="badge">Progress</span><span class="badge">Target</span></div>
+        </div>
+        <div class="guide-card">
+          <h3>✓ Habit Tracker</h3>
+          <p>Six daily habits. Score = completed / 6. History by date.</p>
+          <div class="tags"><span class="badge">Daily</span><span class="badge">Score</span></div>
+        </div>
+        <div class="guide-card">
+          <h3>📅 Daily Planner</h3>
+          <p>Energy, gratitude, Top 3 priorities, schedule notes, wins — one entry per day.</p>
+          <div class="tags"><span class="badge">Energy</span><span class="badge">Top 3</span><span class="badge">Wins</span></div>
+        </div>
+        <div class="guide-card">
+          <h3>🗓 Weekly Review</h3>
+          <p>Week label, focus, wins, lessons, next-week plan, rating.</p>
+          <div class="tags"><span class="badge">Focus</span><span class="badge">Lessons</span></div>
+        </div>
+        <div class="guide-card">
+          <h3>📝 Notes</h3>
+          <p>Idea, Meeting, Learning, Journal, Reference, Book Note. Tags and favorites.</p>
+          <div class="tags"><span class="badge">Tags</span><span class="badge">Favorite</span></div>
+        </div>
+        <div class="guide-card">
+          <h3>🎬 Content Ideas</h3>
+          <p>Board: Inbox → Scripting → Creating → Scheduled → Published.</p>
+          <div class="tags"><span class="badge">Stages</span><span class="badge">Hook</span></div>
+        </div>
+        <div class="guide-card">
+          <h3>🔗 Resources</h3>
+          <p>Name, URL, category, rating, status, tags. Open links in a new tab.</p>
+          <div class="tags"><span class="badge">Rating</span><span class="badge">Tags</span></div>
+        </div>
+        <div class="guide-card">
+          <h3>⚙ Settings & Export</h3>
+          <p>Download full workspace JSON or merge an import. Data stays on your account.</p>
+          <div class="tags"><span class="badge">Export</span><span class="badge">Import</span></div>
+        </div>
+      </div>
+    </div>
+
+
+    {% elif page == 'search' %}
+    <div class="panel">
+      <h2>Search</h2>
+      <p class="muted">Search across captures, tasks, projects, goals, notes, content ideas, and resources.</p>
+      <form method="GET" action="{{ url_for('second_brain', page='search') }}" class="row" style="margin-bottom:16px">
+        <input type="search" name="q" value="{{ q or '' }}" placeholder="Type a keyword…" style="flex:1" autofocus>
+        <button class="btn btn-primary" type="submit">Search</button>
+      </form>
+      {% if q %}
+        <p class="muted">{{ search_results|length }} result(s) for “{{ q }}”</p>
+        <ul class="list">
+          {% for r in search_results %}
+          <li>
+            <div style="flex:1">
+              <span class="badge">{{ r.kind }}</span>
+              <strong><a href="{{ r.href }}">{{ r.title }}</a></strong>
+              <div class="muted">{{ r.snippet }}</div>
+            </div>
+          </li>
+          {% else %}
+          <li class="muted">No matches.</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">Enter a keyword to search your workspace.</p>
+      {% endif %}
+    </div>
+
+    
+    {% elif page == 'templates' %}
+    <div class="panel">
+      <h2>Workspace templates</h2>
+      <p class="muted">One-click starter packs — better than empty Notion pages. Applies tasks + notes to your workspace.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:12px">
+        {% for tpl in data.workspace_templates or [] %}
+        <div class="panel" style="margin:0;border:1px solid #e2e8f0">
+          <h3 style="margin:0 0 6px">{{ tpl.name }}</h3>
+          <p class="muted" style="font-size:13px">{{ tpl.desc }}</p>
+          <ul class="muted" style="font-size:12px;padding-left:18px">
+            {% for t in tpl.tasks or [] %}<li>{{ t }}</li>{% endfor %}
+          </ul>
+          <form method="POST" action="{{ url_for('second_brain_action') }}">
+            <input type="hidden" name="action" value="apply_workspace_template">
+            <input type="hidden" name="template_id" value="{{ tpl.id }}">
+            <input type="hidden" name="page" value="templates">
+            <button class="btn btn-primary btn-sm" type="submit">Apply template</button>
+          </form>
+        </div>
+        {% else %}
+        <p class="muted">No templates loaded.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% elif page == 'focus' %}
+    <div class="panel">
+      <h2>Focus timer</h2>
+      <p class="muted">Pomodoro-style focus for deep work. Log time into your daily planner notes when done.</p>
+      <div style="font-size:48px;font-weight:800;color:#0f766e;margin:12px 0" id="sbFocusClock">25:00</div>
+      <div class="sb-focus-btns" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn btn-soft sb-focus-ctrl" id="sbFocusStart">Start</button>
+        <button type="button" class="btn btn-soft sb-focus-ctrl" id="sbFocusPause">Pause</button>
+        <button type="button" class="btn btn-soft sb-focus-ctrl" id="sbFocusReset">Reset</button>
+        <button type="button" class="btn btn-soft sb-focus-preset active" data-mins="25" id="sbFocus25">25m</button>
+        <button type="button" class="btn btn-soft sb-focus-preset" data-mins="50" id="sbFocus50">50m</button>
+        <button type="button" class="btn btn-soft sb-focus-preset" data-mins="5" id="sbFocus5">5m break</button>
+      </div>
+    </div>
+    <style>
+      .sb-focus-btns .btn.btn-soft{
+        background:#fff !important;
+        color:#334155 !important;
+        border:1px solid #e2e8f0 !important;
+        box-shadow:none !important;
+      }
+      .sb-focus-btns .btn.btn-soft:hover{
+        background:#f1f5f9 !important;
+        border-color:#cbd5e1 !important;
+        color:#0f172a !important;
+      }
+      .sb-focus-btns .btn.sb-focus-ctrl.active{
+        background:#7c3aed !important;
+        color:#fff !important;
+        border-color:#6d28d9 !important;
+        box-shadow:0 0 0 2px rgba(124,58,237,.2) !important;
+      }
+      .sb-focus-btns .btn.sb-focus-ctrl#sbFocusPause.active{
+        background:#d97706 !important;
+        border-color:#b45309 !important;
+        box-shadow:0 0 0 2px rgba(217,119,6,.2) !important;
+      }
+      .sb-focus-btns .btn.sb-focus-preset.active{
+        background:#0f766e !important;
+        color:#fff !important;
+        border-color:#0d9488 !important;
+        box-shadow:0 0 0 2px rgba(15,118,110,.2) !important;
+      }
+    </style>
+    <script>
+    (function(){
+      var total=25*60, left=total, t=null, run=false;
+      var el=document.getElementById('sbFocusClock');
+      var st=document.getElementById('sbFocusStart');
+      var pa=document.getElementById('sbFocusPause');
+      var rs=document.getElementById('sbFocusReset');
+      function fmt(s){var m=Math.floor(s/60),ss=s%60;return (m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;}
+      function setCtrl(which){
+        [st,pa,rs].forEach(function(b){ if(b) b.classList.remove('active'); });
+        if(which) which.classList.add('active');
+      }
+      function setPreset(mins){
+        document.querySelectorAll('.sb-focus-preset').forEach(function(b){
+          b.classList.toggle('active', String(b.getAttribute('data-mins'))===String(mins));
+        });
+      }
+      window.sbSetFocus=function(m){
+        total=m*60; left=total;
+        if(el) el.textContent=fmt(left);
+        run=false; clearInterval(t);
+        setCtrl(null);
+        setPreset(m);
+      };
+      if(st) st.onclick=function(){
+        if(run) return;
+        run=true;
+        setCtrl(st);
+        t=setInterval(function(){
+          if(left<=0){ clearInterval(t); run=false; setCtrl(null); return; }
+          left--; el.textContent=fmt(left);
+        },1000);
+      };
+      if(pa) pa.onclick=function(){
+        run=false; clearInterval(t);
+        setCtrl(pa);
+      };
+      if(rs) rs.onclick=function(){
+        run=false; clearInterval(t);
+        left=total; el.textContent=fmt(left);
+        setCtrl(rs);
+        setTimeout(function(){ setCtrl(null); }, 400);
+      };
+      document.querySelectorAll('.sb-focus-preset').forEach(function(b){
+        b.onclick=function(){ sbSetFocus(parseInt(b.getAttribute('data-mins'),10)||25); };
+      });
+    })();
+    </script>
+
+{% elif page == 'settings' %}
+    <div class="panel">
+      <h2>Settings & Export</h2>
+      <p class="muted" style="margin-bottom:16px">Your data is stored server-side under your account.</p>
+
+      <div class="settings-sub" style="margin-bottom:16px">
+        <h3 style="margin-top:0">Preferences</h3>
+        <p class="muted" style="margin-top:0">Timezone, week start and default landing page for this workspace.</p>
+        <form method="POST" action="{{ url_for('second_brain_action') }}">
+          <input type="hidden" name="action" value="save_sb_preferences">
+          <input type="hidden" name="page" value="settings">
+          {% set st = data.settings or {} %}
+          <div class="prefs-grid">
+            <div class="field">
+              <label>Timezone</label>
+              <select name="timezone">
+                {% set tz = st.get('timezone') or 'Asia/Dhaka' %}
+                <option value="Asia/Dhaka" {% if tz=='Asia/Dhaka' %}selected{% endif %}>Asia/Dhaka (Bangladesh)</option>
+                <option value="UTC" {% if tz=='UTC' %}selected{% endif %}>UTC (GMT+0)</option>
+                <option value="Asia/Kolkata" {% if tz=='Asia/Kolkata' %}selected{% endif %}>Asia/Kolkata (India)</option>
+                <option value="Asia/Dubai" {% if tz=='Asia/Dubai' %}selected{% endif %}>Asia/Dubai</option>
+                <option value="Europe/London" {% if tz=='Europe/London' %}selected{% endif %}>Europe/London</option>
+                <option value="America/New_York" {% if tz=='America/New_York' %}selected{% endif %}>America/New_York (US Eastern)</option>
+                <option value="America/Los_Angeles" {% if tz=='America/Los_Angeles' %}selected{% endif %}>America/Los_Angeles (US Pacific)</option>
+                <option value="Australia/Sydney" {% if tz=='Australia/Sydney' %}selected{% endif %}>Australia/Sydney</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Week starts on</label>
+              {% set ws = st.get('week_starts_on') %}
+              {% if ws is none %}{% set ws = 6 %}{% endif %}
+              <select name="week_starts_on">
+                <option value="6" {% if ws==6 %}selected{% endif %}>Saturday</option>
+                <option value="0" {% if ws==0 %}selected{% endif %}>Sunday</option>
+                <option value="1" {% if ws==1 %}selected{% endif %}>Monday</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Default view / landing page</label>
+              {% set dv = st.get('default_view') or 'home' %}
+              <select name="default_view">
+                <option value="home" {% if dv=='home' %}selected{% endif %}>Dashboard</option>
+                <option value="planner" {% if dv=='planner' %}selected{% endif %}>Daily Planner</option>
+                <option value="tasks" {% if dv=='tasks' %}selected{% endif %}>Tasks</option>
+                <option value="captures" {% if dv=='captures' %}selected{% endif %}>Quick Capture</option>
+                <option value="goals" {% if dv=='goals' %}selected{% endif %}>Goals</option>
+                <option value="notes" {% if dv=='notes' %}selected{% endif %}>Notes</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:14px">
+            <button class="btn btn-primary" type="submit">Save preferences</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="settings-grid">
+        <div class="settings-sub">
+          <h3 style="margin-top:0">Export JSON</h3>
+          <p class="muted">Download a full backup of all Second Brain records.</p>
+          <form method="POST" action="{{ url_for('second_brain_action') }}">
+            <input type="hidden" name="action" value="export_json"><input type="hidden" name="page" value="settings">
+            <button class="btn btn-primary" type="submit">Export JSON</button>
+          </form>
+        </div>
+        <div class="settings-sub">
+          <h3 style="margin-top:0">Import JSON</h3>
+          <p class="muted">Merges by id. Existing ids are replaced; new ids are added.</p>
+          <form method="POST" action="{{ url_for('second_brain_action') }}" enctype="multipart/form-data" class="file-row" id="sbImportForm">
+            <input type="hidden" name="action" value="import_json"><input type="hidden" name="page" value="settings">
+            <input type="file" name="file" id="sbImportFile" accept="application/json,.json" required>
+            <label for="sbImportFile" class="file-label">Choose JSON file</label>
+            <span class="file-name" id="sbImportName">No file chosen</span>
+            <button class="btn btn-primary" type="submit">Import &amp; merge</button>
+          </form>
+        </div>
+      </div>
+      <hr style="border:0;border-top:1px solid var(--line);margin:20px 0">
+      <h3>AI features</h3>
+      <p class="muted">Optional AI uses your OpenAI API key or a server-side key (never stored in the browser).</p>
+      <div class="settings-sub">
+        <p class="muted" style="margin-top:0">Server env (optional fallback):</p>
+        <pre style="background:#0f172a;color:#e2e8f0;padding:14px 16px;border-radius:12px;font-size:12px;line-height:1.6;overflow:auto;margin:0 0 12px">export OPENAI_API_KEY=sk-your-key-here
+export OPENAI_MODEL=gpt-4o-mini</pre>
+        <p style="margin:0 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="muted" style="font-size:13px">Status:</span>
+          {% if openai_configured %}
+            <span class="badge-status on">● Active / Configured</span>
+          {% else %}
+            <span class="badge-status off">● Not configured</span>
+            <span class="muted" style="font-size:12px">AI actions stay disabled until a key is set.</span>
+          {% endif %}
+        </p>
+        <form method="POST" action="{{ url_for('second_brain_action') }}" style="margin-top:8px">
+          <input type="hidden" name="action" value="save_sb_openai_key">
+          <input type="hidden" name="page" value="settings">
+          <label class="muted" style="display:block;font-size:12px;font-weight:600;margin-bottom:6px">Your OpenAI API key (optional)</label>
+          <div class="sb-key-row">
+            <input type="password" name="openai_user_key" placeholder="{% if (data.settings or {}).get('openai_user_key') %}•••• saved — leave blank to keep{% else %}sk-… for AI on your own bill{% endif %}" autocomplete="off">
+            <button class="btn btn-primary" type="submit">Save key</button>
+          </div>
+          <p class="muted" style="font-size:12px;margin:8px 0 0">Type <b>clear</b> and save to remove your key. Prefer your key for unlimited use; otherwise the platform key applies when configured.</p>
+        </form>
+      </div>
+    </div>
+
+    {% else %}
+    <div class="panel"><h2>Page not found</h2><p class="muted">Unknown screen. <a href="{{ url_for('second_brain', page='home') }}">Go to dashboard</a></p></div>
+    {% endif %}
+  </main>
+</div>
+
+<script>
+(function () {
+  var KEY = "usb_side_scroll";
+  var el = document.querySelector(".side-scroll");
+  if (!el) return;
+  // Restore after full page navigation
+  try {
+    var y = sessionStorage.getItem(KEY);
+    if (y !== null) el.scrollTop = parseInt(y, 10) || 0;
+  } catch (e) {}
+  // Keep active item visible without forcing top
+  var active = el.querySelector("a.active");
+  if (active) {
+    var er = active.getBoundingClientRect();
+    var cr = el.getBoundingClientRect();
+    if (er.bottom > cr.bottom - 8 || er.top < cr.top + 8) {
+      active.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
+  }
+  function save() {
+    try { sessionStorage.setItem(KEY, String(el.scrollTop)); } catch (e) {}
+  }
+  el.addEventListener("scroll", save, { passive: true });
+  el.querySelectorAll("a").forEach(function (a) {
+    a.addEventListener("click", save);
+  });
+  window.addEventListener("beforeunload", save);
+})();
+</script>
+
+
+<script>
+(function () {
+  var ACTION = "{{ url_for('second_brain_action') }}";
+  var SEARCH_API = "{{ url_for('second_brain_search_api') }}";
+  var TODAY = "{{ today }}";
+
+  function toast(msg) {
+    var el = document.getElementById("sbToast");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "sbToast";
+      el.className = "sb-toast";
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove("show"); }, 2200);
+  }
+
+  function postForm(data) {
+    var fd = new FormData();
+    Object.keys(data).forEach(function (k) { fd.append(k, data[k]); });
+    return fetch(ACTION, {
+      method: "POST",
+      body: fd,
+      headers: { "X-Requested-With": "XMLHttpRequest", "Accept": "application/json" },
+      credentials: "same-origin"
+    }).then(function (r) { return r.json(); });
+  }
+
+  // —— Live search (bulletproof: button + Enter + typeahead) ——
+  var input = document.getElementById("sbSearchInput");
+  var drop = document.getElementById("sbSearchDrop");
+  var btn = document.getElementById("sbSearchBtn");
+  var timer = null;
+  var lastResults = [];
+  var ignoreOutsideUntil = 0;
+
+  function esc(s) {
+    return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function renderResults(results) {
+    lastResults = results || [];
+    if (!drop) return;
+    if (!lastResults.length) {
+      drop.innerHTML = '<div class="empty">No matches</div>';
+      drop.classList.add("open");
+      return;
+    }
+    var html = "";
+    var last = null;
+    lastResults.forEach(function (r, i) {
+      if (r.kind !== last) {
+        html += '<div class="kind" style="padding:8px 14px 2px;opacity:.7">' + esc(r.kind) + '</div>';
+        last = r.kind;
+      }
+      html += '<a class="item" href="' + esc(r.href || "#") + '" data-idx="' + i + '">' +
+        '<div class="title">' + esc(r.title) + '</div>' +
+        '<div class="snip">' + esc(r.snippet) + '</div></a>';
+    });
+    drop.innerHTML = html;
+    drop.classList.add("open");
+  }
+
+  function runSearch(opts) {
+    opts = opts || {};
+    if (!input) return;
+    var q = (input.value || "").trim();
+    if (q.length < 1) {
+      lastResults = [];
+      if (drop) { drop.classList.remove("open"); drop.innerHTML = ""; }
+      return;
+    }
+    ignoreOutsideUntil = Date.now() + 400;
+    var sep = (SEARCH_API.indexOf("?") >= 0) ? "&" : "?";
+    var url = SEARCH_API + sep + "q=" + encodeURIComponent(q);
+    fetch(url, {
+      method: "GET",
+      headers: { "Accept": "application/json", "X-Requested-With": "XMLHttpRequest" },
+      credentials: "same-origin",
+      cache: "no-store"
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        var results = (data && data.results) || [];
+        renderResults(results);
+        // Enter / Search button: if exactly 1 result, go there
+        if (opts.goFirst && results.length === 1 && results[0].href) {
+          window.location.href = results[0].href;
+          return;
+        }
+        // If multiple and user pressed Enter/button, focus first link
+        if (opts.goFirst && results.length > 1 && drop) {
+          var first = drop.querySelector("a.item");
+          if (first) first.focus();
+        }
+      })
+      .catch(function (err) {
+        console.error("SB search error", err);
+        if (drop) {
+          drop.innerHTML = '<div class="empty">Search failed — check console / login</div>';
+          drop.classList.add("open");
+        }
+      });
+  }
+
+  // Expose globally for debugging / inline hooks
+  window.sbDoSearch = function () { runSearch({ goFirst: true }); };
+
+  if (btn) {
+    btn.onclick = function (e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      runSearch({ goFirst: true });
+      return false;
+    };
+  }
+  if (input) {
+    input.addEventListener("input", function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () { runSearch({ goFirst: false }); }, 180);
+    });
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        if (drop) drop.classList.remove("open");
+        return;
+      }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        e.stopPropagation();
+        // If dropdown already has results, navigate first one
+        if (lastResults.length === 1 && lastResults[0].href) {
+          window.location.href = lastResults[0].href;
+          return;
+        }
+        if (lastResults.length > 1 && drop) {
+          var first = drop.querySelector("a.item");
+          if (first && first.getAttribute("href")) {
+            window.location.href = first.getAttribute("href");
+            return;
+          }
+        }
+        runSearch({ goFirst: true });
+      }
+      if (e.key === "ArrowDown" && drop && drop.classList.contains("open")) {
+        e.preventDefault();
+        var a = drop.querySelector("a.item");
+        if (a) a.focus();
+      }
+    });
+  }
+  // Close dropdown only on true outside clicks (not right after button/Enter)
+  document.addEventListener("click", function (e) {
+    if (Date.now() < ignoreOutsideUntil) return;
+    var wrap = document.getElementById("sbLiveSearch");
+    if (!wrap || !drop) return;
+    if (!wrap.contains(e.target)) drop.classList.remove("open");
+  });
+
+  // —— Quick capture (AJAX only — never navigate to JSON) ——
+  var qc = document.getElementById("sbQuickCapture");
+  if (qc && !qc.dataset.boundCapture) {
+    qc.dataset.boundCapture = "1";
+    qc.addEventListener("submit", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var titleEl = document.getElementById("sbCaptureTitle");
+      var btn = qc.querySelector('button[type="submit"]');
+      var title = (titleEl && titleEl.value || "").trim();
+      if (!title) return;
+      if (qc.dataset.busy === "1") return;
+      qc.dataset.busy = "1";
+      if (btn) { btn.disabled = true; btn.textContent = "…"; }
+      var fd = new FormData(qc);
+      fd.set("page", "home");
+      fd.delete("xhr");
+      fetch(ACTION, {
+        method: "POST",
+        body: fd,
+        headers: { "X-Requested-With": "XMLHttpRequest", "Accept": "application/json" },
+        credentials: "same-origin"
+      })
+        .then(function (r) {
+          var ct = r.headers.get("content-type") || "";
+          if (ct.indexOf("application/json") === -1) throw new Error("not-json");
+          return r.json();
+        })
+        .then(function (data) {
+          if (!data || !data.ok) throw new Error("fail");
+          if (titleEl) titleEl.value = "";
+          if (typeof toast === "function") toast("Captured to inbox");
+          var inbox = (data.counts && data.counts.inbox != null) ? data.counts.inbox : data.inbox;
+          var label = document.getElementById("sbInboxCountLabel");
+          if (label) label.textContent = "(inbox " + (inbox || 0) + ")";
+          document.querySelectorAll(".kpi").forEach(function (k) {
+            var lab = k.querySelector("span");
+            var b = k.querySelector("b");
+            if (lab && b && /inbox/i.test(lab.textContent || "")) b.textContent = inbox;
+          });
+          document.querySelectorAll(".nav a").forEach(function (a) {
+            if (/capture/i.test(a.getAttribute("href") || "") || /Quick Capture/i.test(a.textContent || "")) {
+              var badge = a.querySelector(".badge");
+              if (badge && inbox != null) badge.textContent = inbox;
+            }
+          });
+          var ul = document.getElementById("sbRecentCaptures");
+          if (ul && data.recent) {
+            ul.innerHTML = "";
+            if (!data.recent.length) {
+              ul.innerHTML = '<li class="muted">No unprocessed captures yet.</li>';
+            } else {
+              data.recent.forEach(function (c) {
+                var li = document.createElement("li");
+                var wrap = document.createElement("div");
+                var t = document.createElement("div");
+                t.textContent = c.title || "";
+                var badge = document.createElement("span");
+                badge.className = "badge";
+                badge.textContent = c.type || "";
+                wrap.appendChild(t);
+                wrap.appendChild(badge);
+                li.appendChild(wrap);
+                ul.appendChild(li);
+              });
+            }
+          }
+          var msg = document.getElementById("sbCaptureMsg");
+          if (msg) { msg.style.display = "block"; msg.textContent = "Captured — inbox updated"; setTimeout(function(){ msg.style.display="none"; }, 2000); }
+        })
+        .catch(function () {
+          if (typeof toast === "function") toast("Could not capture — try again");
+        })
+        .finally(function () {
+          qc.dataset.busy = "0";
+          if (btn) { btn.disabled = false; btn.textContent = "Capture"; }
+        });
+    });
+  }
+
+  // —— Import file label ——
+  var fi = document.getElementById("sbImportFile");
+  var fn = document.getElementById("sbImportName");
+  if (fi && fn) {
+    fi.addEventListener("change", function () {
+      fn.textContent = (fi.files && fi.files[0]) ? fi.files[0].name : "No file chosen";
+    });
+  }
+
+  // —— Habits toggle on dashboard ——
+  var grid = document.getElementById("sbHabitGrid");
+  if (grid) {
+    grid.addEventListener("click", function (e) {
+      var cell = e.target.closest("[data-habit-id]");
+      if (!cell) return;
+      var hid = cell.getAttribute("data-habit-id");
+      postForm({ action: "toggle_habit", habit_id: hid, date: TODAY, page: "home", xhr: "1" })
+        .then(function (data) {
+          if (!data || !data.ok) return;
+          var on = !!data.on;
+          cell.classList.toggle("on", on);
+          cell.setAttribute("aria-pressed", on ? "true" : "false");
+          var mark = cell.querySelector(".habit-mark");
+          if (mark) mark.textContent = on ? "✅" : "⬜";
+          var score = document.getElementById("sbHabitScore");
+          if (score && typeof data.score !== "undefined") score.textContent = data.score;
+        })
+        .catch(function () { toast("Habit update failed"); });
+    });
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  var nav = document.getElementById('sbNav') || document.querySelector('.nav-scroll') || document.querySelector('aside .nav');
+  if(!nav) return;
+  try { var y = sessionStorage.getItem('sbNavScroll'); if(y!==null) nav.scrollTop = parseInt(y,10)||0; } catch(e){}
+  nav.addEventListener('scroll', function(){ try{ sessionStorage.setItem('sbNavScroll', String(nav.scrollTop)); }catch(e){} });
+  nav.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){ try{ sessionStorage.setItem('sbNavScroll', String(nav.scrollTop)); }catch(e){} });
+  });
+})();
+</script>
+</body>
+</html>

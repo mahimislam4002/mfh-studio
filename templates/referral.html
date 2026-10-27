@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Referral - Portfolio SaaS{% endblock %}
+{% block topbar_title %}Referral{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Referral Program</h1>
+</div>
+
+<div class="stats-grid" style="margin-bottom:20px;">
+    <div class="stat-card">
+        <div class="stat-label">Your referral code</div>
+        <div class="stat-value code" style="font-size:1.2rem;">{{ user.referral_code }}</div>
+        <p class="text-muted small" style="margin-top:8px;">Share this code. When someone registers with it, they will be linked to your account.</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total signups</div>
+        <div class="stat-value">{{ ref_total }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Paid referrals</div>
+        <div class="stat-value">{{ ref_paid }}</div>
+        <p class="text-muted small" style="margin-top:8px;">Only paid subscribers count for rewards</p>
+    </div>
+</div>
+
+<div class="card" style="padding:20px;margin-bottom:20px;">
+    <h3 style="margin-bottom:8px;">Rewards</h3>
+    <ul style="margin:0;padding-left:18px;color:#475569;font-size:0.95rem;line-height:1.7;">
+        <li><strong>100 paid referrals</strong> → Apply for 1 year free plan (from Dashboard)</li>
+        <li><strong>500 paid referrals</strong> → Apply for 5% commission on referral income</li>
+    </ul>
+    <div style="margin-top:16px;padding:14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+        <strong>Payout account</strong>
+        {% if user.payout_account %}
+        <p class="text-muted small" style="margin-top:6px;">
+            {{ (user.payout_method or '')|upper }} —
+            {{ user.payout_account }}
+            {% if user.payout_account_name %} ({{ user.payout_account_name }}){% endif %}
+            {% if user.payout_bank_name %} · {{ user.payout_bank_name }}{% endif %}
+        </p>
+        <a href="{{ url_for('profile_settings') }}" class="btn btn-outline btn-sm" style="margin-top:8px;">Edit payout account</a>
+        {% else %}
+        <p class="text-muted small" style="margin-top:6px;">You have not added a payout account yet. Required before 5% commission can be paid.</p>
+        <a href="{{ url_for('profile_settings') }}" class="btn btn-primary btn-sm" style="margin-top:8px;">Add payout account</a>
+        {% endif %}
+    </div>
+    {% if user.commission_applied %}
+    <p style="margin-top:12px;"><span class="badge badge-warning">Commission application: Pending admin review</span></p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom:12px;">People you referred ({{ referred|length }})</h3>
+    {% if referred %}
+    <table class="users-table">
+        <thead><tr><th>Username</th><th>Name</th><th>Email</th><th>Plan</th><th>Joined</th></tr></thead>
+        <tbody>
+        {% for r in referred %}
+        <tr>
+            <td><strong>{{ r.username }}</strong></td>
+            <td>{{ r.full_name }}</td>
+            <td>{{ r.email }}</td>
+            <td>{{ r.plan or 'free' }}</td>
+            <td>{{ r.created_at[:10] if r.created_at else '' }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No referrals yet. Share your code to get started.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Help - Portfolio SaaS{% endblock %}
+{% block topbar_title %}Help{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Help Center</h1>
+    <p class="text-muted">Send a message to the admin team. You will get a notification when they respond.</p>
+</div>
+<form method="POST" class="edit-form" style="max-width:560px;">
+    <div class="form-section">
+        <div class="form-group">
+            <label>Subject</label>
+            <input type="text" name="subject" placeholder="What do you need help with?" required>
+        </div>
+        <div class="form-group">
+            <label>Message</label>
+            <textarea name="message" rows="6" required placeholder="Describe your issue or question..."></textarea>
+        </div>
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Send to Support</button>
+    </div>
+</form>
+{% endblock %}

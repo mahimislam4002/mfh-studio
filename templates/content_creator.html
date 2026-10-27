@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ module.name }} · {{ site_name }}</title>
+<style>
+:root{
+  --navy:#0f172a;--navy2:#1e293b;--violet:#6366f1;--violet2:#7c3aed;--accent:#6366f1;
+  --bg:#eef2f7;--panel:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;
+  --ok:#059669;--warn:#d97706;--danger:#dc2626;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);display:flex;min-height:100vh}
+a{color:inherit}
+.sidebar{width:260px;background:var(--navy);color:#e2e8f0;display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;padding:18px 16px;font-weight:700;font-size:15px;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#a855f7);display:flex;align-items:center;justify-content:center;font-size:18px}
+.nav-scroll{flex:1;overflow-y:auto;padding:10px 10px 16px;scrollbar-width:thin}
+.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#64748b;font-weight:700;padding:12px 10px 6px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;text-decoration:none;color:#cbd5e1;font-size:13.5px;margin-bottom:2px}
+.nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav a.active{background:linear-gradient(90deg,rgba(99,102,241,.35),rgba(168,85,247,.2));color:#fff;font-weight:600}
+.nav .badge{margin-left:auto;background:#334155;color:#e2e8f0;font-size:11px;padding:2px 7px;border-radius:999px}
+.side-foot{padding:12px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.side-foot img,.avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#334155}
+.side-foot .meta{flex:1;min-width:0}
+.side-foot .meta strong{display:block;font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-foot .meta span{font-size:11px;color:#94a3b8}
+.exit-btn{background:#334155;color:#e2e8f0;border:0;border-radius:8px;padding:6px 10px;font-size:12px;text-decoration:none}
+.main{margin-left:260px;flex:1;padding:18px 22px 40px;min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:14px;box-shadow:0 4px 16px rgba(15,23,42,.04)}
+.panel h2{margin:0 0 12px;font-size:18px}
+.panel h3{margin:16px 0 8px;font-size:14px}
+.muted{color:var(--muted);font-size:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px}
+.field input,.field select,.field textarea,.row input,.row select,textarea,input[type=text],input[type=date],input[type=url],input[type=search]{
+  width:100%;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:13.5px;background:#fff
+}
+.field-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-triple{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:800px){.field-pair,.field-triple{grid-template-columns:1fr}.sidebar{width:72px}.main{margin-left:72px}.nav a span.lbl,.nav-label,.brand span,.side-foot .meta{display:none}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;cursor:pointer;text-decoration:none;color:var(--ink)}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:8px}
+.btn-primary{background:var(--violet2)!important;color:#fff!important;border:0!important}
+.btn-danger{background:#fef2f2!important;border:1px solid #fecaca!important;color:#b91c1c!important}
+.btn-edit{background:#eef2ff!important;border:1px solid #c7d2fe!important;color:#3730a3!important}
+.btn-success{background:#ecfdf5!important;border:1px solid #a7f3d0!important;color:#047857!important}
+.btn-soft{background:#f1f5f9!important;border:1px solid #e2e8f0!important;color:#334155!important}
+.btn-outline{background:#fff!important;border:1px solid var(--line)!important}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:#eef2ff;color:#3730a3}
+.badge.green{background:#ecfdf5;color:#047857}
+.badge.amber{background:#fffbeb;color:#b45309}
+.badge.slate{background:#f1f5f9;color:#475569}
+.hero{background:linear-gradient(135deg,#1e1b4b 0%,#5b21b6 45%,#7c3aed 100%);color:#fff;border-radius:18px;padding:22px 24px;margin-bottom:14px}
+.hero h1{margin:0 0 6px;font-size:22px}
+.hero p{margin:0 0 12px;opacity:.9;font-size:14px;max-width:560px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pills a{background:rgba(255,255,255,.15);color:#fff;padding:6px 12px;border-radius:999px;font-size:12px;text-decoration:none}
+.pills a:hover,.pills a.on{background:#fff;color:#4c1d95}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+@media(max-width:900px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi,.kpi-link{background:linear-gradient(145deg,#1e293b 0%,#0f172a 100%)!important;color:#fff!important;border-radius:14px;padding:16px;min-height:88px;display:block;text-decoration:none;border:1px solid rgba(255,255,255,.08)}
+.kpi .lbl,.kpi-link .lbl{font-size:12px;color:rgba(255,255,255,.8)!important;opacity:1!important;font-weight:600;letter-spacing:.02em}
+.kpi .num,.kpi-link .num{font-size:28px;font-weight:700;margin-top:6px;color:#fff!important;line-height:1.1}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;gap:8px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+.list li:last-child{border-bottom:0}
+.board{display:flex;flex-direction:row;flex-wrap:nowrap;gap:10px;overflow-x:auto;padding-bottom:8px;align-items:flex-start}
+.board .col{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:10px;min-width:220px;max-width:260px;flex:0 0 220px}
+.board .col h4{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.card-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:8px;font-size:13px;box-sizing:border-box;overflow:hidden;max-width:100%}
+.card-item select,.card-item input,.card-item textarea{width:100%;max-width:100%;box-sizing:border-box;margin-top:6px}
+.card-item .field-pair{grid-template-columns:1fr 1fr;gap:6px;min-width:0}
+.card-item .field{min-width:0}
+.card-item input[type=date]{min-width:0;font-size:12px}
+.card-item.dragging{opacity:.5}
+.board .col.drag-over{outline:2px dashed var(--violet);background:#eef2ff}
+.edit-panel{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.edit-panel.open{display:block}
+.cal{width:100%;border-collapse:collapse}
+.cal th{font-size:11px;color:var(--muted);padding:6px;text-align:center}
+.cal td{vertical-align:top;border:1px solid var(--line);height:88px;width:14.28%;padding:4px;background:#fff;font-size:12px}
+.cal td.out{background:#f8fafc;color:#94a3b8}
+.cal td.today{outline:2px solid var(--violet);outline-offset:-2px}
+.cal .d{font-weight:700;margin-bottom:2px}
+.cal td.empty-day{cursor:pointer}.cal td.empty-day:hover{background:#eef2ff}.cal .chip.clickable{cursor:pointer}display:block;background:#eef2ff;color:#3730a3;border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px}
+.cc-search-wrap{position:relative;width:100%;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:nowrap;overflow:visible;z-index:40}
+.cc-search-row{display:flex;align-items:center;gap:8px;flex:1 1 auto;min-width:0;position:relative;flex-wrap:nowrap!important}
+.cc-search-row input{flex:1 1 auto;min-width:0;height:42px;border:1.5px solid var(--line);border-radius:12px;padding:0 16px 0 44px;font:inherit;font-size:14px}
+.cc-search-row .btn-search{height:42px;padding:0 18px;border-radius:12px;background:var(--violet2)!important;color:#fff!important;border:0!important;font-weight:600;flex:0 0 auto;white-space:nowrap}
+.cc-search-drop{display:none;position:absolute;left:0;top:calc(100% + 6px);z-index:300;width:min(640px,100%);background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 16px 48px rgba(15,23,42,.2);max-height:420px;overflow-y:auto}
+.cc-search-drop.open{display:block}
+.cc-search-drop .item{display:block;padding:10px 14px;text-decoration:none;border-bottom:1px solid var(--line)}
+.cc-search-drop .item:hover{background:#f1f5f9}
+.cc-search-drop .kind{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--accent)}
+.cc-search-drop .title{font-size:13px;font-weight:600}
+.cc-search-drop .snip{font-size:12px;color:var(--muted)}
+.cc-search-drop .empty{padding:14px;color:var(--muted);font-size:13px}
+.flash{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px}
+.flash.danger,.flash[data-cat=danger]{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.flash.warning{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.guide-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.guide-card h3{margin:0 0 6px;font-size:14px}
+.back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;text-decoration:none;font-size:13px;margin-bottom:10px}
+.empty-msg{color:var(--muted);padding:16px 0;font-size:14px}
+.lib-body{white-space:pre-wrap!important;word-break:break-word;font:inherit;font-size:13px;margin:8px 0;color:#334155;line-height:1.55}
+.cal .chip{display:block;font-size:10px;background:#eef2ff;color:#3730a3;border-radius:6px;padding:2px 5px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-decoration:none}
+.cal .chip.clickable{cursor:pointer}
+.cal .chip .plat{opacity:.75;font-weight:700}
+.cal td.empty-day{cursor:pointer}.cal td.empty-day:hover{background:#eef2ff}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:800px){.settings-grid{grid-template-columns:1fr}}
+.coming{opacity:.7;font-size:12px;color:var(--muted)}
+
+.nav-scroll{scrollbar-width:thin;scrollbar-color:#475569 transparent}
+.nav-scroll::-webkit-scrollbar{width:4px}
+.nav-scroll::-webkit-scrollbar-track{background:transparent}
+.nav-scroll::-webkit-scrollbar-thumb{background:#475569;border-radius:4px}
+.sidebar{border:0;box-shadow:none}
+.cc-search-row{position:relative;flex-wrap:nowrap!important;display:flex;align-items:center;gap:8px;flex:1 1 auto;min-width:0;margin:0}
+.cc-search-row .search-ico{position:absolute;left:12px;top:0;bottom:0;width:28px;display:flex;align-items:center;justify-content:center;opacity:.65;pointer-events:none;z-index:2;font-size:26px;line-height:1;height:42px;margin:0;}
+.cc-top-actions{display:inline-flex;gap:8px;align-items:center;flex:0 0 auto;margin-left:auto}
+.cc-top-actions .btn{height:42px;display:inline-flex;align-items:center}
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:18px;width:100%;max-width:560px;max-height:90vh;overflow:auto;box-shadow:0 24px 80px rgba(0,0,0,.25);padding:22px 24px;position:relative}
+.modal h2{margin:0 0 14px;font-size:18px}
+.modal .modal-close{position:absolute;right:12px;top:12px;border:0;background:transparent;font-size:22px;cursor:pointer;color:#64748b}
+.modal .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+
+
+.cc-search-wrap{display:flex;align-items:flex-start;gap:12px;width:100%;max-width:none;margin-bottom:14px}
+.cc-search-row{flex:1;min-width:180px;max-width:640px}
+.cc-top-actions{display:flex;gap:8px;align-items:center;margin-left:auto;flex-shrink:0}
+.cc-top-actions .btn{height:42px;display:inline-flex;align-items:center;white-space:nowrap}
+.kpi a,.kpi-link{display:block;text-decoration:none;color:inherit;transition:transform .12s,box-shadow .12s}
+.kpi a:hover,.kpi-link:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,23,42,.18)}
+.progress{height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:10px}
+.progress>i{display:block;height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:999px}
+.guide-card .btn{margin-top:10px}
+.checklist{list-style:none;padding:0;margin:0}
+.checklist li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.checklist li:last-child{border-bottom:0}
+.checklist .step{width:26px;height:26px;border-radius:50%;background:#eef2ff;color:#4338ca;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.checklist li.done .step{background:#059669;color:#fff}
+.checklist li.done strong{text-decoration:line-through;color:var(--muted)}
+.checklist li.done .muted{text-decoration:line-through}
+.plat-ico{display:inline-flex;width:28px;height:28px;border-radius:8px;align-items:center;justify-content:center;font-size:14px;margin-right:6px;background:#f1f5f9}
+
+.cal td.drag-over{outline:2px dashed #7c3aed;background:rgba(124,58,237,.08)}
+.cal .chip.dragging{opacity:.5}
+.cal .chip{cursor:grab}
+.cal .chip:active{cursor:grabbing}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="brand"><div class="brand-icon">🎬</div><span>Content Creator OS</span></div>
+  <div class="nav-scroll nav" id="ccNav">
+    <div class="nav-label">Home</div>
+    <a href="{{ url_for('content_creator', page='home') }}" class="{% if page=='home' %}active{% endif %}">🏠 <span class="lbl">Overview</span></a>
+    <a href="{{ url_for('content_creator', page='guide') }}" class="{% if page=='guide' %}active{% endif %}">⭐ <span class="lbl">Start Here</span></a>
+    <div class="nav-label">Create</div>
+    <a href="{{ url_for('content_creator', page='ideas') }}" class="{% if page=='ideas' %}active{% endif %}">💡 <span class="lbl">Ideas Inbox</span>{% if counts.ideas %}<span class="badge">{{ counts.ideas }}</span>{% endif %}</a>
+    <a href="{{ url_for('content_creator', page='pipeline') }}" class="{% if page=='pipeline' %}active{% endif %}">📋 <span class="lbl">Pipeline</span>{% if counts.pipeline_total %}<span class="badge">{{ counts.pipeline_total }}</span>{% endif %}</a>
+    <a href="{{ url_for('content_creator', page='calendar') }}" class="{% if page=='calendar' %}active{% endif %}">📅 <span class="lbl">Calendar</span></a>
+    <a href="{{ url_for('content_creator', page='campaigns') }}" class="{% if page=='campaigns' %}active{% endif %}">🎯 <span class="lbl">Campaigns</span></a>
+    <div class="nav-label">Distribute</div>
+    <a href="{{ url_for('content_creator', page='platforms') }}" class="{% if page=='platforms' %}active{% endif %}">📱 <span class="lbl">Platforms</span></a>
+    <a href="{{ url_for('content_creator', page='repurpose') }}" class="{% if page=='repurpose' %}active{% endif %}">♻️ <span class="lbl">Repurpose</span></a>
+    <a href="{{ url_for('content_creator', page='library') }}" class="{% if page=='library' %}active{% endif %}">📚 <span class="lbl">Library</span></a>
+    <a class="nav {% if page=='analytics' %}active{% endif %}" href="{{ url_for('content_creator', page='analytics') }}"><span class="g">📊</span><span class="lbl">Analytics</span></a>
+    <a class="nav {% if page=='publish' %}active{% endif %}" href="{{ url_for('content_creator', page='publish') }}"><span class="g">🚀</span><span class="lbl">Social Publish</span></a>
+    <a href="{{ url_for('content_creator', page='assets') }}" class="{% if page=='assets' %}active{% endif %}">🗂️ <span class="lbl">Assets</span></a>
+    <div class="nav-label">Intelligence</div>
+    <a href="{{ url_for('content_creator', page='brand-voice') }}" class="{% if page=='brand-voice' %}active{% endif %}">🗣️ <span class="lbl">Brand Voice</span></a>
+    <a href="{{ url_for('content_creator', page='ai-studio') }}" class="{% if page=='ai-studio' %}active{% endif %}">✨ <span class="lbl">AI Studio</span></a>
+    <div class="nav-label">System</div>
+    <a href="{{ url_for('content_creator', page='settings') }}" class="{% if page=='settings' %}active{% endif %}">⚙️ <span class="lbl">Settings & Export</span></a>
+  </div>
+  <div class="side-foot">
+    {% if user.photo %}<img src="{{ user.photo }}" alt="">{% else %}<div class="avatar"></div>{% endif %}
+    <div class="meta"><strong>{{ user.full_name or user.username }}</strong><span>@{{ user.username }}</span></div>
+    <a class="exit-btn" href="{{ url_for('dashboard') }}">Exit</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="cc-search-wrap" id="ccLiveSearch">
+    <form class="cc-search-row" id="ccSearchForm" method="get" action="{{ url_for('content_creator_go_search') }}" role="search" autocomplete="off">
+      <span class="search-ico" aria-hidden="true">⌕</span>
+      <input type="search" name="q" id="ccSearchInput" placeholder="Global search — ideas, pipeline, campaigns, library…" autocomplete="off" value="{{ q or '' }}" required minlength="1">
+      <button type="submit" class="btn btn-primary btn-search" id="ccSearchBtn">Search</button>
+    </form>
+    <div class="cc-top-actions">
+      <button type="button" class="btn btn-primary" onclick="ccOpenModal('modalIdea')">+ New idea</button>
+      <a class="btn btn-soft" href="{{ url_for('content_creator', page='calendar') }}">Calendar</a>
+    </div>
+    <div class="cc-search-drop" id="ccSearchDrop" role="listbox" aria-live="polite"></div>
+  </div>
+  {% if q and request.args.get('found') == '0' %}
+  <div class="panel" style="border:1.5px solid #f59e0b;background:#fffbeb;margin-bottom:14px">
+    <strong style="color:#92400e">No results found for “{{ q }}”</strong>
+    <p class="muted" style="margin:6px 0 0">Try another keyword. Search looks in Ideas, Pipeline, Library, Campaigns, Assets and Platforms.</p>
+  </div>
+  {% endif %}
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+      <div class="flash {% if cat %}{{ cat }}{% endif %}" data-cat="{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% if page != 'home' %}
+  <a class="back" href="{{ url_for('content_creator', page='home') }}">← Back to Overview</a>
+  {% endif %}
+
+  {% if page == 'home' %}
+  <div class="hero">
+    <h1>🎬 Content Creator OS</h1>
+    <p>Capture ideas, run your pipeline, schedule publish dates, and repurpose — one workspace for your content business.</p>
+  </div>
+  <div class="kpis">
+    <a class="kpi kpi-link" href="{{ url_for('content_creator', page='ideas') }}"><div class="lbl">Ideas</div><div class="num">{{ counts.ideas }}</div></a>
+    <a class="kpi kpi-link" href="{{ url_for('content_creator', page='pipeline') }}"><div class="lbl">In progress</div><div class="num">{{ counts.in_progress }}</div></a>
+    <a class="kpi kpi-link" href="{{ url_for('content_creator', page='calendar') }}"><div class="lbl">Scheduled</div><div class="num">{{ counts.scheduled }}</div></a>
+    <a class="kpi kpi-link" href="{{ url_for('content_creator', page='pipeline') }}"><div class="lbl">Published</div><div class="num">{{ counts.published }}</div></a>
+  </div>
+  <div class="row" style="align-items:stretch">
+    <div class="panel" style="flex:1;min-width:280px">
+      <h2>This week’s pipeline</h2>
+      <ul class="list">
+        {% set n=namespace(c=0) %}
+        {% for p in data.pipeline %}
+          {% if p.status in ['Scripting','Creating','Review','Approved','Scheduled'] and n.c < 6 %}
+          {% set n.c = n.c + 1 %}
+          <li><div style="flex:1"><strong>{{ p.title }}</strong><div class="muted">{{ p.status }} · {{ p.format }}{% if p.publish_date %} · {{ p.publish_date }}{% endif %}</div></div>
+            <a class="btn btn-sm btn-soft" href="{{ url_for('content_creator', page='pipeline') }}">Open</a></li>
+          {% endif %}
+        {% endfor %}
+        {% if n.c == 0 %}<li class="muted">No active pipeline items. Promote an idea or add content.</li>{% endif %}
+      </ul>
+      <a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='pipeline') }}" style="margin-top:10px">Open pipeline</a>
+    </div>
+    <div class="panel" style="flex:1;min-width:280px">
+      <h2>Idea inbox</h2>
+      <ul class="list">
+        {% set n=namespace(c=0) %}
+        {% for i in data.ideas if not i.archived %}
+          {% if n.c < 5 %}{% set n.c = n.c + 1 %}
+          <li><div style="flex:1"><strong>{{ i.title }}</strong><div class="muted">{{ i.format }} · {{ i.priority }}</div></div></li>
+          {% endif %}
+        {% endfor %}
+        {% if n.c == 0 %}<li class="muted">Inbox empty. Capture your next idea.</li>{% endif %}
+      </ul>
+      <a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='ideas') }}">Open Ideas</a>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Campaign pulse</h2>
+    <ul class="list">
+      {% for c in data.campaigns if c.status != 'Archived' %}
+      <li><div style="flex:1"><strong>{{ c.name }}</strong><div class="muted">{{ c.status }} · {{ c.objective[:80] if c.objective else '—' }}</div></div>
+        <span class="badge">{{ c.status }}</span></li>
+      {% else %}
+      <li class="muted">No campaigns yet. Create one to group content by goal.</li>
+      {% endfor %}
+    </ul>
+    <a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='campaigns') }}" style="margin-top:10px">Open campaigns</a>
+  </div>
+
+  {% elif page == 'ideas' %}
+  <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="margin:0">Ideas Inbox</h2>
+      <p class="muted" style="margin:4px 0 0">Click <b>+ New idea</b> — popup form, then Save.</p>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="ccOpenModal('modalIdea')">+ New idea</button>
+  </div>
+  <div class="panel">
+    <ul class="list">
+      {% for i in data.ideas if not i.archived %}
+      <li style="flex-wrap:wrap">
+        <div style="flex:1;min-width:180px"><strong>{{ i.title }}</strong>
+          <div class="muted">{{ i.format }} · {{ i.priority }}{% if i.platform %} · {{ i.platform }}{% endif %}</div>
+          {% if i.hook %}<div class="muted">{{ i.hook }}</div>{% endif %}
+        </div>
+        <form method="POST" action="{{ url_for('content_creator_action') }}"><input type="hidden" name="action" value="promote_idea"><input type="hidden" name="item_id" value="{{ i.id }}"><input type="hidden" name="page" value="pipeline"><button class="btn btn-success btn-sm" type="submit">→ Pipeline</button></form>
+        <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-i-{{ i.id }}').classList.toggle('open')">Edit</button>
+        <form method="POST" action="{{ url_for('content_creator_action') }}"><input type="hidden" name="action" value="delete_idea"><input type="hidden" name="item_id" value="{{ i.id }}"><input type="hidden" name="page" value="ideas"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete this idea?')">Delete</button></form>
+        <div class="edit-panel" id="edit-i-{{ i.id }}" style="width:100%">
+          <form method="POST" action="{{ url_for('content_creator_action') }}">
+            <input type="hidden" name="action" value="update_idea"><input type="hidden" name="item_id" value="{{ i.id }}"><input type="hidden" name="page" value="ideas">
+            <div class="field-pair"><div class="field"><label>Title</label><input name="title" value="{{ i.title }}"></div>
+            <div class="field"><label>Hook</label><input name="hook" value="{{ i.hook or '' }}"></div></div>
+            <div class="field-triple">
+              <div class="field"><label>Format</label><select name="format">{% for f in formats %}<option {% if i.format==f %}selected{% endif %}>{{ f }}</option>{% endfor %}</select></div>
+              <div class="field"><label>Priority</label><select name="priority">{% for p in priorities %}<option {% if i.priority==p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></div>
+              <div class="field"><label>Platform</label><select name="platform"><option value="">—</option>{% for p in platform_options %}<option {% if i.platform==p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></div>
+            </div>
+            <div class="field"><label>Notes</label><textarea name="notes" rows="2">{{ i.notes or '' }}</textarea></div>
+            <button class="btn btn-primary btn-sm" type="submit">Save</button>
+          </form>
+        </div>
+      </li>
+      {% else %}
+      <li class="empty-msg">No ideas yet. Add your first concept above.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  {% elif page == 'pipeline' %}
+  <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <h2 style="margin:0">Content Pipeline</h2>
+    <button type="button" class="btn btn-primary" onclick="ccOpenModal('modalPipe')">+ Add to pipeline</button>
+  </div>
+  <div class="panel">
+    <div class="board" id="pipeBoard">
+      {% for col in ['Idea','Scripting','Creating','Review','Approved','Scheduled','Published'] %}
+      <div class="col" data-status="{{ col }}" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="ccPipeDrop(event,this)">
+        <h4>{{ col }}</h4>
+        {% for p in data.pipeline if p.status == col %}
+        <div class="card-item" id="pipe-{{ p.id }}" draggable="true" data-id="{{ p.id }}" ondragstart="ccPipeDrag(event,this)">
+          <strong style="cursor:pointer" onclick="ccOpenPipeDetail('{{ p.id }}')">{{ p.title }}</strong>
+          <div class="muted">{{ p.format }} · {{ p.priority }}{% if p.publish_date %} · {{ p.publish_date }}{% endif %}</div>
+          <form method="POST" action="{{ url_for('content_creator_action') }}">
+            <input type="hidden" name="action" value="move_pipeline"><input type="hidden" name="item_id" value="{{ p.id }}"><input type="hidden" name="page" value="pipeline">
+            <select name="status" onchange="this.form.submit()">
+              {% for s in statuses %}<option value="{{ s }}" {% if p.status==s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+            </select>
+          </form>
+          <div class="row" style="margin-top:8px">
+            <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-p-{{ p.id }}').classList.toggle('open')">Edit</button>
+            <form method="POST" action="{{ url_for('content_creator_action') }}"><input type="hidden" name="action" value="delete_pipeline"><input type="hidden" name="item_id" value="{{ p.id }}"><input type="hidden" name="page" value="pipeline"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete this item?')">Delete</button></form>
+          </div>
+          <div class="edit-panel" id="edit-p-{{ p.id }}">
+            <form method="POST" action="{{ url_for('content_creator_action') }}">
+              <input type="hidden" name="action" value="update_pipeline"><input type="hidden" name="item_id" value="{{ p.id }}"><input type="hidden" name="page" value="pipeline">
+              <div class="field"><label>Title</label><input name="title" value="{{ p.title }}"></div>
+              <div class="field"><label>Body</label><textarea name="body" rows="3">{{ p.body or '' }}</textarea></div>
+              <div class="field"><label>Hook</label><input name="hook" value="{{ p.hook or '' }}"></div>
+              <div class="field-pair">
+                <div class="field"><label>Format</label><select name="format">{% for f in formats %}<option {% if p.format==f %}selected{% endif %}>{{ f }}</option>{% endfor %}</select></div>
+                <div class="field"><label>Publish date</label><input type="date" name="publish_date" value="{{ p.publish_date or '' }}"></div>
+              </div>
+              <input type="hidden" name="status" value="{{ p.status }}"><input type="hidden" name="priority" value="{{ p.priority }}"><input type="hidden" name="platform" value="{{ p.platform or '' }}">
+              <button class="btn btn-primary btn-sm" type="submit">Save</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% elif page == 'calendar' %}
+  <div class="panel">
+    <h2>Content Calendar</h2>
+    <form method="get" class="row" style="margin-bottom:12px">
+      <label class="muted">Month</label>
+      <input type="month" name="month" value="{{ month }}" onchange="this.form.submit()">
+    </form>
+    <table class="cal">
+      <thead><tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead>
+      <tbody>
+      {% for week in cal_days %}
+        <tr>
+        {% for d in week %}
+          <td class="{% if not d.in_month %}out{% endif %} {% if d.is_today %}today{% endif %} {% if d.in_month and not d.events %}empty-day{% endif %}"
+              data-cal-date="{{ d.date }}"
+              {% if d.in_month %}onclick="ccCalDayClick(event,'{{ d.date }}')" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="ccCalDrop(event,'{{ d.date }}')"{% endif %}>
+            <div class="d">{{ d.day }}</div>
+            {% for it in d.events %}
+            <a class="chip clickable" draggable="true" data-id="{{ it.id }}" href="{{ url_for('content_creator', page='pipeline') }}#pipe-{{ it.id }}" title="{{ it.title }} — drag to another day to reschedule" onclick="if(window._ccCalDragging){event.preventDefault();event.stopPropagation();window._ccCalDragging=false;return false;} event.stopPropagation();" ondragstart="ccCalDrag(event,this)" ondragend="this.classList.remove('dragging');window._ccCalDragging=false;">
+              {% if it.platform %}<span class="plat">{{ it.platform[:2]|upper }}</span> · {% endif %}{{ it.title }}
+            </a>
+            {% endfor %}
+          </td>
+        {% endfor %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% if not cal_days %}<p class="empty-msg">Could not build calendar for this month. Try another month.</p>{% endif %}
+    <p class="muted" style="margin-top:10px">Click a chip to open Pipeline. Drag a chip to another day to reschedule. Click an empty day to add content for that date. Items appear when pipeline cards have a <strong>publish date</strong>.</p>
+  </div>
+
+  {% elif page == 'campaigns' %}
+  <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="margin:0">Campaigns</h2>
+      <p class="muted" style="margin:4px 0 0">Click <b>+ New campaign</b> — form opens in a popup, then Save.</p>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="ccOpenModal('modalCamp')">+ New campaign</button>
+  </div>
+  {% for c in data.campaigns %}
+  <div class="panel">
+    <strong>{{ c.name }}</strong> <span class="badge">{{ c.status }}</span>
+    <p class="muted">{{ c.objective or '—' }}</p>
+    <div class="muted">{{ c.starts_on or '—' }} → {{ c.ends_on or '—' }} · Audience: {{ c.audience or '—' }}</div>
+    
+    {% if c.kpi %}<div class="muted">KPI: {{ c.kpi }}</div>{% endif %}
+    {% if c.budget %}<div class="muted">Budget: {{ c.budget }}</div>{% endif %}
+    {% set prog = c.get('progress_pct') %}
+    {% if prog is not none %}
+    <div class="progress" title="{{ prog }}% of date range"><i style="width:{{ prog }}%"></i></div>
+    <div class="muted" style="font-size:11px;margin-top:4px">Timeline {{ prog }}%</div>
+    {% endif %}
+    {% if c.linked_pipeline %}
+    <div class="muted" style="margin-top:6px">Linked content:
+      {% for lid in c.linked_pipeline %}
+        {% for p in data.pipeline if p.id == lid %}
+          <span class="badge">{{ p.title }}</span>
+        {% endfor %}
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="row" style="margin-top:10px">
+      <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-c-{{ c.id }}').classList.toggle('open')">Edit</button>
+      <form method="POST" action="{{ url_for('content_creator_action') }}"><input type="hidden" name="action" value="delete_campaign"><input type="hidden" name="item_id" value="{{ c.id }}"><input type="hidden" name="page" value="campaigns"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete campaign?')">Delete</button></form>
+    </div>
+    <div class="edit-panel" id="edit-c-{{ c.id }}">
+      <form method="POST" action="{{ url_for('content_creator_action') }}" onsubmit="return ccValidateCampaignDates(this)">
+        <input type="hidden" name="action" value="update_campaign"><input type="hidden" name="item_id" value="{{ c.id }}"><input type="hidden" name="page" value="campaigns">
+        <div class="field"><label>Name</label><input name="name" value="{{ c.name }}"></div>
+        <div class="field"><label>Objective</label><textarea name="objective" rows="2">{{ c.objective or '' }}</textarea></div>
+        <div class="field-triple">
+          <div class="field"><label>Status</label><select name="status">{% for s in ['Planning','Active','Paused','Completed','Archived'] %}<option {% if c.status==s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+          <div class="field"><label>Starts</label><input type="date" name="starts_on" value="{{ c.starts_on or '' }}"></div>
+          <div class="field"><label>Ends</label><input type="date" name="ends_on" value="{{ c.ends_on or '' }}"></div>
+        </div>
+        <div class="field"><label>Audience</label><input name="audience" value="{{ c.audience or '' }}"></div>
+        <div class="field-pair" style="margin-top:8px">
+          <div class="field"><label>Target KPI</label><input name="kpi" value="{{ c.kpi or '' }}"></div>
+          <div class="field"><label>Budget</label><input name="budget" value="{{ c.budget or '' }}"></div>
+        </div>
+        <div class="field" style="margin-top:8px"><label>Attach pipeline items</label>
+          <select name="linked_pipeline" multiple size="4" style="height:auto;min-height:88px">
+            {% for p in data.pipeline if p.status != 'Archived' %}
+            <option value="{{ p.id }}" {% if c.linked_pipeline and p.id in c.linked_pipeline %}selected{% endif %}>{{ p.title }} ({{ p.status }})</option>
+            {% endfor %}
+          </select>
+          <p class="muted" style="font-size:11px;margin:4px 0 0">Hold Ctrl/Cmd to select multiple</p>
+        </div>
+        <button class="btn btn-primary btn-sm" type="submit" style="margin-top:8px">Save</button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <div class="panel"><p class="empty-msg">No campaigns yet.</p></div>
+  {% endfor %}
+
+  {% elif page == 'platforms' %}
+  <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="margin:0">Platforms</h2>
+      <p class="muted" style="margin:4px 0 0">Click <b>+ Add platform</b> — popup form. OAuth: Coming Soon.</p>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="ccOpenModal('modalPlat')">+ Add platform</button>
+  </div>
+  <div class="panel">
+    <ul class="list">
+      {% for p in data.platforms %}
+      <li style="flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <strong>
+            <span class="plat-ico">{% if 'YouTube' in (p.provider or '') %}▶️{% elif 'TikTok' in (p.provider or '') %}🎵{% elif 'Instagram' in (p.provider or '') %}📷{% elif 'LinkedIn' in (p.provider or '') %}💼{% elif 'Facebook' in (p.provider or '') %}📘{% elif 'X' in (p.provider or '') or 'Twitter' in (p.provider or '') %}𝕏{% else %}📱{% endif %}</span>
+            {{ p.name }}
+          </strong>
+          <div class="muted">{{ p.provider }} · {{ p.handle or '—' }} · {{ p.status or 'Active' }} · {{ p.connection or 'Manual' }}</div>
+          {% if p.url %}<div class="muted"><a href="{{ p.url }}" target="_blank" rel="noopener">{{ p.url }}</a></div>{% endif %}
+          {% if p.notes %}<div class="muted">{{ p.notes }}</div>{% endif %}
+        </div>
+        <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-plat-{{ p.id }}').classList.toggle('open')">Edit</button>
+        <form method="POST" action="{{ url_for('content_creator_action') }}"><input type="hidden" name="action" value="delete_platform"><input type="hidden" name="item_id" value="{{ p.id }}"><input type="hidden" name="page" value="platforms"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Remove platform?')">Delete</button></form>
+        <div class="edit-panel" id="edit-plat-{{ p.id }}" style="width:100%">
+          <form method="POST" action="{{ url_for('content_creator_action') }}">
+            <input type="hidden" name="action" value="update_platform"><input type="hidden" name="item_id" value="{{ p.id }}"><input type="hidden" name="page" value="platforms">
+            <div class="field-pair">
+              <div class="field"><label>Name</label><input name="name" value="{{ p.name }}"></div>
+              <div class="field"><label>Provider</label><select name="provider">{% for opt in platform_options %}<option {% if p.provider==opt %}selected{% endif %}>{{ opt }}</option>{% endfor %}</select></div>
+            </div>
+            <div class="field-pair" style="margin-top:8px">
+              <div class="field"><label>Handle</label><input name="handle" value="{{ p.handle or '' }}"></div>
+              <div class="field"><label>Status</label><select name="status"><option {% if (p.status or 'Active')=='Active' %}selected{% endif %}>Active</option><option {% if p.status=='Inactive' %}selected{% endif %}>Inactive</option></select></div>
+            </div>
+            <div class="field" style="margin-top:8px"><label>URL</label><input name="url" value="{{ p.url or '' }}"></div>
+            <div class="field" style="margin-top:8px"><label>Notes</label><textarea name="notes" rows="2">{{ p.notes or '' }}</textarea></div>
+            <button class="btn btn-primary btn-sm" type="submit" style="margin-top:8px">Save</button>
+          </form>
+        </div>
+      </li>
+      {% else %}
+      <li class="empty-msg">No platforms saved.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  {% elif page == 'repurpose' %}
+  <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="margin:0">Repurpose Studio</h2>
+      <p class="muted" style="margin:4px 0 0">Click <b>+ Repurpose</b> — popup form. Saves to pipeline as Scripting. Optional source from Pipeline/Library.</p>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="ccOpenModal('modalRep')">+ Repurpose</button>
+  </div>
+  <div class="panel">
+    <h2 style="margin-top:0">Repurpose history</h2>
+    {% set log = data.repurpose_log if data.repurpose_log is iterable and data.repurpose_log is not string else [] %}
+    <ul class="list">
+      {% if log and log|length > 0 %}
+        {% for r in log[:40] %}
+        <li>
+          <div style="flex:1">
+            <strong>{{ r.title }}</strong>
+            <div class="muted">{{ r.format or '—' }} · {{ r.platform or 'Any platform' }}{% if r.source_title %} · from: {{ r.source_title }}{% elif r.source_item_id %} · from source{% endif %}{% if r.created_at %} · {{ r.created_at[:16]|replace('T',' ') }}{% endif %}</div>
+          </div>
+          <a class="btn btn-sm btn-soft" href="{{ url_for('content_creator', page='pipeline') }}">Pipeline</a>
+        </li>
+        {% endfor %}
+      {% else %}
+        {# fallback: pipeline cards marked repurposed #}
+        {% set ns = namespace(c=0) %}
+        {% for p in data.pipeline or [] %}
+          {% if p.repurposed or p.source_item_id %}
+          {% set ns.c = ns.c + 1 %}
+          <li>
+            <div style="flex:1">
+              <strong>{{ p.title }}</strong>
+              <div class="muted">{{ p.format or '—' }} · {{ p.platform or 'Any platform' }} · from pipeline</div>
+            </div>
+            <a class="btn btn-sm btn-soft" href="{{ url_for('content_creator', page='pipeline') }}">Pipeline</a>
+          </li>
+          {% endif %}
+        {% endfor %}
+        {% if ns.c == 0 %}
+        <li class="empty-msg">No repurposed items yet. Click + Repurpose to create one.</li>
+        {% endif %}
+      {% endif %}
+    </ul>
+  </div>
+
+  {% elif page == 'library' %}
+  <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="margin:0">Content Library</h2>
+      <p class="muted" style="margin:4px 0 0">Click <b>+ Save draft</b> — popup form, then Save. Filter by type below.</p>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="ccOpenModal('modalLib')">+ Save draft</button>
+  </div>
+  <div class="row" style="margin-bottom:12px;gap:8px;flex-wrap:wrap" id="libFilters">
+    <button type="button" class="btn btn-sm btn-soft lib-filter on" data-type="all">All</button>
+    <button type="button" class="btn btn-sm btn-soft lib-filter" data-type="Draft">Drafts</button>
+    <button type="button" class="btn btn-sm btn-soft lib-filter" data-type="Template">Templates</button>
+    <button type="button" class="btn btn-sm btn-soft lib-filter" data-type="Hook">Hooks</button>
+    <button type="button" class="btn btn-sm btn-soft lib-filter" data-type="CTA / Outro">CTA / Outro</button>
+    <button type="button" class="btn btn-sm btn-soft lib-filter" data-type="Sponsorship Pitch">Sponsorship</button>
+  </div>
+  {% for l in data.library %}
+  <div class="panel lib-card" data-lib-type="{{ l.type or 'Draft' }}">
+    <strong>{{ l.title }}</strong>
+    <span class="badge slate">{{ l.type or 'Draft' }}</span>
+    {% if l.platform %}<span class="badge">{{ l.platform }}</span>{% endif %}
+    {% if l.tags %}<span class="muted" style="font-size:12px"> · {{ l.tags }}</span>{% endif %}
+    <div class="lib-body">{% set body_txt = l.body or '' %}{{ body_txt[:2000] }}{% if body_txt|length > 2000 %}…{% endif %}</div>
+    <div class="row">
+      <button type="button" class="btn btn-soft btn-sm" onclick="ccCopyFromSibling(this)">Copy</button>
+      <form method="POST" action="{{ url_for('content_creator_action') }}" style="display:inline">
+        <input type="hidden" name="action" value="library_to_pipeline"><input type="hidden" name="item_id" value="{{ l.id }}"><input type="hidden" name="page" value="library">
+        <button class="btn btn-primary btn-sm" type="submit">→ Pipeline</button>
+      </form>
+      <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-l-{{ l.id }}').classList.toggle('open')">Edit</button>
+      <form method="POST" action="{{ url_for('content_creator_action') }}"><input type="hidden" name="action" value="delete_library"><input type="hidden" name="item_id" value="{{ l.id }}"><input type="hidden" name="page" value="library"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete?')">Delete</button></form>
+    </div>
+    <div class="edit-panel" id="edit-l-{{ l.id }}">
+      <form method="POST" action="{{ url_for('content_creator_action') }}">
+        <input type="hidden" name="action" value="update_library"><input type="hidden" name="item_id" value="{{ l.id }}"><input type="hidden" name="page" value="library">
+        <div class="field"><label>Title</label><input name="title" value="{{ l.title }}"></div>
+        <div class="field"><label>Body</label><textarea name="body" rows="6">{{ l.body or '' }}</textarea></div>
+        <div class="field-pair">
+          <div class="field"><label>Type</label>
+            <select name="type">
+              {% for ty in ['Draft','Template','Hook','CTA / Outro','Sponsorship Pitch','AI Draft'] %}
+              <option {% if (l.type or 'Draft')==ty %}selected{% endif %}>{{ ty }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field"><label>Platform</label>
+            <select name="platform"><option value="">All platforms</option>
+              {% for p in platform_options %}<option {% if l.platform==p %}selected{% endif %}>{{ p }}</option>{% endfor %}
+              {% for p in data.platforms %}<option {% if l.platform==(p.name or p.provider) %}selected{% endif %}>{{ p.name or p.provider }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-top:8px"><label>Tags</label><input name="tags" value="{{ l.tags or '' }}" placeholder="#intro, educational"></div>
+        <button class="btn btn-primary btn-sm" type="submit" style="margin-top:8px">Save</button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <div class="panel"><p class="empty-msg">Library is empty.</p></div>
+  {% endfor %}
+
+    {% elif page == 'assets' %}
+  <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="margin:0">Assets & Resources</h2>
+      <p class="muted" style="margin:4px 0 0">Click <b>+ Add asset</b> — popup form. Links open externally; use Copy Link for quick paste.</p>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="ccOpenModal('modalAsset')">+ Add asset</button>
+  </div>
+  <ul class="list">
+    {% for a in data.assets %}
+    <li style="flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <strong>{% if a.url %}<a href="{{ a.url }}" target="_blank" rel="noopener noreferrer">{{ a.name }}</a>{% else %}{{ a.name }}{% endif %}</strong>
+        <div class="muted">{{ a.kind or 'Link' }}{% if a.url %} · <a href="{{ a.url }}" target="_blank" rel="noopener noreferrer">Open ↗</a>{% endif %}</div>
+        {% if a.url and (a.url.endswith('.png') or a.url.endswith('.jpg') or a.url.endswith('.jpeg') or a.url.endswith('.webp') or a.url.endswith('.gif')) %}
+        <div style="margin-top:8px"><img src="{{ a.url }}" alt="" style="max-width:160px;max-height:90px;border-radius:8px;object-fit:cover;border:1px solid #e2e8f0" onerror="this.style.display='none'"></div>
+        {% endif %}
+      </div>
+      <div class="row">
+        {% if a.url %}<button type="button" class="btn btn-soft btn-sm" onclick="ccCopyText(this)" data-copy="{{ a.url|e }}">Copy Link</button>{% endif %}
+        <button type="button" class="btn btn-edit btn-sm" onclick="document.getElementById('edit-a-{{ a.id }}').classList.toggle('open')">Edit</button>
+        <form method="POST" action="{{ url_for('content_creator_action') }}"><input type="hidden" name="action" value="delete_asset"><input type="hidden" name="item_id" value="{{ a.id }}"><input type="hidden" name="page" value="assets"><button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('Delete asset?')">Delete</button></form>
+      </div>
+      <div class="edit-panel" id="edit-a-{{ a.id }}" style="width:100%">
+        <form method="POST" action="{{ url_for('content_creator_action') }}">
+          <input type="hidden" name="action" value="update_asset"><input type="hidden" name="item_id" value="{{ a.id }}"><input type="hidden" name="page" value="assets">
+          <div class="field-pair">
+            <div class="field"><label>Name</label><input name="name" value="{{ a.name }}"></div>
+            <div class="field"><label>Kind</label><input name="kind" value="{{ a.kind or 'Link' }}"></div>
+          </div>
+          <div class="field" style="margin-top:8px"><label>URL</label><input name="url" value="{{ a.url or '' }}"></div>
+          <div class="field" style="margin-top:8px"><label>Notes</label><textarea name="notes" rows="2">{{ a.notes or '' }}</textarea></div>
+          <button class="btn btn-primary btn-sm" type="submit" style="margin-top:8px">Save</button>
+        </form>
+      </div>
+    </li>
+    {% else %}
+    <li class="empty-msg">No assets yet.</li>
+    {% endfor %}
+  </ul>
+
+  {% elif page == 'brand-voice' %}
+  <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="margin:0">Brand Voice</h2>
+      <p class="muted" style="margin:4px 0 0">Click <b>+ Edit brand voice</b> — popup form, then Save. Used by AI Studio prompts.</p>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="ccOpenModal('modalBrand')">+ Edit brand voice</button>
+  </div>
+  <div class="panel">
+      <div><strong>Name:</strong> {{ data.brand_voice.name or '—' }}</div>
+      <div class="muted" style="margin-top:6px"><strong>Tone:</strong> {{ data.brand_voice.tone or '—' }}</div>
+      <div class="muted" style="margin-top:6px"><strong>Audience:</strong> {{ data.brand_voice.audience or '—' }}</div>
+      <div style="margin-top:12px"><strong>Do:</strong><div class="muted" style="white-space:pre-wrap">{{ data.brand_voice.dos or '—' }}</div></div>
+      <div style="margin-top:10px"><strong>Don't:</strong><div class="muted" style="white-space:pre-wrap">{{ data.brand_voice.donts or '—' }}</div></div>
+      <div style="margin-top:10px"><strong>Sample:</strong><div class="muted" style="white-space:pre-wrap">{{ data.brand_voice.sample or '—' }}</div></div>
+  </div>
+
+  {% elif page == 'ai-studio' %}
+  <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <div>
+      <h2 style="margin:0">AI Studio</h2>
+      <p class="muted" style="margin:4px 0 0">
+        {% if openai_configured %}API key detected — generate drafts with your brand voice.{% else %}
+        Set <code>OPENAI_API_KEY</code> in <a href="{{ url_for('content_creator', page='settings') }}">Settings &amp; Export</a> (or server env).
+        {% endif %}
+      </p>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="ccOpenModal('modalAI')">+ Generate draft</button>
+  </div>
+  <div class="panel">
+    <p class="muted">Generated drafts are saved to Library for review — nothing is published automatically. Brand Voice (tone, audience, do/don't) is injected into the system prompt when set.</p>
+  </div>
+
+{% elif page == 'guide' %}
+  <div class="panel">
+    <h2>Getting started checklist</h2>
+    <p class="muted">Complete these steps to set up your content workspace.</p>
+    <ul class="checklist">
+      <li class="{% if data.brand_voice and data.brand_voice.name %}done{% endif %}">
+        <span class="step">{% if data.brand_voice and data.brand_voice.name %}✓{% else %}1{% endif %}</span>
+        <div style="flex:1"><strong>Set Brand Voice</strong><div class="muted">Tone &amp; audience for AI</div></div>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='brand-voice') }}">{% if data.brand_voice and data.brand_voice.name %}Edit{% else %}Open{% endif %}</a></li>
+      <li class="{% if data.platforms %}done{% endif %}">
+        <span class="step">{% if data.platforms %}✓{% else %}2{% endif %}</span>
+        <div style="flex:1"><strong>Add a platform</strong><div class="muted">YouTube, LinkedIn, TikTok…</div></div>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='platforms') }}">{% if data.platforms %}Edit{% else %}Open{% endif %}</a></li>
+      <li class="{% if data.ideas %}done{% endif %}">
+        <span class="step">{% if data.ideas %}✓{% else %}3{% endif %}</span>
+        <div style="flex:1"><strong>Capture first idea</strong><div class="muted">Then move it to Pipeline</div></div>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='ideas') }}">{% if data.ideas %}Open{% else %}Open{% endif %}</a></li>
+      <li class="{% if data.pipeline %}done{% endif %}">
+        <span class="step">{% if data.pipeline %}✓{% else %}4{% endif %}</span>
+        <div style="flex:1"><strong>Run the pipeline</strong><div class="muted">Idea → Scheduled → Published</div></div>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='pipeline') }}">Open</a></li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h2>Start Here — User Guide</h2>
+    <p class="muted">Click Open on any card to jump to that feature.</p>
+    <div class="guide-grid">
+      <div class="guide-card"><h3>💡 Ideas Inbox</h3><p>Capture raw ideas with format, priority, and hook. Promote to Pipeline when ready.</p><a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='ideas') }}">Open Ideas</a></div>
+      <div class="guide-card"><h3>📋 Pipeline</h3><p>Move work Idea → Scripting → Creating → Review → Approved → Scheduled → Published.</p><a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='pipeline') }}">Open Pipeline</a></div>
+      <div class="guide-card"><h3>📅 Calendar</h3><p>Month view of items with a publish date. Set dates on pipeline cards.</p><a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='calendar') }}">Open Calendar</a></div>
+      <div class="guide-card"><h3>🎯 Campaigns</h3><p>Group content by goal, dates, and audience.</p><a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='campaigns') }}">Open Campaigns</a></div>
+      <div class="guide-card"><h3>📱 Platforms</h3><p>Store channel profiles. OAuth auto-publish is Coming Soon.</p><a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='platforms') }}">Open Platforms</a></div>
+      <div class="guide-card"><h3>♻️ Repurpose</h3><p>Adapt one piece into another format and send it back to the pipeline.</p><a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='repurpose') }}">Open Repurpose</a></div>
+      <div class="guide-card"><h3>📚 Library</h3><p>Long-form scripts, captions, and AI drafts you review before use.</p><a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='library') }}">Open Library</a></div>
+      <div class="guide-card"><h3>✨ AI Studio</h3><p>Server-side generation using your Brand Voice when API key is set.</p><a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='ai-studio') }}">Open AI Studio</a></div>
+      <div class="guide-card"><h3>⚙️ Settings</h3><p>Timezone, API key, export / import backup.</p><a class="btn btn-primary btn-sm" href="{{ url_for('content_creator', page='settings') }}">Open Settings</a></div>
+    </div>
+  </div>
+
+  
+  {% elif page == 'analytics' %}
+  <div class="panel">
+    <h2>Content analytics</h2>
+    <p class="muted">Workspace metrics from your pipeline. Live platform stats (views, watch time) connect when OAuth/API keys are added later — structure is ready.</p>
+    <div class="kpis" style="margin-top:12px">
+      <div class="kpi"><div class="lbl">Ideas</div><div class="num">{{ analytics.ideas if analytics else counts.ideas }}</div></div>
+      <div class="kpi"><div class="lbl">In progress</div><div class="num">{{ analytics.in_progress if analytics else counts.in_progress }}</div></div>
+      <div class="kpi"><div class="lbl">Scheduled</div><div class="num">{{ analytics.scheduled if analytics else counts.scheduled }}</div></div>
+      <div class="kpi"><div class="lbl">Published</div><div class="num">{{ analytics.published if analytics else counts.published }}</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>By status</h3>
+    <table><thead><tr><th>Status</th><th>Count</th></tr></thead><tbody>
+    {% for r in (analytics.by_status if analytics else []) %}
+      <tr><td>{{ r.label }}</td><td><b>{{ r.count }}</b></td></tr>
+    {% else %}<tr><td colspan="2" class="muted">No pipeline data yet.</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div class="panel">
+    <h3>By platform</h3>
+    <table><thead><tr><th>Platform</th><th>Count</th></tr></thead><tbody>
+    {% for r in (analytics.by_platform if analytics else []) %}
+      <tr><td>{{ r.label }}</td><td><b>{{ r.count }}</b></td></tr>
+    {% else %}<tr><td colspan="2" class="muted">Assign platforms on pipeline cards.</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div class="panel">
+    <h3>By format</h3>
+    <table><thead><tr><th>Format</th><th>Count</th></tr></thead><tbody>
+    {% for r in (analytics.by_format if analytics else []) %}
+      <tr><td>{{ r.label }}</td><td><b>{{ r.count }}</b></td></tr>
+    {% else %}<tr><td colspan="2" class="muted">No format data yet.</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+
+  {% elif page == 'publish' %}
+  <div class="panel">
+    <h2>Social publish</h2>
+    <p class="muted">Queue published/scheduled pipeline items for YouTube, Instagram, TikTok, LinkedIn, X. OAuth tokens will plug in here — workflow is complete offline.</p>
+  </div>
+  <div class="panel">
+    <h3>Ready to publish</h3>
+    {% set ready = [] %}
+    {% for p in data.pipeline %}
+      {% if p.status in ['Approved','Scheduled','Published'] %}
+      <div class="card-item" style="margin-bottom:10px">
+        <strong>{{ p.title }}</strong>
+        <div class="muted">{{ p.status }} · {{ p.platform or 'No platform' }} · {{ p.format }} {% if p.publish_date %}· {{ p.publish_date }}{% endif %}</div>
+        <div class="row" style="margin-top:8px;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn-primary btn-sm" onclick="alert('Connect platform OAuth in Settings to enable one-click publish. Item is queued in your pipeline as {{ p.status }}.')">Publish now</button>
+          <span class="muted" style="font-size:12px">Requires platform connection (coming with OAuth keys)</span>
+        </div>
+      </div>
+      {% endif %}
+    {% else %}
+    <p class="muted">No approved/scheduled items yet. Move cards to Approved or Scheduled in Pipeline.</p>
+    {% endfor %}
+  </div>
+  <div class="panel">
+    <h3>Connected platforms</h3>
+    {% for pl in data.platforms %}
+      <div class="card-item" style="margin-bottom:8px">
+        <strong>{{ pl.name or pl.platform }}</strong>
+        <div class="muted">{{ pl.handle or '—' }} · {{ pl.url or '' }}</div>
+        <div class="muted" style="font-size:12px">OAuth: not connected yet — store tokens in Settings when available.</div>
+      </div>
+    {% else %}
+    <p class="muted">Add platforms under Platforms menu first.</p>
+    {% endfor %}
+  </div>
+
+{% elif page == 'settings' %}
+  <div class="panel">
+    <h2>Workspace settings</h2>
+    <form method="POST" action="{{ url_for('content_creator_action') }}">
+      <input type="hidden" name="action" value="save_cc_settings"><input type="hidden" name="page" value="settings">
+      <div class="field-triple">
+        <div class="field"><label>Timezone</label>
+          <select name="timezone">
+            {% set tz = data.settings.timezone or 'UTC' %}
+            <option value="UTC" {% if tz=='UTC' %}selected{% endif %}>UTC (GMT+0)</option>
+            <option value="Asia/Dhaka" {% if tz=='Asia/Dhaka' %}selected{% endif %}>Asia/Dhaka (Bangladesh)</option>
+            <option value="Asia/Kolkata" {% if tz=='Asia/Kolkata' %}selected{% endif %}>Asia/Kolkata (India)</option>
+            <option value="Asia/Dubai" {% if tz=='Asia/Dubai' %}selected{% endif %}>Asia/Dubai</option>
+            <option value="Europe/London" {% if tz=='Europe/London' %}selected{% endif %}>Europe/London</option>
+            <option value="America/New_York" {% if tz=='America/New_York' %}selected{% endif %}>America/New_York (US Eastern)</option>
+            <option value="America/Los_Angeles" {% if tz=='America/Los_Angeles' %}selected{% endif %}>America/Los_Angeles (US Pacific)</option>
+            <option value="Australia/Sydney" {% if tz=='Australia/Sydney' %}selected{% endif %}>Australia/Sydney</option>
+          </select>
+        </div>
+        <div class="field"><label>Week starts on</label><select name="week_starts_on"><option value="0" {% if data.settings.week_starts_on==0 %}selected{% endif %}>Sunday</option><option value="1" {% if data.settings.week_starts_on==1 or data.settings.week_starts_on is none %}selected{% endif %}>Monday</option></select></div>
+        <div class="field"><label>Default platform</label><select name="default_platform"><option value="">—</option>{% for p in platform_options %}<option {% if data.settings.default_platform==p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></div>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label>Your OpenAI API key (optional)</label>
+        <input type="password" name="openai_user_key" placeholder="{% if data.settings.openai_user_key %}•••• saved — leave blank to keep{% else %}sk-…{% endif %}" autocomplete="off">
+        <p class="muted" style="font-size:12px;margin:6px 0 0">Type <b>clear</b> and save to remove. Key is masked (password field).</p>
+      </div>
+      <div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" type="submit">Save settings</button>
+        <button class="btn btn-soft" type="submit" name="action" value="test_openai_key" formaction="{{ url_for('content_creator_action') }}">Test connection</button>
+        <a class="btn btn-soft" href="{{ url_for('content_creator', page='ai-studio') }}">Open AI Studio →</a>
+      </div>
+    </form>
+  </div>
+  <div class="settings-grid">
+    <div class="panel">
+      <h2>Export JSON</h2>
+      <p class="muted">Download your workspace data (ideas, pipeline, campaigns, etc.).</p>
+      <form method="POST" action="{{ url_for('content_creator_action') }}">
+        <input type="hidden" name="action" value="export_json"><input type="hidden" name="page" value="settings">
+        <button class="btn btn-primary" type="submit">Download backup</button>
+      </form>
+    </div>
+    <div class="panel">
+      <h2>Import JSON</h2>
+      <p class="muted">Merge a previous export by id. Invalid files are rejected.</p>
+      <form method="POST" action="{{ url_for('content_creator_action') }}" enctype="multipart/form-data">
+        <input type="hidden" name="action" value="import_json"><input type="hidden" name="page" value="settings">
+        <div class="field"><input type="file" name="file" accept="application/json,.json" required></div>
+        <button class="btn btn-primary" type="submit">Import & merge</button>
+      </form>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Privacy</h2>
+    <p class="muted">Your Content Creator OS data is stored under your account only (<code>data/modules/content-creator-os/{{ user.username }}.json</code>). Other users cannot read it. Exit returns to Portfolio without logging out.</p>
+  </div>
+
+  {% else %}
+  <div class="panel"><h2>Not found</h2><p class="muted">Unknown page. <a href="{{ url_for('content_creator', page='home') }}">Go to Overview</a></p></div>
+  {% endif %}
+</main>
+
+<script>
+(function () {
+  var SEARCH_API = "{{ url_for('content_creator_search_api') }}";
+  var GO_SEARCH = "{{ url_for('content_creator_go_search') }}";
+  var form = document.getElementById("ccSearchForm");
+  var input = document.getElementById("ccSearchInput");
+  var drop = document.getElementById("ccSearchDrop");
+  var btn = document.getElementById("ccSearchBtn");
+  var timer = null;
+  var keepOpenUntil = 0;
+  var lastResults = [];
+
+  function esc(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+  function openDrop() { if (drop) drop.classList.add("open"); }
+  function closeDrop() {
+    if (drop) { drop.classList.remove("open"); drop.innerHTML = ""; }
+  }
+
+  function render(results, q) {
+    lastResults = results || [];
+    if (!drop) return;
+    openDrop();
+    if (!lastResults.length) {
+      drop.innerHTML =
+        '<div class="empty" style="padding:16px 14px;font-size:14px;color:#64748b;">No results found for &ldquo;<strong style="color:#0f172a">' +
+        esc(q || "") +
+        "</strong>&rdquo;</div>";
+      return;
+    }
+    var html = "", last = null;
+    lastResults.forEach(function (r) {
+      if (r.kind !== last) {
+        html += '<div class="kind" style="padding:8px 14px 2px">' + esc(r.kind) + "</div>";
+        last = r.kind;
+      }
+      html +=
+        '<a class="item" href="' + esc(r.href || "#") + '">' +
+        '<div class="title">' + esc(r.title) + "</div>" +
+        '<div class="snip">' + esc(r.snippet || "") + " · " + esc(r.kind || "") + "</div></a>";
+    });
+    drop.innerHTML = html;
+  }
+
+  /** Live dropdown while typing (optional UX). */
+  function liveSearch() {
+    if (!input) return;
+    var q = (input.value || "").trim();
+    if (!q) { closeDrop(); return; }
+    keepOpenUntil = Date.now() + 1500;
+    if (drop) {
+      drop.innerHTML = '<div class="empty" style="padding:14px">Searching…</div>';
+      openDrop();
+    }
+    fetch(SEARCH_API + "?q=" + encodeURIComponent(q), {
+      headers: { Accept: "application/json" },
+      credentials: "same-origin",
+      cache: "no-store",
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        render((data && data.results) || [], q);
+      })
+      .catch(function () {
+        if (drop) {
+          drop.innerHTML =
+            '<div class="empty" style="padding:14px;color:#64748b">Press <b>Enter</b> or <b>Search</b> to find…</div>';
+          openDrop();
+        }
+      });
+  }
+
+  /**
+   * Hard navigate via server go-search (works even if API/JS fails).
+   * This is what Enter and Search button must do.
+   */
+  function goServerSearch() {
+    if (!input) return;
+    var q = (input.value || "").trim();
+    if (!q) {
+      if (input) input.focus();
+      return;
+    }
+    // Prefer top live result if we already have matches (faster, correct page)
+    if (lastResults && lastResults.length >= 1 && lastResults[0].href) {
+      window.location.href = lastResults[0].href.split("#")[0];
+      return;
+    }
+    // Full server redirect
+    window.location.href = GO_SEARCH + "?q=" + encodeURIComponent(q);
+  }
+
+  // Expose globally for any inline handlers
+  window.ccGoSearch = goServerSearch;
+  window.ccLiveSearch = liveSearch;
+
+  if (input) {
+    input.addEventListener("input", function () {
+      clearTimeout(timer);
+      timer = setTimeout(liveSearch, 160);
+    });
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        closeDrop();
+        return;
+      }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        e.stopPropagation();
+        goServerSearch();
+      }
+    });
+  }
+
+  if (btn) {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      goServerSearch();
+    });
+  }
+
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      goServerSearch();
+    });
+  }
+
+  document.addEventListener("click", function (e) {
+    if (Date.now() < keepOpenUntil) return;
+    var wrap = document.getElementById("ccLiveSearch");
+    if (wrap && drop && !wrap.contains(e.target)) closeDrop();
+  });
+
+  // Prefill from ?q=
+  var flashQ = {{ (q or '')|tojson }};
+  if (flashQ && input && !(input.value || "").trim()) input.value = flashQ;
+
+  // Sidebar scroll remember
+  var nav = document.getElementById("ccNav");
+  if (nav) {
+    try {
+      var y = sessionStorage.getItem("ccNavScroll");
+      if (y) nav.scrollTop = parseInt(y, 10) || 0;
+    } catch (e) {}
+    nav.addEventListener("scroll", function () {
+      try { sessionStorage.setItem("ccNavScroll", String(nav.scrollTop)); } catch (e) {}
+    });
+  }
+})();
+</script>
+
+
+
+<form id="pipeMoveForm" method="POST" action="{{ url_for('content_creator_action') }}" style="display:none">
+  <input type="hidden" name="action" value="move_pipeline">
+  <input type="hidden" name="item_id" id="pipeMoveId" value="">
+  <input type="hidden" name="status" id="pipeMoveStatus" value="">
+  <input type="hidden" name="page" value="pipeline">
+</form>
+<div class="modal-bg" id="modalPipeDetail"><div class="modal" style="max-width:640px">
+  <button type="button" class="modal-close" onclick="ccCloseModal('modalPipeDetail')">×</button>
+  <h2 id="pipeDetailTitle">Pipeline item</h2>
+  <div id="pipeDetailBody" class="muted" style="white-space:pre-wrap;font-size:14px;color:#334155"></div>
+  <div class="modal-actions">
+    <button type="button" class="btn btn-soft" onclick="ccCloseModal('modalPipeDetail')">Close</button>
+    <a class="btn btn-primary" id="pipeDetailEdit" href="{{ url_for('content_creator', page='pipeline') }}">Edit in column</a>
+  </div>
+</div></div>
+
+<div class="modal-bg" id="modalAI"><div class="modal">
+<button type="button" class="modal-close" onclick="ccCloseModal('modalAI')">×</button>
+<h2>Generate draft</h2>
+<form method="POST" action="{{ url_for('content_creator_action') }}" id="formAIGenerate" onsubmit="return ccCheckAIKey(event)">
+<input type="hidden" name="action" value="ai_generate_draft"><input type="hidden" name="page" value="ai-studio">
+<div class="field"><label>Draft title</label><input name="title" placeholder="YouTube script: …"></div>
+<div class="field" style="margin-top:10px"><label>What should AI write?</label><textarea name="prompt" rows="5" required placeholder="Write a 60-second Reel script about …"></textarea></div>
+{% if not openai_configured %}
+<p class="muted" style="margin-top:10px;color:#b45309">No API key detected. <a href="{{ url_for('content_creator', page='settings') }}">Set one in Settings</a> first, or Generate will show a warning.</p>
+{% endif %}
+<div class="modal-actions">
+<button type="button" class="btn btn-soft" onclick="ccCloseModal('modalAI')">Cancel</button>
+<button class="btn btn-primary" type="submit">Generate</button>
+</div>
+</form></div></div>
+
+
+<div class="modal-bg" id="modalRep"><div class="modal">
+<button type="button" class="modal-close" onclick="ccCloseModal('modalRep')">×</button>
+<h2>Repurpose content</h2>
+<form method="POST" action="{{ url_for('content_creator_action') }}">
+<input type="hidden" name="action" value="repurpose_save"><input type="hidden" name="page" value="repurpose">
+<div class="field"><label>Source (Pipeline / Library)</label>
+<select name="source_item_id">
+<option value="">— Manual paste below —</option>
+{% for p in data.pipeline %}<option value="{{ p.id }}">Pipeline: {{ p.title }}</option>{% endfor %}
+{% for l in data.library %}<option value="{{ l.id }}">Library: {{ l.title }}</option>{% endfor %}
+</select>
+</div>
+<div class="field" style="margin-top:10px"><label>New title *</label><input name="title" required placeholder="Repurposed title"></div>
+<div class="field-pair" style="margin-top:10px">
+<div class="field"><label>Format</label><select name="format">{% for f in formats %}<option>{{ f }}</option>{% endfor %}</select></div>
+<div class="field"><label>Platform</label><select name="platform"><option value="">—</option>{% for p in platform_options %}<option>{{ p }}</option>{% endfor %}{% for p in data.platforms %}<option>{{ p.name or p.provider }}</option>{% endfor %}</select></div>
+</div>
+<div class="field" style="margin-top:10px"><label>Source notes / original text</label><textarea name="source" rows="4" placeholder="Paste or describe the original piece (optional if source selected)"></textarea></div>
+<div class="field" style="margin-top:10px"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+<div class="modal-actions">
+<button type="button" class="btn btn-soft" onclick="ccCloseModal('modalRep')">Cancel</button>
+<button class="btn btn-primary" type="submit">Save to pipeline</button>
+</div>
+</form></div></div>
+
+<div class="modal-bg" id="modalIdea"><div class="modal">
+<button type="button" class="modal-close" onclick="ccCloseModal('modalIdea')" aria-label="Close">×</button>
+<h2>Capture a content idea</h2>
+<form method="POST" action="{{ url_for('content_creator_action') }}">
+<input type="hidden" name="action" value="add_idea"><input type="hidden" name="page" value="ideas">
+<div class="field"><label>Working title *</label><input name="title" required placeholder="What would you like to create?"></div>
+<div class="field-pair" style="margin-top:10px">
+<div class="field"><label>Format</label><select name="format">{% for f in formats %}<option>{{ f }}</option>{% endfor %}</select></div>
+<div class="field"><label>Platform</label><select name="platform"><option value="">—</option>{% for p in platform_options %}<option>{{ p }}</option>{% endfor %}{% for p in data.platforms %}<option>{{ p.name or p.provider }}</option>{% endfor %}</select></div>
+</div>
+<div class="field-pair" style="margin-top:10px">
+<div class="field"><label>Priority</label><select name="priority">{% for p in priorities %}<option {% if p=='Medium' %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></div>
+<div class="field"><label>Publish date</label><input type="date" name="publish_date"></div>
+</div>
+<div class="field" style="margin-top:10px"><label>Hook / angle</label><input name="hook" placeholder="What makes someone want to watch or read?"></div>
+<div class="field" style="margin-top:10px"><label>Campaign</label>
+<select name="campaign_id"><option value="">— None —</option>
+{% for c in data.campaigns %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+</select></div>
+<div class="field" style="margin-top:10px"><label>Tags</label><input name="tags" placeholder="seo, tutorial"></div>
+<div class="field" style="margin-top:10px"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+<div class="modal-actions">
+<button type="button" class="btn btn-soft" onclick="ccCloseModal('modalIdea')">Cancel</button>
+<button class="btn btn-primary" type="submit">Save idea</button>
+</div>
+</form></div></div>
+
+<div class="modal-bg" id="modalPipe"><div class="modal">
+<button type="button" class="modal-close" onclick="ccCloseModal('modalPipe')">×</button>
+<h2>Add to pipeline</h2>
+<form method="POST" action="{{ url_for('content_creator_action') }}">
+<input type="hidden" name="action" value="add_pipeline"><input type="hidden" name="page" value="pipeline">
+<div class="field"><label>Title *</label><input name="title" required></div>
+<div class="field-pair" style="margin-top:10px">
+<div class="field"><label>Format</label><select name="format">{% for f in formats %}<option>{{ f }}</option>{% endfor %}</select></div>
+<div class="field"><label>Status</label><select name="status">{% for s in statuses if s != 'Archived' %}<option {% if s=='Idea' %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+</div>
+<div class="field-pair" style="margin-top:10px">
+<div class="field"><label>Platform</label><select name="platform"><option value="">—</option>{% for p in platform_options %}<option>{{ p }}</option>{% endfor %}{% for p in data.platforms %}<option>{{ p.name or p.provider }}</option>{% endfor %}</select></div>
+<div class="field"><label>Publish date</label><input type="date" name="publish_date"></div>
+</div>
+<div class="modal-actions">
+<button type="button" class="btn btn-soft" onclick="ccCloseModal('modalPipe')">Cancel</button>
+<button class="btn btn-primary" type="submit">Add</button>
+</div>
+</form></div></div>
+
+<div class="modal-bg" id="modalCamp"><div class="modal">
+<button type="button" class="modal-close" onclick="ccCloseModal('modalCamp')">×</button>
+<h2>New campaign</h2>
+<form method="POST" action="{{ url_for('content_creator_action') }}" onsubmit="return ccValidateCampaignDates(this)">
+<input type="hidden" name="action" value="add_campaign"><input type="hidden" name="page" value="campaigns">
+<div class="field"><label>Name *</label><input name="name" required></div>
+<div class="field" style="margin-top:8px"><label>Objective</label><textarea name="objective" rows="2"></textarea></div>
+<div class="field" style="margin-top:8px"><label>Audience</label><input name="audience"></div>
+<div class="field-pair" style="margin-top:8px">
+<div class="field"><label>Target KPI / Metric</label><input name="kpi" placeholder="e.g. 5,000 views or 500 leads"></div>
+<div class="field"><label>Budget</label><input name="budget" placeholder="e.g. $200"></div>
+</div>
+<div class="field" style="margin-top:8px"><label>Attach pipeline items</label>
+<select name="linked_pipeline" multiple size="4" style="height:auto;min-height:88px">
+{% for p in data.pipeline if p.status != 'Archived' %}
+<option value="{{ p.id }}">{{ p.title }} ({{ p.status }})</option>
+{% endfor %}
+</select>
+<p class="muted" style="font-size:11px;margin:4px 0 0">Hold Ctrl/Cmd to select multiple</p>
+</div>
+<div class="field-triple" style="margin-top:8px">
+<div class="field"><label>Starts</label><input type="date" name="starts_on" id="campStarts"></div>
+<div class="field"><label>Ends</label><input type="date" name="ends_on" id="campEnds"></div>
+<div class="field"><label>Status</label><select name="status"><option>Planning</option><option>Active</option><option>Paused</option><option>Completed</option></select></div>
+</div>
+<div class="modal-actions">
+<button type="button" class="btn btn-soft" onclick="ccCloseModal('modalCamp')">Cancel</button>
+<button class="btn btn-primary" type="submit">Create</button>
+</div>
+</form></div></div>
+
+<div class="modal-bg" id="modalPlat"><div class="modal">
+<button type="button" class="modal-close" onclick="ccCloseModal('modalPlat')">×</button>
+<h2>Add platform</h2>
+<form method="POST" action="{{ url_for('content_creator_action') }}">
+<input type="hidden" name="action" value="add_platform"><input type="hidden" name="page" value="platforms">
+<div class="field-pair">
+<div class="field"><label>Display name *</label><input name="name" required placeholder="Main YouTube"></div>
+<div class="field"><label>Provider</label><select name="provider">{% for p in platform_options %}<option>{{ p }}</option>{% endfor %}</select></div>
+</div>
+<div class="field-pair" style="margin-top:8px">
+<div class="field"><label>Handle</label><input name="handle" placeholder="@channel"></div>
+<div class="field"><label>Status</label><select name="status"><option>Active</option><option>Inactive</option></select></div>
+</div>
+<div class="field" style="margin-top:8px"><label>URL</label><input name="url" type="text" placeholder="youtube.com/@channel or https://…"></div>
+<div class="field" style="margin-top:8px"><label>Notes</label><textarea name="notes" rows="2" placeholder="Internal notes"></textarea></div>
+<div class="modal-actions">
+<button type="button" class="btn btn-soft" onclick="ccCloseModal('modalPlat')">Cancel</button>
+<button class="btn btn-primary" type="submit">Save</button>
+</div>
+</form></div></div>
+
+<div class="modal-bg" id="modalLib"><div class="modal">
+<button type="button" class="modal-close" onclick="ccCloseModal('modalLib')">×</button>
+<h2>Save to library</h2>
+<form method="POST" action="{{ url_for('content_creator_action') }}">
+<input type="hidden" name="action" value="add_library"><input type="hidden" name="page" value="library">
+<div class="field"><label>Title *</label><input name="title" required></div>
+<div class="field-pair" style="margin-top:8px">
+<div class="field"><label>Type</label>
+<select name="type">
+<option>Draft</option><option>Template</option><option>Hook</option><option>CTA / Outro</option><option>Sponsorship Pitch</option>
+</select>
+</div>
+<div class="field"><label>Platform</label>
+<select name="platform"><option value="">All platforms</option>
+{% for p in platform_options %}<option>{{ p }}</option>{% endfor %}
+{% for p in data.platforms %}<option>{{ p.name or p.provider }}</option>{% endfor %}
+</select>
+</div>
+</div>
+<div class="field" style="margin-top:8px"><label>Tags</label><input name="tags" placeholder="#intro, educational, viral-hook"></div>
+<div class="field" style="margin-top:8px"><label>Body</label><textarea name="body" rows="6" required></textarea></div>
+<div class="modal-actions">
+<button type="button" class="btn btn-soft" onclick="ccCloseModal('modalLib')">Cancel</button>
+<button class="btn btn-primary" type="submit">Save</button>
+</div>
+</form></div></div>
+
+<div class="modal-bg" id="modalAsset"><div class="modal">
+<button type="button" class="modal-close" onclick="ccCloseModal('modalAsset')">×</button>
+<h2>Add asset</h2>
+<form method="POST" action="{{ url_for('content_creator_action') }}" enctype="multipart/form-data">
+<input type="hidden" name="action" value="add_asset"><input type="hidden" name="page" value="assets">
+<div class="field"><label>Name *</label><input name="name" required></div>
+<div class="field" style="margin-top:8px"><label>Kind</label>
+<select name="kind"><option>Link</option><option>Image</option><option>Video</option><option>PDF</option><option>Other</option></select>
+</div>
+<div class="field" style="margin-top:8px"><label>URL (or leave blank if uploading a file)</label><input name="url" type="text" placeholder="https://… or drive link"></div>
+<div class="field" style="margin-top:8px"><label>Upload file (optional)</label><input type="file" name="file" accept=".png,.jpg,.jpeg,.webp,.gif,.pdf,.mp4,.mov,.zip"></div>
+<div class="field" style="margin-top:8px"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+<div class="modal-actions">
+<button type="button" class="btn btn-soft" onclick="ccCloseModal('modalAsset')">Cancel</button>
+<button class="btn btn-primary" type="submit">Save</button>
+</div>
+</form></div></div>
+
+<div class="modal-bg" id="modalBrand"><div class="modal">
+<button type="button" class="modal-close" onclick="ccCloseModal('modalBrand')">×</button>
+<h2>Brand Voice</h2>
+<form method="POST" action="{{ url_for('content_creator_action') }}">
+<input type="hidden" name="action" value="save_brand_voice"><input type="hidden" name="page" value="brand-voice">
+<div class="field"><label>Profile name</label><input name="name" value="{{ data.brand_voice.name or '' }}"></div>
+<div class="field" style="margin-top:8px"><label>Tone</label><input name="tone" value="{{ data.brand_voice.tone or '' }}"></div>
+<div class="field" style="margin-top:8px"><label>Audience</label><input name="audience" value="{{ data.brand_voice.audience or '' }}"></div>
+<div class="field" style="margin-top:8px"><label>Do</label><textarea name="dos" rows="2">{{ data.brand_voice.dos or '' }}</textarea></div>
+<div class="field" style="margin-top:8px"><label>Don't</label><textarea name="donts" rows="2">{{ data.brand_voice.donts or '' }}</textarea></div>
+<div class="field" style="margin-top:8px"><label>Sample</label><textarea name="sample" rows="2">{{ data.brand_voice.sample or '' }}</textarea></div>
+<div class="modal-actions">
+<button type="button" class="btn btn-soft" onclick="ccCloseModal('modalBrand')">Cancel</button>
+<button class="btn btn-primary" type="submit">Save</button>
+</div>
+</form></div></div>
+
+<script>
+
+window.ccCopyText = function(btn){
+  var txt = btn.getAttribute('data-copy') || '';
+  if(!txt) return;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ btn.textContent='Copied!'; setTimeout(function(){ btn.textContent=btn.getAttribute('data-label')||'Copy'; },1200); });
+  } else {
+    var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    btn.textContent='Copied!'; setTimeout(function(){ btn.textContent=btn.getAttribute('data-label')||'Copy'; },1200);
+  }
+};
+window.ccCheckAIKey = function(ev){
+  var hasKey = {{ 'true' if openai_configured else 'false' }};
+  if(!hasKey){
+    if(!confirm('Please provide an OpenAI API Key first in Settings & Export.\n\nOpen Settings now?')){
+      ev.preventDefault();
+      return false;
+    }
+    ev.preventDefault();
+    window.location.href = "{{ url_for('content_creator', page='settings') }}";
+    return false;
+  }
+  return true;
+};
+(function(){
+  var filters = document.querySelectorAll('.lib-filter');
+  if(!filters.length) return;
+  filters.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      filters.forEach(function(b){ b.classList.remove('on'); });
+      btn.classList.add('on');
+      var ty = btn.getAttribute('data-type') || 'all';
+      document.querySelectorAll('.lib-card').forEach(function(card){
+        var ct = card.getAttribute('data-lib-type') || '';
+        card.style.display = (ty==='all' || ct===ty) ? '' : 'none';
+      });
+    });
+  });
+})();
+
+
+window.ccPipeDrag = function(ev, el){
+  ev.dataTransfer.setData('text/plain', el.getAttribute('data-id') || '');
+  el.classList.add('dragging');
+};
+window.ccPipeDrop = function(ev, col){
+  ev.preventDefault();
+  col.classList.remove('drag-over');
+  var id = ev.dataTransfer.getData('text/plain');
+  var st = col.getAttribute('data-status');
+  if(!id || !st) return;
+  document.getElementById('pipeMoveId').value = id;
+  document.getElementById('pipeMoveStatus').value = st;
+  document.getElementById('pipeMoveForm').submit();
+};
+document.addEventListener('dragend', function(){
+  document.querySelectorAll('.card-item.dragging').forEach(function(el){ el.classList.remove('dragging'); });
+  document.querySelectorAll('.board .col.drag-over').forEach(function(el){ el.classList.remove('drag-over'); });
+});
+window._pipeData = {
+{% if page == 'pipeline' %}
+{% for p in data.pipeline %}
+  "{{ p.id }}": {"title": {{ p.title|tojson }}, "body": {{ (p.body or '')|tojson }}, "hook": {{ (p.hook or '')|tojson }}, "format": {{ (p.format or '')|tojson }}, "status": {{ (p.status or '')|tojson }}, "platform": {{ (p.platform or '')|tojson }}, "publish_date": {{ (p.publish_date or '')|tojson }} },
+{% endfor %}
+{% endif %}
+};
+window.ccOpenPipeDetail = function(id){
+  var d = (window._pipeData || {})[id];
+  if(!d){ window.location.href = "{{ url_for('content_creator', page='pipeline') }}"; return; }
+  document.getElementById('pipeDetailTitle').textContent = d.title || 'Pipeline item';
+  var lines = [];
+  var meta = [];
+  if(d.status) meta.push('Status: ' + d.status);
+  if(d.format) meta.push('Format: ' + d.format);
+  if(d.platform) meta.push('Platform: ' + d.platform);
+  if(d.publish_date) meta.push('Publish: ' + d.publish_date);
+  if(meta.length) lines.push(meta.join(' · '));
+  if(d.hook) lines.push('Hook: ' + d.hook);
+  if(d.body) lines.push(d.body);
+  document.getElementById('pipeDetailBody').textContent = lines.join(String.fromCharCode(10)+String.fromCharCode(10));
+  ccOpenModal('modalPipeDetail');
+};
+window.ccCalDrag = function(ev, el){
+  try {
+    ev.stopPropagation();
+    window._ccCalDragging = true;
+    var id = el.getAttribute("data-id") || "";
+    ev.dataTransfer.setData("text/plain", id);
+    ev.dataTransfer.setData("text", id);
+    ev.dataTransfer.effectAllowed = "move";
+    el.classList.add("dragging");
+  } catch (err) {}
+};
+window.ccCalDrop = function(ev, dateStr){
+  try {
+    ev.preventDefault();
+    ev.stopPropagation();
+    if (ev.currentTarget) ev.currentTarget.classList.remove("drag-over");
+    var id = (ev.dataTransfer && ev.dataTransfer.getData("text/plain")) || "";
+    if (!id || !dateStr) return;
+    var f = document.createElement("form");
+    f.method = "POST";
+    f.action = "{{ url_for('content_creator_action') }}";
+    function hid(n, v) {
+      var i = document.createElement("input");
+      i.type = "hidden"; i.name = n; i.value = v; f.appendChild(i);
+    }
+    hid("action", "schedule_pipeline");
+    hid("item_id", id);
+    hid("publish_date", dateStr);
+    hid("page", "calendar");
+    document.body.appendChild(f);
+    f.submit();
+  } catch (err) { console && console.error(err); }
+};
+window.ccCalDayClick = function(ev, dateStr){
+  if(ev.target.closest && ev.target.closest('a.chip')) return;
+  // open add pipeline modal with date
+  var form = document.querySelector('#modalPipe form');
+  if(form){
+    var dateInput = form.querySelector('input[name="publish_date"]');
+    if(dateInput) dateInput.value = dateStr;
+    var st = form.querySelector('select[name="status"]');
+    if(st){
+      for(var i=0;i<st.options.length;i++){ if(st.options[i].value==='Scheduled'){ st.selectedIndex=i; break; } }
+    }
+    ccOpenModal('modalPipe');
+  } else {
+    window.location.href = "{{ url_for('content_creator', page='pipeline') }}";
+  }
+};
+
+(function(){
+  document.querySelectorAll('.lib-body').forEach(function(el){
+    var t = el.textContent || '';
+    if(t.indexOf(String.fromCharCode(92)+'n') >= 0){
+      el.textContent = t.split(String.fromCharCode(92)+'n').join(String.fromCharCode(10));
+    }
+  });
+})();
+window.ccOpenModal = function(id){
+  var el = document.getElementById(id);
+  if(el) el.classList.add('open');
+};
+window.ccCloseModal = function(id){
+  var el = document.getElementById(id);
+  if(el) el.classList.remove('open');
+};
+document.querySelectorAll('.modal-bg').forEach(function(bg){
+  bg.addEventListener('click', function(e){ if(e.target === bg) bg.classList.remove('open'); });
+});
+/* sidebar scroll remember */
+(function(){
+  var nav = document.getElementById('ccNav');
+  if(!nav) return;
+  try {
+    var y = sessionStorage.getItem('ccNavScroll');
+    if(y !== null) nav.scrollTop = parseInt(y, 10) || 0;
+  } catch(e) {}
+  nav.addEventListener('scroll', function(){
+    try { sessionStorage.setItem('ccNavScroll', String(nav.scrollTop)); } catch(e) {}
+  });
+})();
+</script>
+</body>
+
+</html>

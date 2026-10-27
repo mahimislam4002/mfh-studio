@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}User Management - Portfolio SaaS{% endblock %}
+{% block topbar_title %}Manage Users{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>User Management</h1>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Dashboard</a>
+</div>
+
+<div class="card users-scale-wrap">
+    <table class="users-table users-table-compact">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Plan</th>
+                <th>Published</th>
+                <th>Referral</th>
+                <th style="width:220px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td><strong>{{ u.username }}</strong></td>
+                <td>{{ u.full_name }}</td>
+                <td class="email-cell">{{ u.email }}</td>
+                <td>
+                    {% if u.role == 'admin' %}
+                    <span class="badge badge-danger">Admin</span>
+                    {% else %}
+                    <span class="badge badge-info">User</span>
+                    {% endif %}
+                </td>
+                <td>{{ u.plan }}</td>
+                <td>
+                    {% if u.portfolio_published %}
+                    <span class="badge badge-success">Yes</span>
+                    {% else %}
+                    <span class="badge badge-warning">No</span>
+                    {% endif %}
+                </td>
+                <td class="code">{{ u.referral_code }}</td>
+                <td>
+                    <div class="action-stack">
+                        <form method="POST" action="{{ url_for('admin_toggle_publish', username=u.username) }}">
+                            <button type="submit" class="btn btn-sm btn-outline btn-block">{% if u.portfolio_published %}Unpublish{% else %}Publish{% endif %}</button>
+                        </form>
+                        {% if u.role != 'admin' %}
+                        <form method="POST" action="{{ url_for('admin_set_plan', username=u.username) }}" class="plan-form">
+                            <select name="plan" class="plan-select">
+                                <option value="free" {% if u.plan=='free' %}selected{% endif %}>Free Trial</option>
+                                <option value="basic" {% if u.plan=='basic' %}selected{% endif %}>Basic</option>
+                                <option value="pro" {% if u.plan=='pro' %}selected{% endif %}>Pro</option>
+                                <option value="business" {% if u.plan=='business' %}selected{% endif %}>Business</option>
+                                <option value="lifetime" {% if u.plan in ['lifetime','lifetime_free'] %}selected{% endif %}>Lifetime Free</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary btn-block">Set Plan</button>
+                        </form>
+                        {% endif %}
+                        {% if u.username != session.get('user') %}
+                        <form method="POST" action="{{ url_for('admin_delete_user', username=u.username) }}" onsubmit="return confirm('Delete user {{ u.username }}?');">
+                            <button type="submit" class="btn btn-sm btn-danger btn-block">Delete</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<style>
+.users-scale-wrap { overflow-x: hidden !important; max-width: 100%; }
+.users-table-compact { width: 100%; table-layout: fixed; font-size: 0.82rem; }
+.users-table-compact th, .users-table-compact td {
+  padding: 10px 6px; word-break: break-word; overflow-wrap: anywhere; vertical-align: top;
+}
+.users-table-compact .email-cell { font-size: 0.78rem; }
+.action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+.action-stack form { margin: 0; }
+.btn-block { width: 100%; display: block; text-align: center; }
+.plan-form { display: flex; flex-direction: column; gap: 4px; }
+.plan-select {
+  font-size: 0.78rem;
+  padding: 5px 6px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  width: 100%;
+}
+.users-table-compact .btn-sm { padding: 6px 8px; font-size: 0.78rem; }
+</style>
+{% endblock %}

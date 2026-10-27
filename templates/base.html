@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Portfolio SaaS{% endblock %}</title>
+
+  {% if site_logo %}
+  <link rel="icon" href="{{ site_logo }}" type="image/png">
+  <link rel="apple-touch-icon" href="{{ site_logo }}">
+  {% endif %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="{% if session.get('user') %}has-sidebar{% endif %}">
+{% if session.get('user') %}
+<div class="app-layout">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            {% if site_logo %}
+            <img src="{{ site_logo }}" alt="Logo" class="sidebar-logo-img">
+            {% else %}
+            <div class="sidebar-logo">P</div>
+            {% endif %}
+            <span class="sidebar-brand-name">{{ site_name or 'Portfolio SaaS' }}</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Main</div>
+            <a href="{{ url_for('dashboard') }}" class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                <span class="sidebar-icon">▣</span> Dashboard
+            </a>
+            <a href="{{ url_for('notifications_page') }}" class="sidebar-link {% if request.endpoint == 'notifications_page' %}active{% endif %}">
+                <span class="sidebar-icon">🔔</span> Notifications
+                {% if unread_notifications %}<span style="margin-left:auto;background:#ef4444;color:#fff;font-size:0.7rem;padding:2px 6px;border-radius:10px;">{{ unread_notifications }}</span>{% endif %}
+            </a>
+            <a href="{{ url_for('template_gallery') }}" class="sidebar-link {% if request.endpoint in ['template_gallery','portfolio_edit','portfolio_editor','portfolio_view'] %}active{% endif %}">
+                <span class="sidebar-icon">✎</span> Edit Portfolio
+            </a>
+            <a href="{{ url_for('resume_builder') }}" class="sidebar-link {% if request.endpoint == 'resume_builder' %}active{% endif %}">
+                <span class="sidebar-icon">📄</span> Resume / CV
+            </a>
+            <a href="{{ url_for('cover_letter_builder') }}" class="sidebar-link {% if request.endpoint == 'cover_letter_builder' %}active{% endif %}">
+                <span class="sidebar-icon">✉</span> Cover Letter
+            </a>
+
+            {% if sidebar_modules %}
+            <div class="sidebar-section-label">Productivity OS</div>
+            {% for m in sidebar_modules %}
+            <a href="{{ url_for('open_module', module_id=m.id) }}" class="sidebar-link {% if request.endpoint == 'open_module' and request.view_args.get('module_id') == m.id %}active{% endif %}">
+                <span class="sidebar-icon">{% if m.image %}<img src="{{ m.image }}" alt="" style="width:18px;height:18px;border-radius:4px;object-fit:cover;">{% else %}{{ m.icon or '📦' }}{% endif %}</span>
+                {{ m.name }}
+            </a>
+            {% endfor %}
+            {% endif %}
+
+            <a href="{{ url_for('referral_page') }}" class="sidebar-link {% if request.endpoint == 'referral_page' %}active{% endif %}">
+                <span class="sidebar-icon">🔗</span> Referral
+            </a>
+            <a href="{{ url_for('profile_settings') }}" class="sidebar-link {% if request.endpoint == 'profile_settings' %}active{% endif %}">
+                <span class="sidebar-icon">☺</span> Profile
+            </a>
+            <a href="{{ url_for('account_settings') }}" class="sidebar-link {% if request.endpoint == 'account_settings' %}active{% endif %}">
+                <span class="sidebar-icon">⚙</span> Settings
+            </a>
+            {% if session.get('role') != 'admin' %}
+            <a href="{{ url_for('subscription_page') }}" class="sidebar-link {% if request.endpoint == 'subscription_page' %}active{% endif %}">
+                <span class="sidebar-icon">★</span> Get Plus
+            </a>
+            <a href="{{ url_for('help_page') }}" class="sidebar-link {% if request.endpoint == 'help_page' %}active{% endif %}">
+                <span class="sidebar-icon">?</span> Help
+            </a>
+            {% endif %}
+            {% if user_portfolio_published %}
+            <a href="{{ url_for('public_portfolio', slug=session.get('user')) }}" target="_blank" class="sidebar-link">
+                <span class="sidebar-icon">↗</span> View Live Site
+            </a>
+            {% endif %}
+
+            {% if session.get('role') == 'admin' %}
+            <div class="sidebar-section-label">Admin</div>
+            <a href="{{ url_for('admin_users') }}" class="sidebar-link {% if request.endpoint == 'admin_users' %}active{% endif %}">
+                <span class="sidebar-icon">☰</span> Manage Users
+            </a>
+            <a href="{{ url_for('admin_payments') }}" class="sidebar-link {% if request.endpoint == 'admin_payments' %}active{% endif %}">
+                <span class="sidebar-icon">$</span> Payments
+            </a>
+            <a href="{{ url_for('update_center') }}" class="sidebar-link {% if request.endpoint == 'update_center' %}active{% endif %}">
+                <span class="sidebar-icon">↻</span> Update Center
+            </a>
+            <a href="{{ url_for('site_settings') }}" class="sidebar-link {% if request.endpoint == 'site_settings' %}active{% endif %}">
+                <span class="sidebar-icon">◆</span> Site Settings
+            </a>
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                {% if user_photo %}
+                <img src="{{ user_photo }}" alt="" class="sidebar-user-photo">
+                {% else %}
+                <div class="sidebar-user-avatar">{{ (session.get('user') or 'U')[0]|upper }}</div>
+                {% endif %}
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name">{{ user_display_name or session.get('user') }}</div>
+                    <div class="sidebar-user-role">{{ session.get('role', 'user')|capitalize }}</div>
+                </div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="sidebar-logout">Sign out</a>
+        </div>
+    </aside>
+
+    <!-- MAIN AREA -->
+    <div class="main-area">
+        <header class="topbar">
+            <div class="topbar-left">
+                {% block topbar_title %}{% endblock %}
+            </div>
+            <div class="topbar-right">
+                <a href="{{ url_for('logout') }}" class="topbar-logout">Logout</a>
+                {% if user_photo %}
+                <img src="{{ user_photo }}" alt="" class="topbar-avatar">
+                {% else %}
+                <div class="topbar-avatar-placeholder">{{ (session.get('user') or 'U')[0]|upper }}</div>
+                {% endif %}
+            </div>
+        </header>
+        <main class="main-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% else %}
+    <main class="container auth-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block auth_content %}{% endblock %}
+    </main>
+{% endif %}
+
+<script>
+(function(){
+  var nav = document.querySelector('.sidebar-nav');
+  if (!nav) return;
+  var key = 'sidebarScrollY';
+  var y = sessionStorage.getItem(key);
+  if (y !== null) nav.scrollTop = parseInt(y, 10) || 0;
+  nav.addEventListener('scroll', function(){
+    sessionStorage.setItem(key, String(nav.scrollTop));
+  }, {passive:true});
+  document.querySelectorAll('.sidebar-link').forEach(function(a){
+    a.addEventListener('click', function(){
+      sessionStorage.setItem(key, String(nav.scrollTop));
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

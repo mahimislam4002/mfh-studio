@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coming Soon - {{ site_name or 'Portfolio SaaS' }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; background: #0b1220; color: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
+    .box { text-align: center; max-width: 440px; padding: 40px 28px; background: #111827; border: 1px solid #312e81; border-radius: 20px; }
+    .box h1 { font-size: 1.8rem; margin-bottom: 12px; }
+    .box p { color: #94a3b8; line-height: 1.6; margin-bottom: 20px; }
+    a { display: inline-block; padding: 12px 22px; background: #6366f1; color: #fff; border-radius: 10px; text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div style="font-size:3rem;margin-bottom:12px;">🚧</div>
+    <h1>Coming Soon</h1>
+    <p>
+      <strong>{{ method|upper }}</strong> payment is not live yet.<br>
+      Amount: <strong>${{ '%.2f'|format(total or 0) }}</strong><br>
+      Your selection is saved. When payment goes live, you will unlock products after a successful charge.
+    </p>
+    <a href="{{ url_for('dashboard') }}">Go to dashboard</a>
+  </div>
+</body>
+</html>

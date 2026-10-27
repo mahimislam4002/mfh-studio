@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+{% block title %}Site Settings - Portfolio SaaS{% endblock %}
+{% block topbar_title %}Site Settings{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Site Settings</h1>
+    <p class="text-muted">Branding, trial & subscription plans (USD / monthly)</p>
+</div>
+<form method="POST" enctype="multipart/form-data" class="edit-form">
+    <div class="form-section">
+        <h3>Branding</h3>
+        <div class="form-group">
+            <label>Site Name</label>
+            <input type="text" name="site_name" value="{{ site.site_name or 'Portfolio SaaS' }}">
+        </div>
+        <div class="form-group">
+            <label>Site Tagline</label>
+            <input type="text" name="tagline" value="{{ site.tagline or '' }}" placeholder="Build. Publish. Earn.">
+        </div>
+        <div style="display:flex;align-items:center;gap:20px;margin-bottom:12px;">
+            {% if site.site_logo %}
+            <img src="{{ site.site_logo }}" alt="Logo" style="width:64px;height:64px;border-radius:12px;object-fit:cover;border:2px solid #e2e8f0;">
+            {% else %}
+            <div style="width:64px;height:64px;border-radius:12px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-weight:800;color:#64748b;">P</div>
+            {% endif %}
+            <div class="form-group" style="margin:0;flex:1;">
+                <label>Upload Logo (file)</label>
+                <input type="file" name="logo_file" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif,image/svg+xml">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Support Email</label>
+            <input type="email" name="support_email" value="{{ site.support_email or '' }}">
+        </div>
+        <div class="form-group">
+            <label>Welcome message (landing)</label>
+            <textarea name="welcome_message" rows="3">{{ site.welcome_message or '' }}</textarea>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h3>Free Trial</h3>
+        <div class="form-group">
+            <label>Trial days (after registration)</label>
+            <input type="number" name="trial_days" min="0" max="365" value="{{ site.trial_days if site.trial_days is defined else 7 }}">
+            <p class="text-muted small" style="margin-top:6px;">After trial ends, user must choose a paid plan.</p>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h3>Subscription Plans (USD / month)</h3>
+        <p class="text-muted small" style="margin-bottom:12px;">These cards appear on the public landing page. Leave price 0 to hide a plan.</p>
+        {% for key, label in [('plan_basic','Basic'), ('plan_pro','Pro'), ('plan_business','Business')] %}
+        {% set p = site.get(key) or {} %}
+        <div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:14px;">
+            <h4 style="margin-bottom:10px;">{{ label }}</h4>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Display name</label>
+                    <input type="text" name="{{ key }}_name" value="{{ p.name or label }}">
+                </div>
+                <div class="form-group">
+                    <label>Price (USD / month)</label>
+                    <input type="number" step="0.01" min="0" name="{{ key }}_price" value="{{ p.price if p.price is defined else (9.99 if key=='plan_basic' else (19.99 if key=='plan_pro' else 39.99)) }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Features (one per line)</label>
+                <textarea name="{{ key }}_features" rows="4">{% if p.features %}{{ p.features | join('\n') }}{% else %}{% if key=='plan_basic' %}1 portfolio
+Basic templates
+Email support{% elif key=='plan_pro' %}Unlimited portfolios
+All templates
+Priority support
+Referral boost{% else %}Everything in Pro
+Team seats
+Custom domain help
+Dedicated support{% endif %}{% endif %}</textarea>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:0.9rem;">
+                <input type="checkbox" name="{{ key }}_featured" value="1" {% if p.featured %}checked{% endif %}> Highlight as popular
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+
+
+    
+    <div class="form-section">
+        <h3>Product catalog (Landing page)</h3>
+        <p class="text-muted small" style="margin-bottom:12px;">Edit name, description, price and image for each service shown under Our Services. Admin always has free access to every module.</p>
+        <div class="form-group">
+            <label>Full Access price (USD)</label>
+            <input type="number" step="0.01" min="0" name="full_access_price" value="{{ site.full_access_price if site.full_access_price is defined else 99.99 }}">
+        </div>
+        {% for m in catalog %}
+        <div style="border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+                <div style="width:56px;height:56px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:1.5rem;overflow:hidden;flex-shrink:0;">
+                    {% if m.image %}<img src="{{ m.image }}" alt="" style="width:100%;height:100%;object-fit:cover;">{% else %}{{ m.icon or '📦' }}{% endif %}
+                </div>
+                <div style="flex:1;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" name="module_name_{{ m.id }}" value="{{ m.name }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Price (USD)</label>
+                            <input type="number" step="0.01" min="0" name="module_price_{{ m.id }}" value="{{ m.price }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" name="module_desc_{{ m.id }}" value="{{ m.desc or '' }}">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Image (optional)</label>
+                            <input type="file" name="module_image_{{ m.id }}" accept="image/*">
+                        </div>
+                        <div class="form-group" style="display:flex;align-items:flex-end;">
+                            <label style="display:flex;align-items:center;gap:8px;">
+                                <input type="checkbox" name="module_enabled_{{ m.id }}" value="1" {% if m.enabled %}checked{% endif %}> Show on landing
+                            </label>
+                        </div>
+                    </div>
+                    <p class="text-muted small">ID: <code>{{ m.id }}</code></p>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-muted">Catalog will appear after first save / restart.</p>
+        {% endfor %}
+    </div>
+
+    <div class="form-section">
+        <h3>Payment methods</h3>
+        <p class="text-muted small" style="margin-bottom:12px;">Shown on the subscription page for users. Leave blank to hide a method.</p>
+        <div class="form-row">
+            <div class="form-group">
+                <label>bKash number</label>
+                <input type="text" name="bkash_number" value="{{ site.bkash_number or '' }}" placeholder="01XXXXXXXXX">
+            </div>
+            <div class="form-group">
+                <label>Nagad number</label>
+                <input type="text" name="nagad_number" value="{{ site.nagad_number or '' }}" placeholder="01XXXXXXXXX">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Rocket number</label>
+                <input type="text" name="rocket_number" value="{{ site.rocket_number or '' }}" placeholder="01XXXXXXXXX">
+            </div>
+            <div class="form-group">
+                <label>Payoneer email</label>
+                <input type="email" name="payoneer_email" value="{{ site.payoneer_email or '' }}" placeholder="you@payoneer.com">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Payoneer payment link (optional)</label>
+            <input type="url" name="payoneer_link" value="{{ site.payoneer_link or '' }}" placeholder="https://...">
+        </div>
+        <div class="form-group">
+            <label>Payment instructions (optional)</label>
+            <textarea name="payment_note" rows="3" placeholder="Extra notes for customers...">{{ site.payment_note or '' }}</textarea>
+        </div>
+    </div>
+
+    <div class="form-actions" style="margin-bottom:8px;">
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+    </div>
+</form>
+
+
+    <div style="height:28px;"></div>
+
+    <div class="form-section" style="border:2px solid #6366f1;border-radius:16px;padding:24px;background:#f8fafc;margin-top:8px;">
+        <h3 style="margin-top:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            🧠 Platform AI Brain
+            {% if ai_cfg and ai_cfg.configured %}
+            <span style="background:#dcfce7;color:#166534;padding:4px 10px;border-radius:999px;font-size:0.8rem;font-weight:600;">Active</span>
+            {% else %}
+            <span style="background:#fee2e2;color:#991b1b;padding:4px 10px;border-radius:999px;font-size:0.8rem;font-weight:600;">No key saved yet</span>
+            {% endif %}
+        </h3>
+        <p class="text-muted" style="margin:0 0 8px;">
+            Paste the <b>full</b> API key, then click <b>Save AI Key</b>. Storage file:
+            <code style="font-size:0.8rem;">{{ ai_file_path or 'data/platform_ai.json' }}</code>
+            — {% if ai_file_exists %}<b style="color:#166534;">file exists</b>{% else %}<b style="color:#991b1b;">file not created yet</b>{% endif %}
+        </p>
+        <p style="margin:0 0 20px;font-size:0.9rem;">
+            Status:
+            {% if ai_cfg and ai_cfg.configured %}
+            <span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:6px;">Configured</span>
+            {% else %}
+            <span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:6px;">Not configured</span>
+            {% endif %}
+            · OpenAI: {% if ai_cfg and ai_cfg.keys_present.openai %}<b style="color:#166534;">saved</b>{% else %}missing{% endif %}
+            · Gemini: {% if ai_cfg and ai_cfg.keys_present.gemini %}<b style="color:#166534;">saved</b>{% else %}missing{% endif %}
+            · Claude: {% if ai_cfg and ai_cfg.keys_present.claude %}<b style="color:#166534;">saved</b>{% else %}missing{% endif %}
+        </p>
+
+        <div id="ai-save-result" style="display:none;margin-bottom:12px;padding:12px;border-radius:10px;font-size:0.9rem;"></div>
+
+        <div class="form-group" style="margin-bottom:28px;">
+            <label style="font-weight:600;">AI Brain provider (main)</label>
+            <select id="ai_brain_provider" name="ai_brain_provider" style="display:block;max-width:360px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;margin-top:8px;">
+                <option value="gemini" {% if not ai_cfg or ai_cfg.provider == 'gemini' %}selected{% endif %}>Google Gemini (free tier OK)</option>
+                <option value="openai" {% if ai_cfg and ai_cfg.provider == 'openai' %}selected{% endif %}>ChatGPT / OpenAI</option>
+                <option value="claude" {% if ai_cfg and ai_cfg.provider == 'claude' %}selected{% endif %}>Claude (Anthropic)</option>
+            </select>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px;">
+            <div style="border:2px solid #22c55e;border-radius:12px;padding:16px;background:#fff;">
+                <h4 style="margin:0 0 12px;">Google Gemini ← paste key here</h4>
+                <div class="form-group">
+                    <label>API key {% if ai_cfg and ai_cfg.masked.gemini %}<span style="color:#166534;">(on disk: {{ ai_cfg.masked.gemini }})</span>{% endif %}</label>
+                    <input type="text" id="gemini_api_key" autocomplete="off" spellcheck="false"
+                           placeholder="Paste full Gemini key (AIza...)"
+                           style="font-family:monospace;width:100%;padding:12px;border:2px solid #22c55e;border-radius:8px;font-size:1rem;">
+                </div>
+                <div class="form-group">
+                    <label>Model</label>
+                    <input type="text" id="gemini_model" value="{{ (ai_cfg.models.gemini if ai_cfg else 'gemini-2.0-flash') }}"
+                           style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:8px;">
+                    <p class="text-muted" style="font-size:0.75rem;margin:6px 0 0;">Default: Auto-detects models for your API key (prefers Flash)</p>
+                </div>
+            </div>
+            <div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px;background:#fff;">
+                <h4 style="margin:0 0 12px;">ChatGPT / OpenAI (optional)</h4>
+                <div class="form-group">
+                    <label>API key {% if ai_cfg and ai_cfg.masked.openai %}<span style="color:#166534;">(on disk: {{ ai_cfg.masked.openai }})</span>{% endif %}</label>
+                    <input type="text" id="openai_api_key" autocomplete="off" spellcheck="false"
+                           placeholder="Paste sk-... key"
+                           style="font-family:monospace;width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;">
+                </div>
+                <div class="form-group">
+                    <label>Model</label>
+                    <input type="text" id="openai_model" value="{{ (ai_cfg.models.openai if ai_cfg else 'gpt-4o-mini') }}"
+                           style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:8px;">
+                </div>
+            </div>
+        </div>
+
+        <div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px;background:#fff;margin-top:16px;">
+            <h4 style="margin:0 0 12px;">Claude (Anthropic) — optional</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="form-group">
+                    <label>API key {% if ai_cfg and ai_cfg.masked.claude %}<span style="color:#166534;">(on disk: {{ ai_cfg.masked.claude }})</span>{% endif %}</label>
+                    <input type="text" id="anthropic_api_key" autocomplete="off" spellcheck="false"
+                           placeholder="Paste sk-ant-... key"
+                           style="font-family:monospace;width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;">
+                </div>
+                <div class="form-group">
+                    <label>Model</label>
+                    <input type="text" id="claude_model" value="{{ (ai_cfg.models.claude if ai_cfg else 'claude-3-5-sonnet-latest') }}"
+                           style="width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:8px;">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+            <button type="button" id="btn-save-ai-key" style="background:#4f46e5;padding:14px 32px;font-size:1.05rem;border:none;border-radius:10px;color:#fff;cursor:pointer;font-weight:600;">
+                Save AI Key
+            </button>
+            <span id="ai-save-hint" class="text-muted" style="font-size:0.85rem;">Click after pasting the key</span>
+        </div>
+        <p class="text-muted small" style="margin:12px 0 0;">
+            After a successful save this page reloads and shows <b>Gemini: saved</b> + <b>Active</b>.
+            Then open Resume/CV → Generate with AI.
+        </p>
+    </div>
+<script>
+(function(){
+  var btn = document.getElementById('btn-save-ai-key');
+  if (!btn) return;
+  btn.addEventListener('click', function(){
+    var box = document.getElementById('ai-save-result');
+    var gemini = ((document.getElementById('gemini_api_key') || {}).value || '').trim();
+    var openai = ((document.getElementById('openai_api_key') || {}).value || '').trim();
+    var claude = ((document.getElementById('anthropic_api_key') || {}).value || '').trim();
+    var provider = ((document.getElementById('ai_brain_provider') || {}).value || 'gemini');
+    var geminiModel = ((document.getElementById('gemini_model') || {}).value || 'gemini-2.0-flash');
+    var openaiModel = ((document.getElementById('openai_model') || {}).value || 'gpt-4o-mini');
+    var claudeModel = ((document.getElementById('claude_model') || {}).value || 'claude-3-5-sonnet-latest');
+    if (!gemini && !openai && !claude) {
+      box.style.display = 'block';
+      box.style.background = '#fef2f2';
+      box.style.color = '#991b1b';
+      box.textContent = 'Empty: paste your API key into a box first, then click Save AI Key.';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    var fd = new FormData();
+    fd.append('ai_brain_provider', provider);
+    fd.append('gemini_api_key', gemini);
+    fd.append('openai_api_key', openai);
+    fd.append('anthropic_api_key', claude);
+    fd.append('gemini_model', geminiModel);
+    fd.append('openai_model', openaiModel);
+    fd.append('claude_model', claudeModel);
+    fetch('{{ url_for("save_platform_ai_key_ajax") }}', {
+      method: 'POST',
+      body: fd,
+      credentials: 'same-origin'
+    }).then(function(r){ return r.json().then(function(j){ return {status:r.status, body:j}; }); })
+      .then(function(res){
+        box.style.display = 'block';
+        if (res.body && res.body.ok && res.body.received && res.body.received.length) {
+          box.style.background = '#ecfdf5';
+          box.style.color = '#166534';
+          box.textContent = 'SAVED OK: ' + JSON.stringify(res.body.received) + ' | configured=' + res.body.configured;
+          setTimeout(function(){ location.reload(); }, 800);
+        } else {
+          box.style.background = '#fef2f2';
+          box.style.color = '#991b1b';
+          box.textContent = 'Save response: ' + JSON.stringify(res.body || res);
+          btn.disabled = false;
+          btn.textContent = 'Save AI Key';
+        }
+      })
+      .catch(function(err){
+        box.style.display = 'block';
+        box.style.background = '#fef2f2';
+        box.style.color = '#991b1b';
+        box.textContent = 'Network/server error: ' + err;
+        btn.disabled = false;
+        btn.textContent = 'Save AI Key';
+      });
+  });
+})();
+</script>
+
+{% endblock %}

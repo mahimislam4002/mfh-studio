@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ module.name }} — {{ site_name }}</title>
+<style>
+:root{
+  --bg:#0b1220; --side:#0c1a1f; --side2:#0f2430; --line:#1a333d;
+  --card:#fff; --text:#0f172a; --muted:#64748b; --accent:#0d9488; --accent2:#0891b2;
+  --ok:#059669; --warn:#d97706; --danger:#dc2626; --sky:#0284c7;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f1f5f9;color:var(--text);display:flex;min-height:100vh}
+a{color:inherit}
+.side{width:260px;background:linear-gradient(180deg,#0c1a1f,#082f2e);color:#e2e8f0;display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0;z-index:40;border-right:1px solid #1e293b}
+.side-brand{padding:18px 16px 12px;border-bottom:1px solid #1e293b;flex:0 0 auto}
+.side-brand a{text-decoration:none;display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:15px}
+.side-brand .ico{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0d9488,#0891b2);display:grid;place-items:center;font-size:18px}
+.side-scroll{flex:1;overflow-y:auto;padding:10px 10px 16px;scrollbar-width:thin;scrollbar-color:#475569 transparent}
+.side-scroll::-webkit-scrollbar{width:4px}
+.side-scroll::-webkit-scrollbar-thumb{background:#475569;border-radius:4px}
+.nav-group{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#64748b;margin:14px 8px 6px;font-weight:700}
+.side a.nav{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;text-decoration:none;color:#cbd5e1;font-size:13.5px;margin-bottom:2px}
+.side a.nav:hover{background:rgba(255,255,255,.06);color:#fff}
+.side a.nav.active{background:linear-gradient(90deg,rgba(13,148,136,.4),rgba(8,145,178,.22));color:#fff;font-weight:600}
+.side a.nav .g{width:20px;text-align:center;opacity:.9}
+.side-foot{padding:12px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.side-foot .av-img,.side-foot .av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#334155;display:grid;place-items:center;font-weight:700;color:#fff;font-size:13px;flex:0 0 auto}
+.side-foot .meta{flex:1;min-width:0;font-size:12px;line-height:1.3}
+.side-foot .meta strong{display:block;color:#fff;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-foot .meta span{color:#94a3b8}
+.exit-btn{display:inline-flex;align-items:center;padding:7px 12px;border-radius:10px;background:#1e293b;color:#e2e8f0;text-decoration:none;font-size:12px;font-weight:600;border:1px solid #334155;flex:0 0 auto}
+.exit-btn:hover{background:#334155}
+.main{margin-left:260px;flex:1;min-width:0;padding:0 0 48px}
+.top{position:sticky;top:0;z-index:30;background:rgba(241,245,249,.92);backdrop-filter:blur(8px);border-bottom:1px solid #e2e8f0;padding:12px 24px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.top h1{margin:0;font-size:18px;font-weight:700}
+.top .sub{color:var(--muted);font-size:13px}
+.search-row{display:flex;align-items:center;gap:8px}
+.search-row input{height:40px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;min-width:220px;font:inherit}
+.search-row button{height:40px;border:0;border-radius:10px;padding:0 14px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+.wrap{padding:20px 24px;max-width:1200px}
+.hero{background:linear-gradient(135deg,#0f766e,#0d9488 50%,#0891b2);color:#fff;border-radius:18px;padding:22px 24px;margin-bottom:18px;box-shadow:0 12px 32px rgba(13,148,136,.28)}
+.hero h2{margin:0 0 6px;font-size:22px}
+.hero p{margin:0;opacity:.9;font-size:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px;text-decoration:none;transition:.15s;display:block}
+.kpi:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.06)}
+.kpi span{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.kpi b{display:block;font-size:22px;margin-top:4px}
+.panel{background:var(--card);border:1px solid #e2e8f0;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 4px 16px rgba(15,23,42,.04)}
+.panel h3{margin:0 0 12px;font-size:15px}
+.row-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-start;margin-bottom:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;color:var(--text)}
+.btn:hover{background:#f8fafc}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#0f766e}
+.btn-danger{background:#fef2f2;color:var(--danger);border-color:#fecaca}
+.btn-ok{background:#ecfdf5;color:var(--ok);border-color:#a7f3d0}
+.btn-sm{padding:6px 10px;font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}.side{width:72px}.main{margin-left:72px}.side .nav span.lbl,.side-brand span.lbl,.side-foot .meta{display:none}}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid #e2e8f0;border-radius:10px;font:inherit;background:#fff}
+.field textarea{min-height:72px;resize:vertical}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.card h4{margin:0;font-size:15px}
+.card .meta{font-size:12px;color:var(--muted)}
+.badge{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.badge-lead,.badge-draft,.badge-todo{background:#eef2ff;color:#3730a3}
+.badge-active,.badge-paid,.badge-done{background:#ecfdf5;color:#065f46}
+.badge-sent,.badge-proposal,.badge-review{background:#fff7ed;color:#9a3412}
+.badge-overdue,.badge-urgent,.badge-cancelled{background:#fef2f2;color:#991b1b}
+.badge-onhold,.badge-paused{background:#f1f5f9;color:#475569}
+.card-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
+.empty{color:var(--muted);padding:20px 0;text-align:center;font-size:14px}
+.flash{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px}
+.flash.danger{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100;align-items:center;justify-content:center;padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:min(520px,100%);max-height:90vh;overflow:auto;padding:20px;box-shadow:0 24px 64px rgba(0,0,0,.25)}
+.modal h3{margin:0 0 14px;font-size:17px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.guide-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px}
+.guide-card h4{margin:0 0 6px;font-size:14px}
+.guide-card p{margin:0 0 10px;font-size:13px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #e2e8f0}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+
+.qa-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start}
+.qa-btns .btn{background:#fff;border:1px solid #e2e8f0;color:var(--text)}
+.qa-btns .btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.qa-btns .btn.btn-primary{background:#fff;border:1px solid #e2e8f0;color:var(--text)}
+.qa-btns .btn.btn-primary:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+
+.kpi-c1{background:linear-gradient(145deg,#ecfdf5,#fff);border-color:#a7f3d0}
+.kpi-c1 b{color:#047857}
+.kpi-c2{background:linear-gradient(145deg,#eff6ff,#fff);border-color:#bfdbfe}
+.kpi-c2 b{color:#1d4ed8}
+.kpi-c3{background:linear-gradient(145deg,#fff7ed,#fff);border-color:#fed7aa}
+.kpi-c3 b{color:#c2410c}
+.kpi-c4{background:linear-gradient(145deg,#f0fdfa,#fff);border-color:#99f6e4}
+.kpi-c4 b{color:#0f766e}
+.kpi-c5{background:linear-gradient(145deg,#fef2f2,#fff);border-color:#fecaca}
+.kpi-c5 b{color:#b91c1c}
+.kpi-c6{background:linear-gradient(145deg,#f5f3ff,#fff);border-color:#ddd6fe}
+.kpi-c6 b{color:#6d28d9}
+.kpi-c7{background:linear-gradient(145deg,#fefce8,#fff);border-color:#fde68a}
+.kpi-c7 b{color:#a16207}
+.kpi-c8{background:linear-gradient(145deg,#eef2ff,#fff);border-color:#c7d2fe}
+.kpi-c8 b{color:#4338ca}
+
+.search-wrap{position:relative}
+.search-dd{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;min-width:320px;max-height:360px;overflow:auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 40px rgba(15,23,42,.12);z-index:50;padding:6px}
+.search-dd.open{display:block}
+.search-dd .hit{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;text-decoration:none;color:inherit}
+.search-dd .hit:hover{background:#f1f5f9}
+.search-dd .hit .k{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--accent);min-width:64px}
+.search-dd .empty-hit{padding:14px 12px;color:var(--muted);font-size:13px}
+.btn-back{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:var(--ink);font-weight:600;font-size:13px;cursor:pointer;text-decoration:none;margin-right:8px}
+.btn-back:hover{border-color:var(--accent);color:var(--accent)}
+.top-left{display:flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+<aside class="side">
+  <div class="side-brand">
+    <a href="{{ url_for('freelance_agency', page='home') }}">
+      <span class="ico">💼</span>
+      <span class="lbl">Freelance & Agency OS</span>
+    </a>
+  </div>
+  <div class="side-scroll" id="faNav">
+    <div class="nav-group">Workspace</div>
+    <a class="nav {% if page=='home' %}active{% endif %}" href="{{ url_for('freelance_agency', page='home') }}"><span class="g">⌂</span><span class="lbl">Overview</span></a>
+    <a class="nav {% if page=='start-here' %}active{% endif %}" href="{{ url_for('freelance_agency', page='start-here') }}"><span class="g">🚀</span><span class="lbl">Start Here</span></a>
+    <a class="nav {% if page=='focus' %}active{% endif %}" href="{{ url_for('freelance_agency', page='focus') }}"><span class="g">🎯</span><span class="lbl">Weekly Focus</span></a>
+    <div class="nav-group">CRM</div>
+    <a class="nav {% if page=='clients' %}active{% endif %}" href="{{ url_for('freelance_agency', page='clients') }}"><span class="g">👤</span><span class="lbl">Clients <small style="opacity:.7">({{ counts.clients }})</small></span></a>
+    <a class="nav {% if page=='projects' %}active{% endif %}" href="{{ url_for('freelance_agency', page='projects') }}"><span class="g">📁</span><span class="lbl">Projects <small style="opacity:.7">({{ counts.projects }})</small></span></a>
+    <a class="nav {% if page=='retainers' %}active{% endif %}" href="{{ url_for('freelance_agency', page='retainers') }}"><span class="g">🔁</span><span class="lbl">Retainers</span></a>
+    <div class="nav-group">Delivery</div>
+    <a class="nav {% if page=='tasks' %}active{% endif %}" href="{{ url_for('freelance_agency', page='tasks') }}"><span class="g">☑</span><span class="lbl">Tasks (Open) <small style="opacity:.7">({{ counts.open_tasks }})</small></span></a>
+    <a class="nav {% if page=='deliveries' %}active{% endif %}" href="{{ url_for('freelance_agency', page='deliveries') }}"><span class="g">📦</span><span class="lbl">Deliveries</span></a>
+    <div class="nav-group">Money</div>
+    <a class="nav {% if page=='invoices' %}active{% endif %}" href="{{ url_for('freelance_agency', page='invoices') }}"><span class="g">🧾</span><span class="lbl">Invoices <small style="opacity:.7">({{ counts.unpaid_invoices }} unpaid)</small></span></a>
+    <a class="nav {% if page=='expenses' %}active{% endif %}" href="{{ url_for('freelance_agency', page='expenses') }}"><span class="g">💳</span><span class="lbl">Expenses</span></a>
+    <a class="nav {% if page=='time' %}active{% endif %}" href="{{ url_for('freelance_agency', page='time') }}"><span class="g">⏱</span><span class="lbl">Time tracking</span></a>
+    <div class="nav-group">Grow</div>
+    <a class="nav {% if page=='contracts' %}active{% endif %}" href="{{ url_for('freelance_agency', page='contracts') }}"><span class="g">📄</span><span class="lbl">Contracts</span></a>
+    <a class="nav {% if page=='messages' %}active{% endif %}" href="{{ url_for('freelance_agency', page='messages') }}"><span class="g">✉</span><span class="lbl">Messages</span></a>
+    <a class="nav {% if page=='ai' %}active{% endif %}" href="{{ url_for('freelance_agency', page='ai') }}"><span class="g">✨</span><span class="lbl">AI Assist</span></a>
+    <a class="nav {% if page=='reminders' %}active{% endif %}" href="{{ url_for('freelance_agency', page='reminders') }}"><span class="g">🔔</span><span class="lbl">Reminders{% if counts.due_reminders %}<small style="opacity:.7"> ({{ counts.due_reminders }})</small>{% endif %}</span></a>
+    <a class="nav {% if page=='portal' %}active{% endif %}" href="{{ url_for('freelance_agency', page='portal') }}"><span class="g">🔗</span><span class="lbl">Client portal</span></a>
+    <div class="nav-group">System</div>
+    <a class="nav {% if page=='settings' %}active{% endif %}" href="{{ url_for('freelance_agency', page='settings') }}"><span class="g">⚙</span><span class="lbl">Settings & Export</span></a>
+  </div>
+  <div class="side-foot">
+    {% if user.photo %}<img class="av-img" src="{{ user.photo }}" alt="">{% elif user.avatar %}<img class="av-img" src="{{ user.avatar }}" alt="">{% else %}<div class="av">{{ (user.full_name or user.username or 'U')[0]|upper }}</div>{% endif %}
+    <div class="meta"><strong>{{ user.full_name or user.username }}</strong><span>@{{ user.username }}</span></div>
+    <a class="exit-btn" href="{{ url_for('dashboard') }}">Exit</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="top">
+    <div>
+      <h1>{% if page=='home' %}Overview{% elif page=='start-here' %}Start Here{% elif page=='clients' %}Clients{% elif page=='projects' %}Projects{% elif page=='retainers' %}Retainers{% elif page=='tasks' %}Tasks{% elif page=='deliveries' %}Deliveries{% elif page=='invoices' %}Invoices{% elif page=='focus' %}Weekly Focus{% elif page=='settings' %}Settings{% elif page=='search' %}Search{% elif page=='messages' %}Messages{% elif page=='time' %}Time tracking{% elif page=='contracts' %}Contracts{% elif page=='expenses' %}Expenses{% elif page=='reminders' %}Reminders{% elif page=='ai' %}AI Assist{% elif page=='portal' %}Client portal{% else %}{{ page }}{% endif %}</h1>
+      <div class="sub">{{ module.desc or 'Clients, projects, retainers & delivery' }}</div>
+    </div>
+    <div class="search-wrap">
+      <form class="search-row" id="faSearchForm" method="get" action="{{ url_for('freelance_agency', page='search') }}" autocomplete="off">
+        <input type="search" name="q" id="faSearchInput" value="{{ q }}" placeholder="Search clients, projects, tasks…" autocomplete="off">
+        <button type="submit" id="faSearchBtn">Search</button>
+      </form>
+      <div class="search-dd" id="faSearchDd" role="listbox"></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    {% if page != 'home' %}
+    <div style="margin-bottom:12px">
+      <a class="btn-back" href="{{ url_for('freelance_agency', page='home') }}" title="Back to Overview">← Back</a>
+    </div>
+    {% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash {% if cat=='danger' %}danger{% endif %}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    {% if page == 'home' %}
+    <div class="hero">
+      <h2>Freelance & Agency workspace</h2>
+      <p>Track clients, projects, retainers, delivery and weekly focus — one operating system for your practice.</p>
+    </div>
+    <div class="kpis">
+      <a class="kpi kpi-c1" href="{{ url_for('freelance_agency', page='clients') }}"><span>Active clients</span><b>{{ counts.active_clients }}</b></a>
+      <a class="kpi kpi-c2" href="{{ url_for('freelance_agency', page='projects') }}"><span>Active projects</span><b>{{ counts.active_projects }}</b></a>
+      <a class="kpi kpi-c3" href="{{ url_for('freelance_agency', page='tasks') }}"><span>Open tasks</span><b>{{ counts.open_tasks }}</b></a>
+      <a class="kpi kpi-c4" href="{{ url_for('freelance_agency', page='retainers') }}"><span>Active retainers</span><b>{{ counts.active_retainers }}</b></a>
+      <a class="kpi kpi-c5" href="{{ url_for('freelance_agency', page='invoices') }}"><span>Unpaid invoices</span><b>{{ counts.unpaid_invoices }}</b></a>
+      <a class="kpi kpi-c6" href="{{ url_for('freelance_agency', page='deliveries') }}"><span>Deliveries</span><b>{{ counts.deliveries }}</b></a>
+      <a class="kpi kpi-c7" href="{{ url_for('freelance_agency', page='time') }}"><span>Hours logged</span><b>{{ counts.hours_logged }}</b></a>
+      <a class="kpi kpi-c8" href="{{ url_for('freelance_agency', page='reminders') }}"><span>Due alerts</span><b>{{ counts.due_reminders }}</b></a>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>This week’s focus</h3>
+        <p class="meta" style="color:var(--muted);font-size:13px;margin:0 0 8px">Week {{ week }}</p>
+        <p style="font-size:14px;white-space:pre-wrap">{{ focus.priorities or focus.goals or 'No priorities set yet.' }}</p>
+        <a class="btn btn-sm" href="{{ url_for('freelance_agency', page='focus') }}">Open weekly focus →</a>
+      </div>
+      <div class="panel">
+        <h3>Quick actions</h3>
+        <div class="qa-btns">
+          <button type="button" class="btn" onclick="faOpen('modalClient')">+ Client</button>
+          <button type="button" class="btn" onclick="faOpen('modalProject')">+ Project</button>
+          <button type="button" class="btn" onclick="faOpen('modalTask')">+ Task</button>
+          <button type="button" class="btn" onclick="faOpen('modalInvoice')">+ Invoice</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Recent projects</h3>
+      {% if data.projects %}
+      <table>
+        <thead><tr><th>Project</th><th>Client</th><th>Status</th><th>Deadline</th></tr></thead>
+        <tbody>
+        {% for p in data.projects[:8] %}
+          <tr>
+            <td><b>{{ p.title }}</b></td>
+            <td>{{ p._client_name }}</td>
+            <td><span class="badge badge-{{ (p.status or '')|lower|replace(' ','') }}">{{ p.status }}</span></td>
+            <td>{{ p.deadline or '—' }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty">No projects yet. Create your first project to get started.</div>
+      {% endif %}
+    </div>
+
+    
+    <div class="panel">
+      <h3 style="margin:0 0 12px">Reports snapshot</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <h4 style="margin:0 0 8px;font-size:13px;color:var(--muted)">Time by client</h4>
+          {% if time_by_client_list %}
+          <table><thead><tr><th>Client</th><th>Hours</th></tr></thead><tbody>
+          {% for r in time_by_client_list[:8] %}
+            <tr><td>{{ r.name }}</td><td><b>{{ r.hours }}</b></td></tr>
+          {% endfor %}
+          </tbody></table>
+          {% else %}<p class="empty" style="margin:0">No time logged yet.</p>{% endif %}
+        </div>
+        <div>
+          <h4 style="margin:0 0 8px;font-size:13px;color:var(--muted)">Expenses by category</h4>
+          {% if expense_by_category %}
+          <table><thead><tr><th>Category</th><th>Amount</th></tr></thead><tbody>
+          {% for r in expense_by_category[:8] %}
+            <tr><td>{{ r.category }}</td><td><b>{{ r.amount }}</b></td></tr>
+          {% endfor %}
+          </tbody></table>
+          {% else %}<p class="empty" style="margin:0">No expenses yet.</p>{% endif %}
+        </div>
+      </div>
+    </div>
+
+{% elif page == 'start-here' %}
+    <div class="hero"><h2>Start here</h2><p>Set up your freelance practice in four steps.</p></div>
+    <div class="guide-grid">
+      <div class="guide-card"><h4>1. Add clients</h4><p>Save leads and active clients with contact details.</p><a class="btn btn-sm btn-primary" href="{{ url_for('freelance_agency', page='clients') }}">Open Clients</a></div>
+      <div class="guide-card"><h4>2. Create projects</h4><p>Link projects to clients, set budget & deadline.</p><a class="btn btn-sm btn-primary" href="{{ url_for('freelance_agency', page='projects') }}">Open Projects</a></div>
+      <div class="guide-card"><h4>3. Plan delivery</h4><p>Break work into tasks and log deliveries.</p><a class="btn btn-sm btn-primary" href="{{ url_for('freelance_agency', page='tasks') }}">Open Tasks</a></div>
+      <div class="guide-card"><h4>4. Invoice & retain</h4><p>Track invoices and recurring retainers.</p><a class="btn btn-sm btn-primary" href="{{ url_for('freelance_agency', page='invoices') }}">Open Invoices</a></div>
+    </div>
+
+    {% elif page == 'clients' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <h3 style="margin:0">Clients</h3>
+        <p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Click + New Client — popup form, then Save.</p>
+      </div>
+      <button type="button" class="btn btn-primary" onclick="faOpen('modalClient')">+ New Client</button>
+    </div>
+    <div class="cards">
+      {% for c in data.clients %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;gap:8px;align-items:start">
+          <h4>{{ c.name }}</h4>
+          <span class="badge badge-{{ (c.status or '')|lower }}">{{ c.status }}</span>
+        </div>
+        <div class="meta">{{ c.company or '—' }} · {{ c.email or 'no email' }}{% if c.phone %} · {{ c.phone }}{% endif %}</div>
+        {% if c.tags %}<div class="meta">Tags: {{ c.tags }}</div>{% endif %}
+        {% if c.notes %}<div class="meta" style="white-space:pre-wrap">{{ c.notes[:160] }}{% if c.notes|length>160 %}…{% endif %}</div>{% endif %}
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='faEditClient({{ c|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('freelance_agency_action') }}" onsubmit="return confirm('Delete this client?')">
+            <input type="hidden" name="action" value="delete_client"><input type="hidden" name="page" value="clients">
+            <input type="hidden" name="item_id" value="{{ c.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty" style="grid-column:1/-1">No clients yet. Click + New Client to add one.</div>
+      {% endfor %}
+    </div>
+
+    {% elif page == 'projects' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <h3 style="margin:0">Projects</h3>
+        <p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Click + New Project — popup form, then Save.</p>
+      </div>
+      <button type="button" class="btn btn-primary" onclick="faOpen('modalProject')">+ New Project</button>
+    </div>
+    <div class="cards">
+      {% for p in data.projects %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;gap:8px">
+          <h4>{{ p.title }}</h4>
+          <span class="badge badge-{{ (p.status or '')|lower|replace(' ','') }}">{{ p.status }}</span>
+        </div>
+        <div class="meta">Client: {{ p._client_name }} · Priority: {{ p.priority or '—' }}</div>
+        <div class="meta">Deadline: {{ p.deadline or '—' }} · Budget: {{ p.budget or '—' }}</div>
+        {% if p.notes %}<div class="meta" style="white-space:pre-wrap">{{ p.notes[:140] }}{% if p.notes|length>140 %}…{% endif %}</div>{% endif %}
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='faEditProject({{ p|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('freelance_agency_action') }}" onsubmit="return confirm('Delete this project?')">
+            <input type="hidden" name="action" value="delete_project"><input type="hidden" name="page" value="projects">
+            <input type="hidden" name="item_id" value="{{ p.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty" style="grid-column:1/-1">No projects yet.</div>
+      {% endfor %}
+    </div>
+
+    {% elif page == 'retainers' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Retainers</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Recurring client retainers.</p></div>
+      <button type="button" class="btn btn-primary" onclick="faOpen('modalRetainer')">+ New Retainer</button>
+    </div>
+    <div class="cards">
+      {% for r in data.retainers %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between"><h4>{{ r.name }}</h4><span class="badge badge-{{ (r.status or '')|lower }}">{{ r.status }}</span></div>
+        <div class="meta">{{ r._client_name }} · {{ r.monthly_fee or '—' }}/mo · {{ r.hours or '—' }} hrs</div>
+        <div class="meta">Next billing: {{ r.next_billing or '—' }}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='faEditRetainer({{ r|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('freelance_agency_action') }}" onsubmit="return confirm('Delete retainer?')">
+            <input type="hidden" name="action" value="delete_retainer"><input type="hidden" name="page" value="retainers">
+            <input type="hidden" name="item_id" value="{{ r.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No retainers yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'tasks' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Tasks</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Delivery checklist for projects.</p></div>
+      <button type="button" class="btn btn-primary" onclick="faOpen('modalTask')">+ New Task</button>
+    </div>
+    <div class="cards">
+      {% for t in data.tasks %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between"><h4>{{ t.title }}</h4><span class="badge badge-{{ (t.status or '')|lower|replace(' ','') }}">{{ t.status }}</span></div>
+        <div class="meta">{{ t._project_title }} · {{ t.priority }} · Due {{ t.due or '—' }}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='faEditTask({{ t|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('freelance_agency_action') }}" onsubmit="return confirm('Delete task?')">
+            <input type="hidden" name="action" value="delete_task"><input type="hidden" name="page" value="tasks">
+            <input type="hidden" name="item_id" value="{{ t.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No tasks yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'deliveries' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Deliveries</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Log and track client deliveries.</p></div>
+      <button type="button" class="btn btn-primary" onclick="faOpen('modalDelivery')">+ Log Delivery</button>
+    </div>
+    <div class="cards">
+      {% for d in data.deliveries %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between"><h4>{{ d.title }}</h4><span class="badge">{{ d.status }}</span></div>
+        <div class="meta">{{ d._project_title }} · Due {{ d.due_date or '—' }}</div>
+        {% if d.link %}<div class="meta"><a href="{{ d.link }}" target="_blank" rel="noopener">Open link ↗</a></div>{% endif %}
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='faEditDelivery({{ d|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('freelance_agency_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_delivery"><input type="hidden" name="page" value="deliveries">
+            <input type="hidden" name="item_id" value="{{ d.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No deliveries logged.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'invoices' %}
+    <div class="panel" style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap">
+      <form method="post" action="{{ url_for('freelance_agency_action') }}">
+        <input type="hidden" name="action" value="generate_recurring_invoices"><input type="hidden" name="page" value="invoices">
+        <button class="btn btn-qa btn-sm" type="submit">Generate due recurring invoices</button>
+      </form>
+    </div>
+
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Invoices</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Track billing and payment status.</p></div>
+      <button type="button" class="btn btn-primary" onclick="faOpen('modalInvoice')">+ New Invoice</button>
+    </div>
+    <div class="cards">
+      {% for inv in data.invoices %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between"><h4>{{ inv.number }}</h4><span class="badge badge-{{ (inv.status or '')|lower }}">{{ inv.status }}</span></div>
+        <div class="meta">{{ inv._client_name }} · Amount: <b>{{ inv.amount or '—' }}</b></div>
+        <div class="meta">Issued {{ inv.issued_on or '—' }} · Due {{ inv.due_date or '—' }}</div>
+        <div class="card-actions">
+          <a class="btn btn-sm btn-ok" href="{{ url_for('fa_invoice_pdf', invoice_id=inv.id) }}" target="_blank">PDF</a>
+          <form method="post" action="{{ url_for('freelance_agency_action') }}" style="display:inline">
+            <input type="hidden" name="action" value="email_invoice"><input type="hidden" name="page" value="invoices">
+            <input type="hidden" name="item_id" value="{{ inv.id }}">
+            <button class="btn btn-sm" type="submit">Email client</button>
+          </form>
+          <button type="button" class="btn btn-sm" onclick='faEditInvoice({{ inv|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('freelance_agency_action') }}" onsubmit="return confirm('Delete invoice?')">
+            <input type="hidden" name="action" value="delete_invoice"><input type="hidden" name="page" value="invoices">
+            <input type="hidden" name="item_id" value="{{ inv.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No invoices yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'focus' %}
+    <div class="panel">
+      <h3>Weekly focus — {{ week }}</h3>
+      <form method="post" action="{{ url_for('freelance_agency_action') }}">
+        <input type="hidden" name="action" value="save_focus"><input type="hidden" name="page" value="focus">
+        <input type="hidden" name="week" value="{{ week }}">
+        <div class="field"><label>Top priorities</label><textarea name="priorities" rows="3">{{ focus.priorities or '' }}</textarea></div>
+        <div class="field"><label>Goals this week</label><textarea name="goals" rows="3">{{ focus.goals or '' }}</textarea></div>
+        <div class="field"><label>Wins</label><textarea name="wins" rows="2">{{ focus.wins or '' }}</textarea></div>
+        <div class="field"><label>Notes</label><textarea name="notes" rows="2">{{ focus.notes or '' }}</textarea></div>
+        <button class="btn btn-primary" type="submit">Save focus</button>
+      </form>
+    </div>
+
+    {% elif page == 'search' %}
+    <div class="panel">
+      <h3>Results for “{{ q }}”</h3>
+      {% if search_hits %}
+      <ul style="margin:0;padding-left:18px">
+        {% for h in search_hits %}
+        <li style="margin:8px 0"><span class="badge">{{ h.kind }}</span> <a href="{{ url_for('freelance_agency', page=h.page) }}"><b>{{ h.title }}</b></a></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <div class="empty">No results found for “{{ q }}”</div>
+      {% endif %}
+    </div>
+
+
+    {% elif page == 'messages' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Messages</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Draft and send messages to clients (SMTP in Settings).</p></div>
+      <button type="button" class="btn btn-primary" onclick="faOpen('modalMessage')">+ New message</button>
+    </div>
+    <div class="cards">
+      {% for m in data.messages %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between"><h4>{{ m.subject }}</h4><span class="badge">{{ m.status }}</span></div>
+        <div class="meta">To: {{ m._client_name }} · {{ m.channel or 'Email' }}</div>
+        <div class="meta" style="white-space:pre-wrap">{{ m.body[:200] }}{% if m.body|length>200 %}…{% endif %}</div>
+        <div class="card-actions">
+          {% if m.status != 'Sent' %}
+          <button type="button" class="btn btn-sm" onclick='faEditMessage({{ m|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('freelance_agency_action') }}">
+            <input type="hidden" name="action" value="send_message"><input type="hidden" name="page" value="messages">
+            <input type="hidden" name="item_id" value="{{ m.id }}">
+            <button class="btn btn-sm btn-primary" type="submit">Send</button>
+          </form>
+          {% else %}
+          <form method="post" action="{{ url_for('freelance_agency_action') }}">
+            <input type="hidden" name="action" value="resend_message"><input type="hidden" name="page" value="messages">
+            <input type="hidden" name="item_id" value="{{ m.id }}">
+            <button class="btn btn-sm btn-primary" type="submit">Resend</button>
+          </form>
+          {% endif %}
+          <form method="post" action="{{ url_for('freelance_agency_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_message"><input type="hidden" name="page" value="messages">
+            <input type="hidden" name="item_id" value="{{ m.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No messages yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'time' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Time tracking</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Log billable hours against projects.</p></div>
+      <button type="button" class="btn btn-primary" onclick="faOpen('modalTime')">+ Log time</button>
+    </div>
+    <div class="cards">
+      {% for t in data.time_entries %}
+      <div class="card">
+        <h4>{{ t.hours }} hrs · {{ t.date }}</h4>
+        <div class="meta">{{ t._project_title }} · {{ t._client_name }} {% if t.billable %}· Billable{% endif %}</div>
+        <div class="meta">{{ t.description or '' }}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='faEditTime({{ t|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('freelance_agency_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_time"><input type="hidden" name="page" value="time">
+            <input type="hidden" name="item_id" value="{{ t.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No time entries yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'contracts' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Contracts & proposals</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Store scope, value and status.</p></div>
+      <button type="button" class="btn btn-primary" onclick="faOpen('modalContract')">+ New contract</button>
+    </div>
+    <div class="cards">
+      {% for c in data.contracts %}
+      <div class="card">
+        <div style="display:flex;justify-content:space-between"><h4>{{ c.title }}</h4><span class="badge">{{ c.status }}</span></div>
+        <div class="meta">{{ c._client_name }} · Value: {{ c.value or '—' }}</div>
+        <div class="meta">{{ c.start_date or '—' }} → {{ c.end_date or '—' }}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='faEditContract({{ c|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('freelance_agency_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_contract"><input type="hidden" name="page" value="contracts">
+            <input type="hidden" name="item_id" value="{{ c.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No contracts yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'expenses' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin:0">Expenses</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Track business costs.</p></div>
+      <button type="button" class="btn btn-primary" onclick="faOpen('modalExpense')">+ Log expense</button>
+    </div>
+    <div class="cards">
+      {% for e in data.expenses %}
+      <div class="card">
+        <h4>{{ e.title }} · {{ e.amount }}</h4>
+        <div class="meta">{{ e.date }} · {{ e.category }} · {{ e._project_title }}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm" onclick='faEditExpense({{ e|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('freelance_agency_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_expense"><input type="hidden" name="page" value="expenses">
+            <input type="hidden" name="item_id" value="{{ e.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No expenses yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'reminders' %}
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px">
+      <div><h3 style="margin:0">Reminders</h3><p style="margin:4px 0 0;font-size:13px;color:var(--muted)">Due invoices, tasks, contracts and your custom alerts.</p></div>
+      <button type="button" class="btn btn-primary" onclick="faOpen('modalReminder')">+ Add reminder</button>
+    </div>
+    <div class="panel"><h3>Due alerts ({{ live_reminders|length }})</h3>
+      {% if live_reminders %}
+      <table>
+        <thead><tr><th>Type</th><th>Item</th><th>Due</th><th></th></tr></thead>
+        <tbody>
+        {% for r in live_reminders %}
+          <tr>
+            <td><span class="badge">{{ r.kind }}</span></td>
+            <td>{{ r.title }}</td>
+            <td>{{ r.due }}</td>
+            <td><a class="btn btn-sm" href="{{ url_for('freelance_agency', page=r.page) }}">Open</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty">No overdue invoices, tasks, contracts or custom reminders. You're clear.</div>
+      {% endif %}
+    </div>
+    {% if data.reminders %}
+    <div class="panel" style="margin-top:16px"><h3>Your custom reminders</h3>
+      <div class="cards">
+        {% for r in data.reminders %}
+        <div class="card">
+          <div style="display:flex;justify-content:space-between"><h4>{{ r.title }}</h4><span class="badge">{% if r.done %}Done{% else %}Open{% endif %}</span></div>
+          <div class="meta">Due {{ r.due }}{% if r.note %} · {{ r.note }}{% endif %}</div>
+          <div class="card-actions">
+            <form method="post" action="{{ url_for('freelance_agency_action') }}">
+              <input type="hidden" name="action" value="toggle_reminder"><input type="hidden" name="page" value="reminders">
+              <input type="hidden" name="item_id" value="{{ r.id }}">
+              <button class="btn btn-sm" type="submit">{% if r.done %}Mark open{% else %}Mark done{% endif %}</button>
+            </form>
+            <form method="post" action="{{ url_for('freelance_agency_action') }}" onsubmit="return confirm('Delete?')">
+              <input type="hidden" name="action" value="delete_reminder"><input type="hidden" name="page" value="reminders">
+              <input type="hidden" name="item_id" value="{{ r.id }}">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% elif page == 'ai' %}
+    <div class="panel">
+      <h3>AI Assist</h3>
+      <p class="meta" style="color:var(--muted);font-size:13px">Draft proposals, follow-ups and emails. Uses your OpenAI key from Settings (demo mode without key).</p>
+      <form method="post" action="{{ url_for('freelance_agency_action') }}">
+        <input type="hidden" name="action" value="fa_ai_generate"><input type="hidden" name="page" value="ai">
+        <div class="field"><label>Kind</label>
+          <select name="kind">
+            <option value="proposal">Proposal</option>
+            <option value="followup">Follow-up email</option>
+            <option value="invoice_note">Invoice note</option>
+            <option value="general">General</option>
+          </select>
+        </div>
+        <div class="field"><label>Your notes</label><textarea name="prompt" rows="5" required placeholder="Describe the client, project scope, budget…"></textarea></div>
+        <button class="btn btn-primary" type="submit">Generate draft</button>
+      </form>
+    </div>
+    {% for a in data.ai_log[:5] %}
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <h3 style="margin:0">{{ a.kind }} · {{ a.created_at[:16] if a.created_at else '' }}</h3>
+        <button type="button" class="btn btn-sm btn-primary" onclick="faCopyText(this.getAttribute('data-txt'), this)" data-txt="{{ a.result|e }}">Copy to clipboard</button>
+      </div>
+      <p class="meta" style="white-space:pre-wrap;font-size:13px;margin-top:10px">{{ a.result }}</p>
+    </div>
+    {% endfor %}
+
+    {% elif page == 'portal' %}
+    <div class="panel">
+      <h3>Client portal links</h3>
+      <p style="font-size:13px;color:var(--muted)">Generate a read-only link so a client can view their invoices &amp; contracts without logging in.</p>
+      <form method="post" action="{{ url_for('freelance_agency_action') }}" class="grid2">
+        <input type="hidden" name="action" value="create_portal_link"><input type="hidden" name="page" value="portal">
+        <div class="field"><label>Client</label><select name="client_id" required><option value="">— Select —</option>{% for c in data.clients %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select></div>
+        <div class="field" style="display:flex;align-items:flex-end"><button class="btn btn-primary" type="submit">Create link</button></div>
+      </form>
+    </div>
+    <div class="cards">
+      {% for token, meta in (data.portal_tokens or {}).items() %}
+      {% set full_url = request.url_root.rstrip('/') + '/portal/fa/' + user.username + '/' + token %}
+      <div class="card">
+        <h4>Client: {{ meta.client_name or 'Unknown' }}</h4>
+        <div class="meta" style="word-break:break-all" id="portal-url-{{ loop.index }}">{{ full_url }}</div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm btn-primary" onclick="faCopyText('{{ full_url }}', this)">Copy link</button>
+          <a class="btn btn-sm" href="{{ full_url }}" target="_blank" rel="noopener">Open</a>
+          <form method="post" action="{{ url_for('freelance_agency_action') }}">
+            <input type="hidden" name="action" value="revoke_portal"><input type="hidden" name="page" value="portal">
+            <input type="hidden" name="token" value="{{ token }}">
+            <button class="btn btn-sm btn-danger" type="submit">Revoke</button>
+          </form>
+        </div>
+      </div>
+      {% else %}<div class="empty" style="grid-column:1/-1">No portal links yet.</div>{% endfor %}
+    </div>
+
+    {% elif page == 'settings' %}
+    <div class="grid2">
+      <div class="panel">
+        <h3>Preferences & business</h3>
+        <form method="post" action="{{ url_for('freelance_agency_action') }}">
+          <input type="hidden" name="action" value="save_fa_settings"><input type="hidden" name="page" value="settings">
+          <div class="field"><label>Business name</label><input name="business_name" value="{{ data.settings.business_name or '' }}"></div>
+          <div class="field"><label>Business email</label><input name="business_email" value="{{ data.settings.business_email or '' }}"></div>
+          <div class="field"><label>Business address</label><textarea name="business_address" rows="2">{{ data.settings.business_address or '' }}</textarea></div>
+          <div class="field"><label>Timezone</label>
+            <select name="timezone">
+              {% for tz in ['Asia/Dhaka','Asia/Kolkata','UTC','America/New_York','Europe/London','Asia/Dubai','Asia/Singapore'] %}
+              <option value="{{ tz }}" {% if data.settings.timezone==tz %}selected{% endif %}>{{ tz }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field"><label>Currency</label><input name="currency" value="{{ data.settings.currency or 'USD' }}"></div>
+          <div class="field"><label>Default hourly rate</label><input name="hourly_rate" value="{{ data.settings.hourly_rate or '' }}" placeholder="e.g. 50"></div>
+          <div class="field"><label>Week starts on</label>
+            <select name="week_starts_on">
+              <option value="6" {% if data.settings.week_starts_on==6 %}selected{% endif %}>Saturday</option>
+              <option value="0" {% if data.settings.week_starts_on==0 %}selected{% endif %}>Sunday</option>
+              <option value="1" {% if data.settings.week_starts_on==1 or data.settings.week_starts_on is none %}selected{% endif %}>Monday</option>
+            </select>
+          </div>
+          <h3 style="margin-top:16px">Email (SMTP)</h3>
+          <div class="field"><label><input type="checkbox" name="email_enabled" value="1" {% if data.settings.email_enabled %}checked{% endif %}> Enable real SMTP sending</label></div>
+          <div class="field"><label>SMTP host</label><input name="smtp_host" value="{{ data.settings.smtp_host or '' }}" placeholder="smtp.gmail.com"></div>
+          <div class="grid2">
+            <div class="field"><label>Port</label><input name="smtp_port" value="{{ data.settings.smtp_port or '587' }}"></div>
+            <div class="field"><label>From address</label><input name="smtp_from" value="{{ data.settings.smtp_from or '' }}"></div>
+          </div>
+          <div class="field"><label>SMTP user</label><input name="smtp_user" value="{{ data.settings.smtp_user or '' }}"></div>
+          <div class="field"><label>SMTP password</label><input type="password" name="smtp_pass" placeholder="Leave blank to keep existing"></div>
+          <button class="btn btn-primary" type="submit">Save settings</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h3>OpenAI API key</h3>
+        <form method="post" action="{{ url_for('freelance_agency_action') }}">
+          <input type="hidden" name="action" value="save_fa_openai_key"><input type="hidden" name="page" value="settings">
+          <div class="field"><label>API key</label><input type="password" name="openai_user_key" placeholder="sk-... or clear" value=""></div>
+          <p style="font-size:12px;color:var(--muted)">Status: {% if data.settings.openai_user_key %}<span class="badge badge-active">Configured</span>{% else %}<span class="badge">Not configured</span>{% endif %}</p>
+          <button class="btn btn-primary" type="submit">Save key</button>
+        </form>
+        <hr style="border:0;border-top:1px solid #e2e8f0;margin:20px 0">
+        <h3>Backup &amp; Export</h3>
+        <form method="post" action="{{ url_for('freelance_agency_action') }}" style="margin-bottom:12px">
+          <input type="hidden" name="action" value="export_fa"><input type="hidden" name="page" value="settings">
+          <button class="btn btn-primary" type="submit">Download JSON backup</button>
+        </form>
+        <form method="post" action="{{ url_for('freelance_agency_action') }}" enctype="multipart/form-data">
+          <input type="hidden" name="action" value="import_fa"><input type="hidden" name="page" value="settings">
+          <div class="field"><label>Import &amp; merge</label><input type="file" name="file" accept=".json,application/json"></div>
+          <button class="btn" type="submit">Import &amp; merge</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</main>
+
+{# ---- Modals ---- #}
+{% macro client_options(selected='') %}
+<option value="">— Select client —</option>
+{% for c in data.clients %}<option value="{{ c.id }}" {% if selected==c.id %}selected{% endif %}>{{ c.name }}{% if c.company %} ({{ c.company }}){% endif %}</option>{% endfor %}
+{% endmacro %}
+{% macro project_options(selected='') %}
+<option value="">— Select project —</option>
+{% for p in data.projects %}<option value="{{ p.id }}" {% if selected==p.id %}selected{% endif %}>{{ p.title }}</option>{% endfor %}
+{% endmacro %}
+
+<div class="modal-bg" id="modalClient"><div class="modal">
+  <h3 id="clientModalTitle">New Client</h3>
+  <form method="post" action="{{ url_for('freelance_agency_action') }}">
+    <input type="hidden" name="action" id="clientAction" value="add_client">
+    <input type="hidden" name="page" value="clients">
+    <input type="hidden" name="item_id" id="clientId" value="">
+    <div class="field"><label>Name *</label><input name="name" id="clientName" required></div>
+    <div class="grid2">
+      <div class="field"><label>Company</label><input name="company" id="clientCompany"></div>
+      <div class="field"><label>Status</label><select name="status" id="clientStatus">{% for s in client_statuses %}<option>{{ s }}</option>{% endfor %}</select></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Email</label><input type="email" name="email" id="clientEmail"></div>
+      <div class="field"><label>Phone</label><input name="phone" id="clientPhone"></div>
+    </div>
+    <div class="field"><label>Tags</label><input name="tags" id="clientTags" placeholder="agency, design"></div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="clientNotes"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="faClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<div class="modal-bg" id="modalProject"><div class="modal">
+  <h3 id="projectModalTitle">New Project</h3>
+  <form method="post" action="{{ url_for('freelance_agency_action') }}">
+    <input type="hidden" name="action" id="projectAction" value="add_project">
+    <input type="hidden" name="page" value="projects">
+    <input type="hidden" name="item_id" id="projectId" value="">
+    <div class="field"><label>Title *</label><input name="title" id="projectTitle" required></div>
+    <div class="grid2">
+      <div class="field"><label>Client</label><select name="client_id" id="projectClient">{{ client_options() }}</select></div>
+      <div class="field"><label>Status</label><select name="status" id="projectStatus">{% for s in project_statuses %}<option>{{ s }}</option>{% endfor %}</select></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>Deadline</label><input type="date" name="deadline" id="projectDeadline"></div>
+      <div class="field"><label>Budget</label><input name="budget" id="projectBudget"></div>
+      <div class="field"><label>Priority</label><select name="priority" id="projectPriority">{% for s in priorities %}<option>{{ s }}</option>{% endfor %}</select></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="projectNotes"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="faClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<div class="modal-bg" id="modalRetainer"><div class="modal">
+  <h3 id="retainerModalTitle">New Retainer</h3>
+  <form method="post" action="{{ url_for('freelance_agency_action') }}">
+    <input type="hidden" name="action" id="retainerAction" value="add_retainer">
+    <input type="hidden" name="page" value="retainers">
+    <input type="hidden" name="item_id" id="retainerId" value="">
+    <div class="field"><label>Name *</label><input name="name" id="retainerName" required></div>
+    <div class="grid2">
+      <div class="field"><label>Client</label><select name="client_id" id="retainerClient">{{ client_options() }}</select></div>
+      <div class="field"><label>Status</label><select name="status" id="retainerStatus"><option>Active</option><option>Paused</option><option>Ended</option></select></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>Monthly fee</label><input name="monthly_fee" id="retainerFee"></div>
+      <div class="field"><label>Hours / mo</label><input name="hours" id="retainerHours"></div>
+      <div class="field"><label>Next billing</label><input type="date" name="next_billing" id="retainerBilling"></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="retainerNotes"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="faClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<div class="modal-bg" id="modalTask"><div class="modal">
+  <h3 id="taskModalTitle">New Task</h3>
+  <form method="post" action="{{ url_for('freelance_agency_action') }}">
+    <input type="hidden" name="action" id="taskAction" value="add_task">
+    <input type="hidden" name="page" value="tasks">
+    <input type="hidden" name="item_id" id="taskId" value="">
+    <div class="field"><label>Title *</label><input name="title" id="taskTitle" required></div>
+    <div class="grid2">
+      <div class="field"><label>Project</label><select name="project_id" id="taskProject">{{ project_options() }}</select></div>
+      <div class="field"><label>Client</label><select name="client_id" id="taskClient">{{ client_options() }}</select></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>Status</label><select name="status" id="taskStatus">{% for s in task_statuses %}<option>{{ s }}</option>{% endfor %}</select></div>
+      <div class="field"><label>Priority</label><select name="priority" id="taskPriority">{% for s in priorities %}<option>{{ s }}</option>{% endfor %}</select></div>
+      <div class="field"><label>Due</label><input type="date" name="due" id="taskDue"></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="taskNotes"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="faClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<div class="modal-bg" id="modalDelivery"><div class="modal">
+  <h3 id="deliveryModalTitle">Log Delivery</h3>
+  <form method="post" action="{{ url_for('freelance_agency_action') }}">
+    <input type="hidden" name="action" id="deliveryAction" value="add_delivery">
+    <input type="hidden" name="page" value="deliveries">
+    <input type="hidden" name="item_id" id="deliveryId" value="">
+    <div class="field"><label>Title *</label><input name="title" id="deliveryTitle" required></div>
+    <div class="grid2">
+      <div class="field"><label>Project</label><select name="project_id" id="deliveryProject">{{ project_options() }}</select></div>
+      <div class="field"><label>Status</label><select name="status" id="deliveryStatus"><option>Pending</option><option>Delivered</option><option>Approved</option><option>Revision</option></select></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Due date</label><input type="date" name="due_date" id="deliveryDue"></div>
+        <div class="field"><label>Recurring</label>
+          <select name="recurring"><option value="none">None</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
+        </div>
+        <div class="field"><label>Next issue (for recurring)</label><input type="date" name="next_issue"></div>
+
+      <div class="field"><label>Link</label><input name="link" id="deliveryLink" placeholder="https://"></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="deliveryNotes"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="faClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<div class="modal-bg" id="modalInvoice"><div class="modal">
+  <h3 id="invoiceModalTitle">New Invoice</h3>
+  <form method="post" action="{{ url_for('freelance_agency_action') }}">
+    <input type="hidden" name="action" id="invoiceAction" value="add_invoice">
+    <input type="hidden" name="page" value="invoices">
+    <input type="hidden" name="item_id" id="invoiceId" value="">
+    <div class="grid2">
+      <div class="field"><label>Number</label><input name="number" id="invoiceNumber" placeholder="Auto if empty"></div>
+      <div class="field"><label>Amount *</label><input name="amount" id="invoiceAmount" required></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Client</label><select name="client_id" id="invoiceClient">{{ client_options() }}</select></div>
+      <div class="field"><label>Status</label><select name="status" id="invoiceStatus">{% for s in invoice_statuses %}<option>{{ s }}</option>{% endfor %}</select></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Issued on</label><input type="date" name="issued_on" id="invoiceIssued" value="{{ today }}"></div>
+      <div class="field"><label>Due date</label><input type="date" name="due_date" id="invoiceDue"></div>
+      <div class="field"><label>Recurring</label>
+        <select name="recurring"><option value="none">None</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
+      </div>
+      <div class="field"><label>Next issue</label><input type="date" name="next_issue">
+</div>
+    </div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="invoiceNotes"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="faClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+
+<div class="modal-bg" id="modalMessage"><div class="modal">
+  <h3 id="messageModalTitle">New message</h3>
+  <form method="post" action="{{ url_for('freelance_agency_action') }}">
+    <input type="hidden" name="action" id="messageAction" value="add_message"><input type="hidden" name="page" value="messages">
+    <input type="hidden" name="item_id" id="messageId" value="">
+    <div class="field"><label>Client</label><select name="client_id" id="messageClient">{{ client_options() }}</select></div>
+    <div class="field"><label>Channel</label><select name="channel" id="messageChannel"><option>Email</option><option>WhatsApp</option><option>Other</option></select></div>
+    <div class="field"><label>Subject *</label><input name="subject" id="messageSubject" required></div>
+    <div class="field"><label>Body *</label><textarea name="body" id="messageBody" rows="6" required></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="faClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+<div class="modal-bg" id="modalTime"><div class="modal">
+  <h3 id="timeModalTitle">Log time</h3>
+  <form method="post" action="{{ url_for('freelance_agency_action') }}">
+    <input type="hidden" name="action" id="timeAction" value="add_time"><input type="hidden" name="page" value="time">
+    <input type="hidden" name="item_id" id="timeId" value="">
+    <div class="grid2">
+      <div class="field"><label>Date</label><input type="date" name="date" id="timeDate" value="{{ today }}"></div>
+      <div class="field"><label>Hours *</label><input name="hours" id="timeHours" required placeholder="1.5"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Project</label><select name="project_id" id="timeProject">{{ project_options() }}</select></div>
+      <div class="field"><label>Client</label><select name="client_id" id="timeClient">{{ client_options() }}</select></div>
+    </div>
+    <div class="field"><label>Description</label><textarea name="description" id="timeDesc" rows="2"></textarea></div>
+    <div class="field"><label><input type="checkbox" name="billable" id="timeBillable" value="1" checked> Billable</label></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="faClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+<div class="modal-bg" id="modalContract"><div class="modal">
+  <h3 id="contractModalTitle">New contract / proposal</h3>
+  <form method="post" action="{{ url_for('freelance_agency_action') }}">
+    <input type="hidden" name="action" id="contractAction" value="add_contract"><input type="hidden" name="page" value="contracts">
+    <input type="hidden" name="item_id" id="contractId" value="">
+    <div class="field"><label>Title *</label><input name="title" id="contractTitle" required></div>
+    <div class="grid2">
+      <div class="field"><label>Client</label><select name="client_id" id="contractClient">{{ client_options() }}</select></div>
+      <div class="field"><label>Status</label><select name="status" id="contractStatus"><option>Draft</option><option>Sent</option><option>Active</option><option>Completed</option></select></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><label>Value</label><input name="value" id="contractValue"></div>
+      <div class="field"><label>Start</label><input type="date" name="start_date" id="contractStart"></div>
+      <div class="field"><label>End</label><input type="date" name="end_date" id="contractEnd"></div>
+    </div>
+    <div class="field"><label>Body / scope</label><textarea name="body" id="contractBody" rows="5"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="faClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+<div class="modal-bg" id="modalExpense"><div class="modal">
+  <h3 id="expenseModalTitle">Log expense</h3>
+  <form method="post" action="{{ url_for('freelance_agency_action') }}">
+    <input type="hidden" name="action" id="expenseAction" value="add_expense"><input type="hidden" name="page" value="expenses">
+    <input type="hidden" name="item_id" id="expenseId" value="">
+    <div class="field"><label>Title *</label><input name="title" id="expenseTitle" required></div>
+    <div class="grid2">
+      <div class="field"><label>Amount *</label><input name="amount" id="expenseAmount" required></div>
+      <div class="field"><label>Date</label><input type="date" name="date" id="expenseDate" value="{{ today }}"></div>
+    </div>
+    <div class="field"><label>Category</label><input name="category" id="expenseCategory" value="General"></div>
+    <div class="grid2">
+      <div class="field"><label>Project</label><select name="project_id" id="expenseProject">{{ project_options() }}</select></div>
+      <div class="field"><label>Client</label><select name="client_id" id="expenseClient">{{ client_options() }}</select></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea name="notes" id="expenseNotes" rows="2"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="faClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+
+<div class="modal-bg" id="modalReminder"><div class="modal">
+  <h3>Add reminder</h3>
+  <form method="post" action="{{ url_for('freelance_agency_action') }}">
+    <input type="hidden" name="action" value="add_reminder"><input type="hidden" name="page" value="reminders">
+    <div class="field"><label>Title *</label><input name="title" required placeholder="Follow up with client"></div>
+    <div class="field"><label>Due date *</label><input type="date" name="due" required value="{{ today }}"></div>
+    <div class="field"><label>Note</label><textarea name="note" rows="2" placeholder="Optional note"></textarea></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="faClose()">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+  </form>
+</div></div>
+
+<script>
+function faOpen(id){ document.getElementById(id).classList.add('open'); }
+function faClose(){ document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open')); }
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click', e=>{ if(e.target===bg) faClose(); });
+});
+// preserve sidebar scroll
+(function(){
+  const el=document.getElementById('faNav'); if(!el) return;
+  const k='fa_nav_scroll';
+  const v=sessionStorage.getItem(k); if(v) el.scrollTop=parseInt(v,10)||0;
+  el.addEventListener('scroll',()=>sessionStorage.setItem(k, String(el.scrollTop)));
+})();
+
+function faEditClient(c){
+  document.getElementById('clientModalTitle').textContent='Edit Client';
+  document.getElementById('clientAction').value='update_client';
+  document.getElementById('clientId').value=c.id||'';
+  document.getElementById('clientName').value=c.name||'';
+  document.getElementById('clientCompany').value=c.company||'';
+  document.getElementById('clientEmail').value=c.email||'';
+  document.getElementById('clientPhone').value=c.phone||'';
+  document.getElementById('clientStatus').value=c.status||'Lead';
+  document.getElementById('clientTags').value=c.tags||'';
+  document.getElementById('clientNotes').value=c.notes||'';
+  faOpen('modalClient');
+}
+function faEditProject(p){
+  document.getElementById('projectModalTitle').textContent='Edit Project';
+  document.getElementById('projectAction').value='update_project';
+  document.getElementById('projectId').value=p.id||'';
+  document.getElementById('projectTitle').value=p.title||'';
+  document.getElementById('projectClient').value=p.client_id||'';
+  document.getElementById('projectStatus').value=p.status||'Lead';
+  document.getElementById('projectDeadline').value=p.deadline||'';
+  document.getElementById('projectBudget').value=p.budget||'';
+  document.getElementById('projectPriority').value=p.priority||'Medium';
+  document.getElementById('projectNotes').value=p.notes||'';
+  faOpen('modalProject');
+}
+function faEditRetainer(r){
+  document.getElementById('retainerModalTitle').textContent='Edit Retainer';
+  document.getElementById('retainerAction').value='update_retainer';
+  document.getElementById('retainerId').value=r.id||'';
+  document.getElementById('retainerName').value=r.name||'';
+  document.getElementById('retainerClient').value=r.client_id||'';
+  document.getElementById('retainerStatus').value=r.status||'Active';
+  document.getElementById('retainerFee').value=r.monthly_fee||'';
+  document.getElementById('retainerHours').value=r.hours||'';
+  document.getElementById('retainerBilling').value=r.next_billing||'';
+  document.getElementById('retainerNotes').value=r.notes||'';
+  faOpen('modalRetainer');
+}
+function faEditTask(t){
+  document.getElementById('taskModalTitle').textContent='Edit Task';
+  document.getElementById('taskAction').value='update_task';
+  document.getElementById('taskId').value=t.id||'';
+  document.getElementById('taskTitle').value=t.title||'';
+  document.getElementById('taskProject').value=t.project_id||'';
+  document.getElementById('taskClient').value=t.client_id||'';
+  document.getElementById('taskStatus').value=t.status||'Todo';
+  document.getElementById('taskPriority').value=t.priority||'Medium';
+  document.getElementById('taskDue').value=t.due||'';
+  document.getElementById('taskNotes').value=t.notes||'';
+  faOpen('modalTask');
+}
+function faEditDelivery(d){
+  document.getElementById('deliveryModalTitle').textContent='Edit Delivery';
+  document.getElementById('deliveryAction').value='update_delivery';
+  document.getElementById('deliveryId').value=d.id||'';
+  document.getElementById('deliveryTitle').value=d.title||'';
+  document.getElementById('deliveryProject').value=d.project_id||'';
+  document.getElementById('deliveryStatus').value=d.status||'Pending';
+  document.getElementById('deliveryDue').value=d.due_date||'';
+  document.getElementById('deliveryLink').value=d.link||'';
+  document.getElementById('deliveryNotes').value=d.notes||'';
+  faOpen('modalDelivery');
+}
+function faEditInvoice(inv){
+  document.getElementById('invoiceModalTitle').textContent='Edit Invoice';
+  document.getElementById('invoiceAction').value='update_invoice';
+  document.getElementById('invoiceId').value=inv.id||'';
+  document.getElementById('invoiceNumber').value=inv.number||'';
+  document.getElementById('invoiceAmount').value=inv.amount||'';
+  document.getElementById('invoiceClient').value=inv.client_id||'';
+  document.getElementById('invoiceStatus').value=inv.status||'Draft';
+  document.getElementById('invoiceIssued').value=inv.issued_on||'';
+  document.getElementById('invoiceDue').value=inv.due_date||'';
+  document.getElementById('invoiceNotes').value=inv.notes||'';
+  faOpen('modalInvoice');
+}
+
+function faEditTime(te){
+  document.getElementById('timeModalTitle').textContent='Edit time entry';
+  document.getElementById('timeAction').value='update_time';
+  document.getElementById('timeId').value=te.id||'';
+  document.getElementById('timeDate').value=te.date||'';
+  document.getElementById('timeHours').value=te.hours||'';
+  document.getElementById('timeProject').value=te.project_id||'';
+  document.getElementById('timeClient').value=te.client_id||'';
+  document.getElementById('timeDesc').value=te.description||'';
+  document.getElementById('timeBillable').checked=!!te.billable;
+  faOpen('modalTime');
+}
+function faEditContract(c){
+  document.getElementById('contractModalTitle').textContent='Edit contract';
+  document.getElementById('contractAction').value='update_contract';
+  document.getElementById('contractId').value=c.id||'';
+  document.getElementById('contractTitle').value=c.title||'';
+  document.getElementById('contractClient').value=c.client_id||'';
+  document.getElementById('contractStatus').value=c.status||'Draft';
+  document.getElementById('contractValue').value=c.value||'';
+  document.getElementById('contractStart').value=c.start_date||'';
+  document.getElementById('contractEnd').value=c.end_date||'';
+  document.getElementById('contractBody').value=c.body||'';
+  faOpen('modalContract');
+}
+function faEditExpense(e){
+  document.getElementById('expenseModalTitle').textContent='Edit expense';
+  document.getElementById('expenseAction').value='update_expense';
+  document.getElementById('expenseId').value=e.id||'';
+  document.getElementById('expenseTitle').value=e.title||'';
+  document.getElementById('expenseAmount').value=e.amount||'';
+  document.getElementById('expenseDate').value=e.date||'';
+  document.getElementById('expenseCategory').value=e.category||'General';
+  document.getElementById('expenseProject').value=e.project_id||'';
+  document.getElementById('expenseClient').value=e.client_id||'';
+  document.getElementById('expenseNotes').value=e.notes||'';
+  faOpen('modalExpense');
+}
+function faEditMessage(m){
+  document.getElementById('messageModalTitle').textContent='Edit message';
+  document.getElementById('messageAction').value='update_message';
+  document.getElementById('messageId').value=m.id||'';
+  document.getElementById('messageClient').value=m.client_id||'';
+  if(document.getElementById('messageChannel')) document.getElementById('messageChannel').value=m.channel||'Email';
+  document.getElementById('messageSubject').value=m.subject||'';
+  document.getElementById('messageBody').value=m.body||'';
+  faOpen('modalMessage');
+}
+function faCopyText(txt, btn){
+  if(!txt) return;
+  const done=()=>{ if(btn){ const o=btn.textContent; btn.textContent='Copied!'; setTimeout(()=>btn.textContent=o,1200);} };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done).catch(()=>{ fallbackCopy(txt); done(); });
+  } else { fallbackCopy(txt); done(); }
+}
+function fallbackCopy(txt){
+  const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+// Instant search dropdown — works on typing, Enter, and Search button click
+(function(){
+  const input=document.getElementById('faSearchInput');
+  const form=document.getElementById('faSearchForm');
+  const dd=document.getElementById('faSearchDd');
+  const btn=document.getElementById('faSearchBtn');
+  if(!input||!form||!dd) return;
+  let timer=null;
+  const apiUrl="{{ url_for('freelance_agency_search_api') }}";
+
+  function hide(){ dd.classList.remove('open'); dd.innerHTML=''; }
+  function showHits(results, q){
+    if(!q){ hide(); return; }
+    if(!results||!results.length){
+      dd.innerHTML='<div class="empty-hit">No results found for "'+escapeHtml(q)+'"</div>';
+      dd.classList.add('open');
+      return;
+    }
+    dd.innerHTML=results.map(r=>{
+      const url=r.url||('#');
+      return '<a class="hit" href="'+url+'"><span class="k">'+escapeHtml(r.kind||'')+'</span><span>'+escapeHtml(r.title||'')+'</span></a>';
+    }).join('');
+    dd.classList.add('open');
+  }
+  function escapeHtml(s){
+    return String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function runSearch(goFirst){
+    const q=(input.value||'').trim();
+    if(!q){ hide(); return; }
+    fetch(apiUrl+'?q='+encodeURIComponent(q), {credentials:'same-origin'})
+      .then(r=>r.json())
+      .then(data=>{
+        const results=data.results||[];
+        showHits(results, q);
+        if(goFirst && results.length===1){
+          window.location.href=results[0].url;
+        } else if(goFirst && results.length===0){
+          // stay with dropdown empty state
+        } else if(goFirst && results.length>1){
+          // keep dropdown open for user to pick
+        }
+      })
+      .catch(()=>{
+        // fallback: full page search
+        form.submit();
+      });
+  }
+  input.addEventListener('input', ()=>{
+    clearTimeout(timer);
+    timer=setTimeout(()=>runSearch(false), 220);
+  });
+  input.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){
+      e.preventDefault();
+      runSearch(true);
+    } else if(e.key==='Escape'){ hide(); }
+  });
+  form.addEventListener('submit', e=>{
+    e.preventDefault();
+    runSearch(true);
+  });
+  if(btn) btn.addEventListener('click', e=>{ e.preventDefault(); runSearch(true); });
+  document.addEventListener('click', e=>{
+    if(!dd.contains(e.target) && e.target!==input && e.target!==btn) hide();
+  });
+})();
+
+</script>
+</body>
+</html>

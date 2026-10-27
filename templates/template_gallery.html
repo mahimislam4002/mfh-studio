@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Choose Template - Portfolio SaaS{% endblock %}
+{% block topbar_title %}Edit Portfolio{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Template Gallery</h1>
+        <p class="text-muted">Pick a design, then Edit Live — click text or photos on the real website.</p>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Dashboard</a>
+</div>
+
+<div class="template-grid">
+{% for id, label in themes.items() %}
+    <div class="template-card">
+        <div class="template-preview-frame">
+            <iframe src="{{ url_for('portfolio_view', design=id) }}" loading="lazy" title="{{ label }}"></iframe>
+        </div>
+        <div class="template-info">
+            <h3>{{ label }}</h3>
+            <p class="text-muted small" style="margin-bottom:12px;">Live-edit · click text &amp; photos</p>
+            <div class="template-actions">
+                <a href="{{ url_for('portfolio_view', design=id) }}" target="_blank" class="btn btn-outline btn-sm">View</a>
+                <a href="{{ url_for('portfolio_editor', design=id) }}" class="btn btn-primary btn-sm">Edit Live</a>
+                <form method="POST" action="{{ url_for('portfolio_use', design=id) }}">
+                    <button type="submit" class="btn btn-success btn-sm">Use this design</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+</div>
+
+<style>
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 24px;
+}
+.template-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+}
+.template-preview-frame {
+    height: 260px;
+    overflow: hidden;
+    position: relative;
+    background: #0a0a0c;
+}
+/* Fill the entire preview box — no empty black strip */
+.template-preview-frame iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1100px;
+    height: 720px;
+    border: 0;
+    transform: scale(0.34);
+    transform-origin: top left;
+    pointer-events: none;
+}
+.template-info {
+    padding: 16px 18px 18px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.template-info h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+.template-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-top: auto;
+}
+.template-actions form { display: inline; margin: 0; }
+.btn-sm { padding: 8px 14px; font-size: 0.85rem; border-radius: 8px; }
+</style>
+{% endblock %}

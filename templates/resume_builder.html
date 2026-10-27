@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}AI CV / Resume Builder{% endblock %}
+{% block topbar_title %}CV / Resume Builder{% endblock %}
+{% block content %}
+<style>
+.cvb-steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.cvb-steps span{padding:6px 14px;border-radius:999px;font-size:.8rem;font-weight:600;background:#f1f5f9;color:#64748b}
+.cvb-steps span.on{background:#4f46e5;color:#fff}
+.filter-bar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.filter-bar a{padding:8px 16px;border-radius:10px;text-decoration:none;font-weight:600;font-size:.9rem;background:#f1f5f9;color:#334155}
+.filter-bar a.on{background:#0f172a;color:#fff}
+.template-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:22px}
+.template-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid #e2e8f0;display:flex;flex-direction:column}
+.template-preview-frame{height:240px;overflow:hidden;position:relative;background:#0a0a0c}
+.template-preview-frame iframe{position:absolute;top:0;left:0;width:900px;height:620px;border:0;transform:scale(0.36);transform-origin:top left;pointer-events:none}
+.template-info{padding:16px 18px 18px;flex:1;display:flex;flex-direction:column}
+.template-info h3{font-size:1.05rem;font-weight:700;margin:0 0 4px}
+.template-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.premium-card{
+  background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:28px 28px 24px;
+  box-shadow:0 8px 30px rgba(15,23,42,.06);max-width:820px;
+}
+.premium-card h2{font-size:1.15rem;font-weight:800;color:#0f172a;margin:0 0 6px;letter-spacing:-.01em}
+.premium-card .sub{color:#64748b;font-size:.9rem;margin-bottom:22px}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 18px}
+@media(max-width:720px){.field-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+.field label{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b}
+.field input,.field textarea,.field select{
+  border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;font-size:.95rem;
+  background:#f8fafc;transition:border-color .15s,box-shadow .15s;font-family:inherit;
+}
+.field input:focus,.field textarea:focus,.field select:focus{
+  outline:none;border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.15);background:#fff;
+}
+.field textarea{min-height:72px;resize:vertical;line-height:1.45}
+.divider{height:1px;background:linear-gradient(90deg,transparent,#e2e8f0,transparent);margin:26px 0}
+.magic-wrap{
+  background:linear-gradient(145deg,#f5f3ff 0%,#eef2ff 40%,#f8fafc 100%);
+  border:1.5px solid #c7d2fe;border-radius:16px;padding:20px;
+}
+.magic-wrap h3{font-size:1rem;font-weight:800;color:#312e81;margin:0 0 10px}
+.instr{font-size:.9rem;color:#4338ca;line-height:1.55;margin-bottom:12px}
+.instr em{display:block;margin-top:8px;color:#6366f1;font-style:normal;font-size:.85rem;background:rgba(255,255,255,.7);padding:10px 12px;border-radius:10px;border-left:3px solid #6366f1}
+.magic-box{
+  width:100%;min-height:160px;border:1.5px solid #a5b4fc;border-radius:12px;
+  padding:14px 16px;font-size:.95rem;line-height:1.5;resize:vertical;background:#fff;font-family:inherit;
+}
+.magic-box:focus{outline:none;box-shadow:0 0 0 3px rgba(99,102,241,.2)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;align-items:center}
+.meta-chip{display:inline-flex;align-items:center;gap:6px;background:#f1f5f9;padding:6px 12px;border-radius:8px;font-size:.85rem;color:#475569}
+.photo-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.photo-row img{width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #e2e8f0}
+</style>
+
+<div class="page-header">
+  <div>
+    <h1>AI-Powered CV / Resume Builder</h1>
+    <p class="text-muted">Choose a design · set language · write once in the Magic Box · AI fills the template.</p>
+  </div>
+</div>
+
+<div class="cvb-steps">
+  <span class="{% if step == 'gallery' %}on{% endif %}">1. Template</span>
+  <span class="{% if step == 'options' %}on{% endif %}">2. Language &amp; format</span>
+  <span class="{% if step == 'write' %}on{% endif %}">3. Magic Box</span>
+</div>
+
+{% if step == 'gallery' %}
+<div class="filter-bar">
+  <a href="{{ url_for('resume_builder', step='gallery', filter='all') }}" class="{% if filt == 'all' %}on{% endif %}">All</a>
+  <a href="{{ url_for('resume_builder', step='gallery', filter='cv') }}" class="{% if filt == 'cv' %}on{% endif %}">CV</a>
+  <a href="{{ url_for('resume_builder', step='gallery', filter='resume') }}" class="{% if filt == 'resume' %}on{% endif %}">Resume</a>
+</div>
+<div class="template-grid">
+  {% for t in templates %}
+  <div class="template-card">
+    <div class="template-preview-frame">
+      <iframe src="{{ url_for('cv_template_thumb', tid=t.id) }}" loading="lazy" title="{{ t.name }}"></iframe>
+    </div>
+    <div class="template-info">
+      <h3>{{ t.name }}</h3>
+      <p class="text-muted small" style="margin:0 0 4px;">{{ t.desc }}</p>
+      <p class="text-muted small" style="margin:0;">Type: <strong>{{ t.doc_type|upper }}</strong></p>
+      <div class="template-actions">
+        <a href="{{ url_for('cv_template_thumb', tid=t.id) }}" target="_blank" class="btn btn-outline btn-sm">View</a>
+        <form method="POST" action="{{ url_for('cv_select_template') }}" style="display:inline;">
+          <input type="hidden" name="template_id" value="{{ t.id }}">
+          <button type="submit" class="btn btn-success btn-sm">Use this design</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <p class="text-muted">No templates in this filter.</p>
+  {% endfor %}
+</div>
+
+{% elif step == 'options' %}
+<div class="premium-card">
+  <h2>Selected: {{ selected.name if selected else 'Template' }}</h2>
+  <p class="sub">Choose the output language and regional format, then continue.</p>
+  <form method="POST" action="{{ url_for('cv_builder_save') }}">
+    <input type="hidden" name="template_id" value="{{ selected.id if selected else doc.template_id }}">
+    <input type="hidden" name="full_name" value="{{ doc.full_name or '' }}">
+    <input type="hidden" name="phone" value="{{ doc.phone or '' }}">
+    <input type="hidden" name="email" value="{{ doc.email or '' }}">
+    <input type="hidden" name="address" value="{{ doc.address or '' }}">
+    <input type="hidden" name="web" value="{{ doc.web or '' }}">
+    <input type="hidden" name="education_raw" value="{{ doc.education_raw or '' }}">
+    <input type="hidden" name="personal_raw" value="{{ doc.personal_raw or '' }}">
+    <input type="hidden" name="magic_box" value="{{ doc.magic_box or '' }}">
+    <div class="field-grid">
+      <div class="field">
+        <label>Language</label>
+        <select name="language">
+          <option value="en" {% if doc.language == 'en' %}selected{% endif %}>English</option>
+          <option value="bn" {% if doc.language == 'bn' %}selected{% endif %}>Bangla</option>
+          <option value="it" {% if doc.language == 'it' %}selected{% endif %}>Italian</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Format</label>
+        <select name="format">
+          <option value="us_standard" {% if doc.format == 'us_standard' %}selected{% endif %}>USA Standard</option>
+          <option value="europass" {% if doc.format == 'europass' %}selected{% endif %}>EuroPass</option>
+          <option value="asian" {% if doc.format == 'asian' %}selected{% endif %}>Asian</option>
+        </select>
+      </div>
+    </div>
+    <div class="actions">
+      <a class="btn btn-outline" href="{{ url_for('resume_builder', step='gallery') }}">← Templates</a>
+      <button type="submit" class="btn btn-primary" name="action" value="save">Continue to Magic Box</button>
+    </div>
+  </form>
+</div>
+
+{% else %}
+<form method="POST" action="{{ url_for('cv_builder_save') }}" enctype="multipart/form-data">
+  <input type="hidden" name="template_id" value="{{ doc.template_id or '' }}">
+  <input type="hidden" name="language" value="{{ doc.language or 'en' }}">
+  <input type="hidden" name="format" value="{{ doc.format or 'us_standard' }}">
+
+  <div class="premium-card" style="margin-bottom:18px;">
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:4px;">
+      <h2 style="margin:0;">
+        {% for t in all_templates %}{% if t.id == doc.template_id %}{{ t.name }}{% endif %}{% endfor %}
+      </h2>
+      <a href="{{ url_for('resume_builder', step='gallery') }}" class="meta-chip">Change template</a>
+      <a href="{{ url_for('resume_builder', step='options', template_id=doc.template_id) }}" class="meta-chip">
+        {{ doc.language or 'en' }} · {{ doc.format or 'us_standard' }} · Edit
+      </a>
+    </div>
+    <p class="sub" style="margin-bottom:0;">Your fixed details + one Magic Box. AI will structure the rest into this design.</p>
+  </div>
+
+  <div class="premium-card">
+    <h2>Your details</h2>
+    <p class="sub">Only facts the AI cannot invent — name, contact, education, and optional personal info.</p>
+    <div class="field-grid">
+      <div class="field">
+        <label>Full name</label>
+        <input type="text" name="full_name" value="{{ doc.full_name or '' }}" required placeholder="Your full name">
+      </div>
+      <div class="field">
+        <label>Phone</label>
+        <input type="text" name="phone" value="{{ doc.phone or '' }}" placeholder="+8801XXXXXXXXX">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" value="{{ doc.email or '' }}" placeholder="you@email.com">
+      </div>
+      <div class="field">
+        <label>Website / LinkedIn</label>
+        <input type="text" name="web" value="{{ doc.web or '' }}" placeholder="https://…">
+      </div>
+      <div class="field full">
+        <label>Address</label>
+        <input type="text" name="address" value="{{ doc.address or '' }}" placeholder="City, District, Country">
+      </div>
+      <div class="field full">
+        <label>Education</label>
+        <textarea name="education_raw" placeholder="Degree, school, year — e.g. HSC 2019–2020, School Name, Science">{{ doc.education_raw or '' }}</textarea>
+      </div>
+      <div class="field full">
+        <label>Personal details (optional)</label>
+        <textarea name="personal_raw" placeholder="Gender, date of birth, nationality, marital status…">{{ doc.personal_raw or '' }}</textarea>
+      </div>
+      <div class="field full">
+        <label>Photo</label>
+        <div class="photo-row">
+          <input type="file" name="photo_file" accept="image/*">
+          {% if doc.photo %}<img src="{{ doc.photo }}" alt="Photo">{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="magic-wrap">
+      <h3>Magic AI Experience &amp; Background Box</h3>
+      <div class="instr">
+        Write freely in <strong>your own language</strong> (English, Bangla, or any language) — one clear paragraph is enough.
+        Mention your jobs, approximate years or dates, what you can do (skills), and the goal of this CV (for example: applying for work in Italy).
+        <em>Example: “I worked three years as a restaurant assistant in Dhaka. I handled customers, kept the kitchen clean, and know basic plumbing and computer work. I want a professional CV for jobs in Italy.”</em>
+      </div>
+      <textarea class="magic-box" name="magic_box" placeholder="Describe your experience and skills in your own words…">{{ doc.magic_box or '' }}</textarea>
+    </div>
+
+    <div class="actions">
+      <a class="btn btn-outline" href="{{ url_for('resume_builder', step='options', template_id=doc.template_id) }}">← Back to language &amp; format</a>
+      <button type="submit" class="btn btn-primary" name="action" value="save">Save</button>
+      <button type="submit" class="btn btn-primary" name="action" value="generate" style="background:#16a34a;border-color:#16a34a;">Generate with AI</button>
+      <a class="btn btn-outline" href="{{ url_for('cv_builder_preview') }}" target="_blank">Preview</a>
+    </div>
+  </div>
+</form>
+{% endif %}
+{% endblock %}

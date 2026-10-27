@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}Get Plus - Portfolio SaaS{% endblock %}
+{% block topbar_title %}Get Plus{% endblock %}
+{% block content %}
+<style>
+.pay-methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.pay-card { border-radius: 14px; padding: 18px 16px; color: #fff; position: relative; overflow: hidden; min-height: 110px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+.pay-card::after { content: ""; position: absolute; right: -20px; top: -20px; width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,0.12); }
+.pay-card .pay-brand { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.9; margin-bottom: 8px; }
+.pay-card .pay-number { font-size: 1.25rem; font-weight: 800; letter-spacing: 0.04em; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.pay-card .pay-hint { margin-top: 8px; font-size: 0.8rem; opacity: 0.9; }
+.pay-bkash { background: linear-gradient(135deg, #e2136e 0%, #c0105c 55%, #9d0d4a 100%); }
+.pay-nagad { background: linear-gradient(135deg, #f47920 0%, #e56710 50%, #d45500 100%); }
+.pay-rocket { background: linear-gradient(135deg, #8b3dff 0%, #6c2bd9 55%, #5420b0 100%); }
+.pay-payoneer { background: linear-gradient(135deg, #ff4800 0%, #ff6a00 45%, #ff8c00 100%); }
+.pay-form-card { background: #fff; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(15,23,42,0.06); max-width: 720px; }
+.plan-pick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 28px; }
+.plan-pick { border: 2px solid #e2e8f0; border-radius: 14px; padding: 18px 16px; background: #fff; transition: border-color .15s, box-shadow .15s; }
+.plan-pick.featured { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+.plan-pick.current { background: linear-gradient(180deg, #eef2ff, #fff); border-color: #818cf8; }
+.plan-pick .price { font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 6px 0 10px; }
+.plan-pick .price span { font-size: 0.85rem; font-weight: 500; color: #64748b; }
+.plan-pick ul { list-style: none; padding: 0; margin: 0 0 14px; font-size: 0.85rem; color: #64748b; }
+.plan-pick ul li { padding: 3px 0; }
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.product-card { border: 2px solid #e2e8f0; border-radius: 14px; padding: 16px; background: #fff; cursor: pointer; position: relative; transition: .15s; min-height: 160px; }
+.product-card:hover { border-color: #a5b4fc; transform: translateY(-2px); }
+.product-card.is-selected { border-color: #6366f1; box-shadow: 0 0 0 2px #6366f1; background: linear-gradient(180deg, #eef2ff, #fff); }
+.product-card .sel-tick { display: none; position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; border-radius: 6px; background: #6366f1; color: #fff; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; }
+.product-card.is-selected .sel-tick { display: flex; }
+.product-card .ico { width: 40px; height: 40px; border-radius: 10px; background: #eef2ff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 10px; }
+.product-card h4 { font-size: 0.95rem; margin: 0 0 6px; color: #0f172a; }
+.product-card .desc { font-size: 0.8rem; color: #64748b; min-height: 2.4em; margin-bottom: 8px; }
+.product-card .price { font-size: 1.15rem; font-weight: 800; color: #0f172a; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 28px; max-width: 640px; }
+.summary-card { border: 2px solid #e2e8f0; border-radius: 14px; padding: 18px; background: #fff; }
+.summary-card.accent { border-color: #6366f1; }
+.summary-card.green { border-color: #22c55e; }
+</style>
+
+<div class="page-header">
+    <div>
+        <h1>Get Plus</h1>
+        <p class="text-muted">
+            {% if is_lifetime %}
+            You have <strong>Lifetime free</strong> access.
+            {% elif trial_days_left is not none and trial_days_left > 0 %}
+            Free trial: <strong>{{ trial_days_left }} day(s)</strong> remaining.
+            {% elif trial_expired %}
+            Your free trial has ended. Choose a plan and pay to continue.
+            {% else %}
+            Current plan: <strong>{{ user.plan | upper }}</strong>
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+{% if is_lifetime %}
+<div class="card" style="padding:24px;max-width:520px;">
+    <h3 style="margin-bottom:8px;">Lifetime Free</h3>
+    <p class="text-muted">Master admin accounts keep full access with no payment required. All products are in your menu.</p>
+</div>
+{% else %}
+
+{% if my_pending %}
+<div class="card" style="padding:16px 20px;margin-bottom:20px;border-left:4px solid #f59e0b;background:#fffbeb;">
+    <strong>Pending payment(s):</strong>
+    <ul style="margin:8px 0 0 18px;">
+    {% for p in my_pending %}
+        <li>{{ p.plan_name }} via {{ p.method|upper }} — Txn: <code>{{ p.txn_id }}</code></li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<h2 style="font-size:1.15rem;margin-bottom:12px;">1. Choose a membership plan</h2>
+<div class="plan-pick-grid">
+    {% for plan in plans %}
+    <div class="plan-pick {% if plan.featured %}featured{% endif %} {% if user.plan == plan.slug %}current{% endif %}">
+        <div class="stat-label">{{ plan.name }}{% if plan.featured %} · Popular{% endif %}</div>
+        <div class="price">${{ '%.2f'|format(plan.price) }}<span>/mo</span></div>
+        <ul>
+            {% for f in plan.features %}
+            <li>✓ {{ f }}</li>
+            {% endfor %}
+        </ul>
+        {% if user.plan == plan.slug %}
+        <span class="badge badge-success">Current plan</span>
+        {% else %}
+        <form method="POST" action="{{ url_for('cart_checkout') }}">
+          <input type="hidden" name="plan_key" value="{{ plan.key }}">
+          <button type="submit" class="btn btn-primary" style="width:100%;">Get {{ plan.name }}</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<h2 style="font-size:1.15rem;margin:8px 0 12px;">2. Select products for your menu</h2>
+<p class="text-muted" style="margin-bottom:14px;">Same catalog as the landing page. After payment is approved, selected items appear in your sidebar.</p>
+
+<form id="dashCartForm" method="POST" action="{{ url_for('cart_checkout') }}">
+  <div class="product-grid" id="productGrid">
+    {% for p in products %}
+    <div class="product-card" data-id="{{ p.id }}" data-price="{{ p.price }}" data-name="{{ p.name }}">
+      <input type="checkbox" name="product_id" value="{{ p.id }}" class="product-check" style="position:absolute;opacity:0;pointer-events:none;">
+      <div class="sel-tick">✓</div>
+      <div class="ico">{% if p.image %}<img src="{{ p.image }}" alt="" style="width:28px;height:28px;border-radius:6px;object-fit:cover;">{% else %}{{ p.icon or '📦' }}{% endif %}</div>
+      <h4>{{ p.name }}</h4>
+      <div class="desc">{{ p.desc }}</div>
+      <div class="price">${{ '%.2f'|format(p.price) }}</div>
+    </div>
+    {% else %}
+    <p class="text-muted">No products available.</p>
+    {% endfor %}
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card accent">
+      <h3 style="margin-bottom:8px;">Your selection</h3>
+      <div id="cartList" class="text-muted" style="min-height:48px;font-size:0.9rem;">No products selected yet.</div>
+      <p style="font-size:1.4rem;font-weight:800;margin:10px 0 4px;">$<span id="cartTotal">0.00</span></p>
+      <p class="text-muted" style="font-size:0.85rem;margin-bottom:12px;"><span id="cartCount">0</span> product(s)</p>
+      <button type="submit" class="btn btn-primary" id="cartBtn" disabled style="opacity:0.5;width:100%;">Save selection &amp; pay</button>
+    </div>
+    <div class="summary-card green">
+      <h3 style="margin-bottom:8px;">Full Access</h3>
+      <p class="text-muted" style="font-size:0.9rem;margin-bottom:8px;">All core tools + all Productivity OS modules</p>
+      <p style="font-size:1.4rem;font-weight:800;margin-bottom:12px;">${{ '%.2f'|format(full_access_price or 99.99) }}</p>
+      <button type="submit" name="full_access" value="1" class="btn btn-primary" style="width:100%;background:#16a34a;border-color:#16a34a;">Get Full Access</button>
+    </div>
+  </div>
+</form>
+
+<div class="pay-form-card" id="paySection">
+    <h3>3. Pay &amp; activate</h3>
+    <p class="text-muted small" style="margin-bottom:18px;">Send money, then submit Transaction ID. Admin approval unlocks your menu items.</p>
+
+    <div class="pay-methods">
+        {% if pay.bkash_number %}
+        <div class="pay-card pay-bkash">
+            <div class="pay-brand">bKash</div>
+            <div class="pay-number">{{ pay.bkash_number }}</div>
+            <div class="pay-hint">Send Money · Personal</div>
+        </div>
+        {% endif %}
+        {% if pay.nagad_number %}
+        <div class="pay-card pay-nagad">
+            <div class="pay-brand">Nagad</div>
+            <div class="pay-number">{{ pay.nagad_number }}</div>
+            <div class="pay-hint">Send Money</div>
+        </div>
+        {% endif %}
+        {% if pay.rocket_number %}
+        <div class="pay-card pay-rocket">
+            <div class="pay-brand">Rocket</div>
+            <div class="pay-number">{{ pay.rocket_number }}</div>
+            <div class="pay-hint">Send Money</div>
+        </div>
+        {% endif %}
+        {% if pay.payoneer_email or pay.payoneer_link %}
+        <div class="pay-card pay-payoneer">
+            <div class="pay-brand">Payoneer</div>
+            {% if pay.payoneer_email %}<div class="pay-number" style="font-size:1rem;">{{ pay.payoneer_email }}</div>{% endif %}
+            {% if pay.payoneer_link %}<div class="pay-hint"><a href="{{ pay.payoneer_link }}" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;">Open payment link</a></div>{% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    {% if not pay.bkash_number and not pay.nagad_number and not pay.rocket_number and not pay.payoneer_email and not pay.payoneer_link %}
+    <p class="text-muted" style="margin-bottom:16px;">Payment numbers not configured. Admin → Site Settings.</p>
+    {% endif %}
+
+    {% if pay.payment_note %}
+    <p class="text-muted small" style="margin-bottom:16px;white-space:pre-wrap;">{{ pay.payment_note }}</p>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('submit_payment') }}">
+        <div class="form-group">
+            <label>Plan</label>
+            <select name="plan_key" id="planSelect" required>
+                {% for plan in plans %}
+                <option value="{{ plan.key }}">{{ plan.name }} — ${{ '%.2f'|format(plan.price) }}/mo</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Payment method</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                {% if pay.bkash_number %}<label><input type="radio" name="method" value="bkash" required checked> bKash</label>{% endif %}
+                {% if pay.nagad_number %}<label><input type="radio" name="method" value="nagad" {% if not pay.bkash_number %}checked{% endif %} required> Nagad</label>{% endif %}
+                {% if pay.rocket_number %}<label><input type="radio" name="method" value="rocket" {% if not pay.bkash_number and not pay.nagad_number %}checked{% endif %} required> Rocket</label>{% endif %}
+                {% if pay.payoneer_email or pay.payoneer_link %}<label><input type="radio" name="method" value="payoneer" {% if not pay.bkash_number and not pay.nagad_number and not pay.rocket_number %}checked{% endif %} required> Payoneer</label>{% endif %}
+                {% if not pay.bkash_number and not pay.nagad_number and not pay.rocket_number and not pay.payoneer_email and not pay.payoneer_link %}
+                <label><input type="radio" name="method" value="bkash" checked required> bKash</label>
+                {% endif %}
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Transaction / Reference ID</label>
+            <input type="text" name="txn_id" required placeholder="TrxID from SMS / app" style="font-weight:600;">
+        </div>
+        <button type="submit" class="btn btn-primary" style="padding:12px 22px;font-weight:700;">Submit payment</button>
+    </form>
+</div>
+{% endif %}
+
+<script>
+(function(){
+  document.querySelectorAll('.plan-pick-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var key = btn.getAttribute('data-plan');
+      var sel = document.getElementById('planSelect');
+      if (sel) {
+        for (var i = 0; i < sel.options.length; i++) {
+          if (sel.options[i].value === key) { sel.selectedIndex = i; break; }
+        }
+      }
+      var pay = document.getElementById('paySection');
+      if (pay) pay.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+  var cards = document.querySelectorAll('#productGrid .product-card');
+  var totalEl = document.getElementById('cartTotal');
+  var listEl = document.getElementById('cartList');
+  var countEl = document.getElementById('cartCount');
+  var cartBtn = document.getElementById('cartBtn');
+  function refresh(){
+    var total = 0, names = [];
+    cards.forEach(function(c){
+      var cb = c.querySelector('.product-check');
+      if (cb && cb.checked) {
+        total += parseFloat(c.dataset.price || 0);
+        names.push(c.dataset.name);
+        c.classList.add('is-selected');
+      } else {
+        c.classList.remove('is-selected');
+      }
+    });
+    if (totalEl) totalEl.textContent = total.toFixed(2);
+    if (countEl) countEl.textContent = String(names.length);
+    if (listEl) listEl.innerHTML = names.length ? names.map(function(n){ return '<div>✓ ' + n + '</div>'; }).join('') : 'No products selected yet.';
+    if (cartBtn) { cartBtn.disabled = names.length === 0; cartBtn.style.opacity = names.length ? '1' : '0.5'; }
+  }
+  cards.forEach(function(c){
+    c.addEventListener('click', function(e){
+      if (e.target.closest('button')) return;
+      var cb = c.querySelector('.product-check');
+      if (!cb) return;
+      cb.checked = !cb.checked;
+      refresh();
+    });
+  });
+  refresh();
+})();
+</script>
+{% endblock %}

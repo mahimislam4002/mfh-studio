@@ -1,0 +1,20 @@
+{
+  "name": "ALEX MORGAN",
+  "role": "PRODUCT DESIGNER",
+  "email": "alex.morgan@example.com",
+  "phone": "+1 555 014 2086",
+  "location": "Brooklyn, NY",
+  "website": "alexmorgan.design",
+  "date": "October 12, 2026",
+  "recipient": "Jordan Lee",
+  "position": "Senior Product Designer",
+  "company": "Northstar Labs",
+  "company_address": "New York, NY",
+  "greeting": "Dear Jordan,",
+  "paragraphs": [
+    "I am applying for the Senior Product Designer role at Northstar Labs. My experience shaping clear, accessible digital products aligns with your team\u2019s focus on useful, thoughtful product experiences.",
+    "At Fieldwork Studio, I partnered with research and engineering teams to turn customer insights into responsive product flows. I also helped establish shared design patterns that made delivery more consistent across teams. These experiences strengthened my ability to balance customer needs with practical product goals.",
+    "My background includes product strategy, UX research, interaction design, prototyping, and accessibility. I enjoy working closely with cross-functional partners, explaining design decisions clearly, and using feedback to improve the result. I am especially interested in teams that value thoughtful collaboration and measurable outcomes.",
+    "I would welcome the opportunity to bring my product strategy, interaction design, and collaborative approach to Northstar Labs. Thank you for considering my application. I look forward to discussing how I can contribute to your team."
+  ]
+}

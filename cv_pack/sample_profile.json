@@ -1,0 +1,76 @@
+{
+  "name": "ALEX MORGAN",
+  "role": "PRODUCT DESIGNER",
+  "email": "alex.morgan@example.com",
+  "phone": "+1 555 014 2086",
+  "location": "Brooklyn, NY",
+  "website": "alexmorgan.design",
+  "about": "Product designer with 7 years of experience turning complex workflows into clear, accessible digital products. Partners with research, engineering, and business teams to ship measurable improvements.",
+  "skills": [
+    "Product strategy",
+    "UX research",
+    "Interaction design",
+    "Figma",
+    "Prototyping",
+    "Design systems",
+    "Accessibility",
+    "Workshop facilitation"
+  ],
+  "languages": [
+    "English \u00b7 Native",
+    "Spanish \u00b7 Professional"
+  ],
+  "education": [
+    [
+      "BFA, Communication Design",
+      "Northbridge University",
+      "2012 \u2013 2016"
+    ],
+    [
+      "Certificate, Human-Centered Design",
+      "City Design Lab",
+      "2020"
+    ]
+  ],
+  "experience": [
+    [
+      "Senior Product Designer",
+      "Northstar Labs",
+      "2022 \u2013 Present",
+      [
+        "Led redesign of account setup, raising completion by 24%.",
+        "Built a shared component library adopted by four product teams."
+      ]
+    ],
+    [
+      "Product Designer",
+      "Fieldwork Studio",
+      "2019 \u2013 2022",
+      [
+        "Translated customer interviews into tested service flows.",
+        "Partnered with engineering to ship responsive product features."
+      ]
+    ],
+    [
+      "UX Designer",
+      "Brightline Digital",
+      "2017 \u2013 2019",
+      [
+        "Designed web experiences for education and finance clients.",
+        "Improved accessibility through audit and remediation work."
+      ]
+    ],
+    [
+      "Design Intern",
+      "Studio North",
+      "2016 \u2013 2017",
+      [
+        "Prepared prototypes and visual specifications for client reviews."
+      ]
+    ]
+  ],
+  "awards": [
+    "Accessibility Champion \u00b7 2023",
+    "Service Design shortlist \u00b7 2021"
+  ]
+}

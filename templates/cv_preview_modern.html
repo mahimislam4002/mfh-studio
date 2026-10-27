@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ doc.full_name or 'Resume' }} — Modern</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #e5e7eb; color: #1f2937; }
+  .page {
+    max-width: 900px; margin: 24px auto; background: #fff;
+    display: grid; grid-template-columns: 280px 1fr; min-height: 1100px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.12);
+  }
+  .left { background: #f3f4f6; padding: 28px 22px; }
+  .right { padding: 28px 28px 28px 24px; }
+  .photo { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 16px; border: 4px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+  .photo-ph { width: 120px; height: 120px; border-radius: 50%; background: #d1d5db; margin: 0 auto 16px; }
+  h1 { font-size: 1.55rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  .headline { color: #6b7280; font-size: 0.95rem; margin-top: 4px; }
+  h2 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; margin: 18px 0 10px; color: #111; border-bottom: 2px solid #111; display: inline-block; padding-bottom: 2px; }
+  .sec p, .sec li { font-size: 0.82rem; line-height: 1.45; color: #374151; }
+  .skill-row { margin-bottom: 8px; }
+  .skill-row span { font-size: 0.78rem; display: block; margin-bottom: 3px; }
+  .bar { height: 6px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: #374151; border-radius: 4px; }
+  .job { margin-bottom: 14px; }
+  .job h3 { font-size: 0.9rem; }
+  .job .meta { font-size: 0.75rem; color: #6b7280; margin: 2px 0 6px; }
+  .job ul { padding-left: 16px; }
+  .toolbar { max-width: 900px; margin: 16px auto 0; display: flex; gap: 10px; }
+  .toolbar a { background: #4f46e5; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; }
+  .note { font-size: 0.8rem; color: #9ca3af; font-style: italic; }
+  @media print { .toolbar { display: none; } body { background: #fff; } .page { box-shadow: none; margin: 0; } }
+  @media (max-width: 700px) { .page { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <a href="{{ url_for('resume_builder', step='write', template_id=doc.template_id) }}">← Edit</a>
+  <a href="javascript:window.print()">Print / PDF</a>
+</div>
+<div class="page">
+  <aside class="left">
+    {% if doc.photo %}
+    <img class="photo" src="{{ doc.photo }}" alt="">
+    {% else %}
+    <div class="photo-ph"></div>
+    {% endif %}
+    <div class="sec">
+      <h2>About me</h2>
+      {% if doc.ai_about %}
+      <p>{{ doc.ai_about }}</p>
+      {% elif doc.magic_box %}
+      <p style="white-space:pre-wrap;">{{ doc.magic_box }}</p>
+      {% else %}
+      <p class="note">—</p>
+      {% endif %}
+    </div>
+    <div class="sec">
+      <h2>Education</h2>
+      {% if doc.ai_education %}
+        {% for e in doc.ai_education %}
+        <p style="margin-bottom:10px;"><strong>{{ e.degree or '' }}</strong><br>{{ e.school or '' }}<br>{{ e.year or '' }}</p>
+        {% endfor %}
+      {% elif doc.education_raw %}
+        <p style="white-space:pre-wrap;">{{ doc.education_raw }}</p>
+      {% else %}
+        <p class="note">—</p>
+      {% endif %}
+    </div>
+    <div class="sec">
+      <h2>Skills</h2>
+      {% if doc.ai_skills %}
+        {% for s in doc.ai_skills %}
+        <div class="skill-row">
+          <span>{{ s.name }}</span>
+          <div class="bar"><i style="width:{{ s.level or 70 }}%"></i></div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="note">After AI generate</p>
+      {% endif %}
+    </div>
+    <div class="sec">
+      <h2>Language</h2>
+      <ul style="padding-left:16px;">
+        {% if doc.ai_languages %}
+          {% for l in doc.ai_languages %}<li>{{ l.name }} ({{ l.level }})</li>{% endfor %}
+        {% else %}
+          <li class="note">—</li>
+        {% endif %}
+      </ul>
+    </div>
+  </aside>
+  <main class="right">
+    <h1>{{ doc.full_name or 'Your Name' }}</h1>
+    <div class="headline">{% if doc.ai_generated_headline %}{{ doc.ai_generated_headline }}{% else %}<span class="note">Headline (AI)</span>{% endif %}</div>
+    <div style="margin:12px 0 18px;font-size:0.8rem;color:#4b5563;">
+      {% if doc.phone %}☎ {{ doc.phone }} &nbsp;{% endif %}
+      {% if doc.email %}✉ {{ doc.email }} &nbsp;{% endif %}
+      {% if doc.address %}📍 {{ doc.address }}{% endif %}
+    </div>
+    <div class="sec">
+      <h2>Experience</h2>
+      {% if doc.ai_experience %}
+        {% for e in doc.ai_experience %}
+        <div class="job">
+          <h3>{{ e.title or 'Role' }}</h3>
+          <div class="meta">{{ e.company or '' }}{% if e.location %} · {{ e.location }}{% endif %} | {{ e.start or '' }} – {% if e.present %}Present{% else %}{{ e.end or '' }}{% endif %}</div>
+          {% if e.bullets %}<ul>{% for b in e.bullets %}<li>{{ b }}</li>{% endfor %}</ul>
+          {% elif e.raw_description %}<p>{{ e.raw_description }}</p>{% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="note">Experience will appear after AI generate</p>
+      {% endif %}
+    </div>
+  </main>
+</div>
+</body>
+</html>

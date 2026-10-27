@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %}Edit Portfolio - Portfolio SaaS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Edit Portfolio</h1>
+    <div style="display:flex;gap:10px;">
+        {% if portfolio.published %}
+        <a href="{{ url_for('public_portfolio', slug=portfolio.username) }}" target="_blank" class="btn btn-outline">View Live</a>
+        {% endif %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Dashboard</a>
+    </div>
+</div>
+
+<form method="POST" class="edit-form" enctype="multipart/form-data">
+
+    <!-- Template Selection -->
+    <div class="form-section">
+        <h3>Choose Template</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Template</label>
+                <select name="template">
+                    <option value="pulse_dark" {% if portfolio.template == 'pulse_dark' %}selected{% endif %}>Pulse Dark (Creative Magenta)</option>
+                    <option value="modern_light" {% if portfolio.template == 'modern_light' or not portfolio.template %}selected{% endif %}>Modern Light (Coral)</option>
+                    <option value="dark_neon" {% if portfolio.template == 'dark_neon' %}selected{% endif %}>Dark Neon (SIFT Style)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo & Basic -->
+    <div class="form-section">
+        <h3>Profile Photo & Basic Info</h3>
+        <div class="form-group">
+            <label>Photo URL (paste image link for now)</label>
+            <input type="url" name="photo" value="{{ portfolio.photo or '' }}" placeholder="https://example.com/your-photo.jpg">
+            <p class="text-muted small" style="margin-top:6px;">Tip: Upload photo to imgbb.com or similar and paste the direct link here.</p>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" name="full_name" value="{{ portfolio.full_name or '' }}" placeholder="Alex Robert" required>
+            </div>
+            <div class="form-group">
+                <label>Professional Role / Title *</label>
+                <input type="text" name="role" value="{{ portfolio.role or '' }}" placeholder="UI/UX Designer & Developer" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Short Bio (Hero section)</label>
+            <textarea name="bio" rows="3" placeholder="A short intro shown under your name...">{{ portfolio.bio or '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>About Me (detailed)</label>
+            <textarea name="about" rows="4" placeholder="Write a longer about section...">{{ portfolio.about or '' }}</textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Years of Experience</label>
+                <input type="text" name="years_exp" value="{{ portfolio.years_exp or '' }}" placeholder="10">
+            </div>
+            <div class="form-group">
+                <label>About Section Title</label>
+                <input type="text" name="about_title" value="{{ portfolio.about_title or '' }}" placeholder="Best UI/UX Designer & Developer">
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="form-section">
+        <h3>Contact Info</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" value="{{ portfolio.email or '' }}" placeholder="you@email.com">
+            </div>
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="text" name="phone" value="{{ portfolio.phone or '' }}" placeholder="+1 234 567 890">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" name="location" value="{{ portfolio.location or '' }}" placeholder="New York, USA">
+            </div>
+            <div class="form-group">
+                <label>Personal Website</label>
+                <input type="url" name="website" value="{{ portfolio.website or '' }}" placeholder="https://yoursite.com">
+            </div>
+        </div>
+    </div>
+
+    <!-- Skills -->
+    <div class="form-section">
+        <h3>Skills</h3>
+        <p class="text-muted small" style="margin-bottom:12px;">Select popular skills or type custom ones (comma separated).</p>
+        <div class="form-group">
+            <label>Your Skills</label>
+            <input type="text" name="skills" value="{{ portfolio.skills | join(', ') if portfolio.skills else '' }}" placeholder="UI/UX Design, Web Development, Product Design, Branding, Figma, React, Python">
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+            <span class="text-muted small">Popular:</span>
+            <span style="font-size:0.8rem;color:#64748b;">Web Design · Web Development · UI/UX Design · Graphic Design · Mobile App Design · Digital Marketing · Video Editing · Content Writing · SEO · Python · JavaScript · React · Node.js · Figma · Photoshop · Branding</span>
+        </div>
+    </div>
+
+    <!-- Experience -->
+    <div class="form-section">
+        <h3>Experience</h3>
+        <p class="text-muted small" style="margin-bottom:12px;">One entry per line. Format: <code>Title | Company | Period | Description | Proof Link (optional)</code></p>
+        <div class="form-group">
+            <textarea name="experience_raw" rows="7" placeholder="Senior UI/UX Designer | Google | 2021 - Present | Led design system for 3 products used by 10M users | https://proof-link.com&#10;Frontend Developer | StartupXYZ | 2018 - 2021 | Built React apps and design systems |">{% if portfolio.experience %}{% for e in portfolio.experience %}{{ e.title }} | {{ e.company }} | {{ e.period }} | {{ e.description }}{% if e.proof_link %} | {{ e.proof_link }}{% endif %}
+{% endfor %}{% endif %}</textarea>
+        </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="form-section">
+        <h3>Projects</h3>
+        <p class="text-muted small" style="margin-bottom:12px;">One entry per line. Format: <code>Title | Description | Tags (comma) | Live Link | GitHub</code></p>
+        <div class="form-group">
+            <textarea name="projects_raw" rows="7" placeholder="E-Commerce App | Full-stack store with Stripe payments | React, Node, Stripe | https://demo.com | https://github.com/you/shop&#10;Portfolio Platform | Multi-user portfolio SaaS | Python, Flask | https://demo.com | https://github.com/you/saas">{% if portfolio.projects %}{% for p in portfolio.projects %}{{ p.title }} | {{ p.description }} | {{ p.tags | join(', ') if p.tags else '' }} | {{ p.link or '' }} | {{ p.github or '' }}
+{% endfor %}{% endif %}</textarea>
+        </div>
+    </div>
+
+    <!-- Education -->
+    <div class="form-section">
+        <h3>Education</h3>
+        <p class="text-muted small" style="margin-bottom:12px;">One entry per line. Format: <code>Degree | School | Period</code></p>
+        <div class="form-group">
+            <textarea name="education_raw" rows="4" placeholder="M.Sc. Computer Science | Stanford University | 2014 - 2016&#10;B.Sc. Design | RISD | 2010 - 2014">{% if portfolio.education %}{% for e in portfolio.education %}{{ e.degree }} | {{ e.school }} | {{ e.period }}
+{% endfor %}{% endif %}</textarea>
+        </div>
+    </div>
+
+    <!-- Social -->
+    <div class="form-section">
+        <h3>Social Links</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label>GitHub</label>
+                <input type="url" name="github" value="{{ portfolio.social.github if portfolio.social else '' }}" placeholder="https://github.com/you">
+            </div>
+            <div class="form-group">
+                <label>LinkedIn</label>
+                <input type="url" name="linkedin" value="{{ portfolio.social.linkedin if portfolio.social else '' }}" placeholder="https://linkedin.com/in/you">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Twitter / X</label>
+                <input type="url" name="twitter" value="{{ portfolio.social.twitter if portfolio.social else '' }}" placeholder="https://x.com/you">
+            </div>
+            <div class="form-group">
+                <label>Other Website</label>
+                <input type="url" name="social_website" value="{{ portfolio.social.website if portfolio.social else '' }}" placeholder="https://yoursite.com">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions" style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button type="submit" name="action" value="save" class="btn btn-primary">Save Changes</button>
+        <button type="submit" name="action" value="publish" class="btn btn-success">Save & Publish</button>
+    </div>
+</form>
+{% endblock %}

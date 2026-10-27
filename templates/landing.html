@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% if site_logo %}<link rel="icon" href="{{ site_logo }}" type="image/png">
+<link rel="apple-touch-icon" href="{{ site_logo }}">
+{% endif %}
+<title>{{ site_name or 'Portfolio SaaS' }} — Build. Publish. Earn.</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b1020; --card: #121a2f; --text: #f1f5f9; --mut: #94a3b8;
+  --ac: #6366f1; --ac2: #22d3ee; --ok: #22c55e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+a { color: var(--ac2); text-decoration: none; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+/* Full-bleed nav */
+.nav-outer {
+  position: sticky; top: 0; z-index: 30;
+  background: rgba(11,16,32,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid #1e293b;
+  width: 100%;
+}
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 28px; width: 100%; gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.15rem; color: #fff; flex-shrink: 0; }
+.brand img { width: 36px; height: 36px; border-radius: 10px; object-fit: cover; }
+.brand-mark {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--ac), var(--ac2));
+  display: flex; align-items: center; justify-content: center; font-weight: 800;
+}
+.nav-mid { display: flex; gap: 4px; flex: 1; justify-content: center; flex-wrap: wrap; }
+.nav-mid a {
+  color: var(--mut); padding: 8px 14px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+}
+.nav-mid a:hover { color: #fff; background: rgba(255,255,255,0.06); }
+.nav-actions { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 0.95rem;
+  border: none; cursor: pointer; text-decoration: none; transition: .15s;
+}
+.btn-ghost { background: transparent; color: var(--text); border: 1px solid #334155; }
+.btn-ghost:hover { border-color: var(--ac); color: #fff; }
+.btn-primary { background: linear-gradient(135deg, var(--ac), #4f46e5); color: #fff; }
+.btn-primary:hover { filter: brightness(1.08); color: #fff; }
+
+.hero {
+  padding: 72px 0 48px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center;
+}
+.hero h1 {
+  font-size: clamp(2rem, 4vw, 3.1rem); font-weight: 800; line-height: 1.15;
+  letter-spacing: -0.03em; margin-bottom: 16px;
+}
+.hero h1 span {
+  background: linear-gradient(90deg, var(--ac), var(--ac2));
+  -webkit-background-clip: text; color: transparent;
+}
+.hero p { color: var(--mut); font-size: 1.1rem; margin-bottom: 28px; max-width: 520px; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-card {
+  background: var(--card); border: 1px solid #1e293b; border-radius: 20px;
+  padding: 28px; box-shadow: 0 20px 50px rgba(0,0,0,.35);
+}
+.hero-card h3 { margin-bottom: 12px; font-size: 1.1rem; }
+.hero-card ul { list-style: none; color: var(--mut); }
+.hero-card li { padding: 8px 0; border-bottom: 1px solid #1e293b; }
+.hero-card li:last-child { border-bottom: 0; }
+.hero-card li strong { color: #fff; }
+
+.section { padding: 64px 0; }
+.section h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.02em; }
+.section .lead { color: var(--mut); margin-bottom: 32px; max-width: 560px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
+.section-center { text-align: center; }
+.section-center .lead { margin-left: auto; margin-right: auto; }
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 260px));
+  gap: 18px;
+  justify-content: center;
+  margin: 0 auto;
+  align-items: stretch;
+}
+.plans-grid > a.card,
+.plans-grid > form {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.plans-grid > form > button.card,
+.plans-grid > a.card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  box-sizing: border-box;
+}
+.plans-grid .card ul {
+  flex: 1 1 auto;
+  margin: 0 0 8px;
+}
+@media (max-width: 1100px) {
+  .plans-grid { grid-template-columns: repeat(2, minmax(0, 260px)); }
+}
+@media (max-width: 600px) {
+  .plans-grid { grid-template-columns: 1fr; max-width: 320px; }
+}
+.about-card, .contact-card {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: left;
+  background: var(--card);
+  border: 1px solid #1e293b;
+  border-radius: 20px;
+  padding: 28px 32px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.25);
+}
+.about-card p, .contact-card p { color: var(--mut); }
+.plan-free {
+  border-color: #22c55e !important;
+  background: linear-gradient(160deg, rgba(34,197,94,0.12), var(--card)) !important;
+}
+.plan-price { font-size: 1.6rem; font-weight: 800; color: #fff; margin: 8px 0; }
+.plan-price span { font-size: 0.85rem; font-weight: 500; color: var(--mut); }
+
+.card, a.card {
+  background: var(--card); border: 1px solid #1e293b; border-radius: 16px; padding: 22px;
+  transition: .2s; display: block; color: inherit; text-decoration: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+}
+a.card:hover, .product-card:hover,
+.plans-grid a.card:hover,
+.plans-grid form button.card:hover,
+.plans-grid .card:hover {
+  border-color: var(--ac) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(99,102,241,0.22), 0 0 0 1px var(--ac);
+}
+.plans-grid form button.card {
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  border: 1px solid #1e293b;
+}
+.plans-grid a.card.plan-free:hover {
+  border-color: #22c55e !important;
+  box-shadow: 0 14px 32px rgba(34,197,94,0.2), 0 0 0 1px #22c55e;
+}
+.product-card {
+  cursor: pointer; user-select: none; position: relative;
+  min-height: 200px;
+}
+.product-card.is-selected {
+  border-color: var(--ac) !important;
+  box-shadow: 0 0 0 2px var(--ac), 0 12px 28px rgba(99,102,241,0.2) !important;
+  background: linear-gradient(160deg, rgba(99,102,241,0.12), var(--card));
+}
+.product-card .sel-tick {
+  display: none;
+  position: absolute; top: 12px; right: 12px;
+  width: 26px; height: 26px; border-radius: 8px;
+  background: var(--ac); color: #fff;
+  align-items: center; justify-content: center;
+  font-size: 0.85rem; font-weight: 800;
+}
+.product-card.is-selected .sel-tick { display: flex; }
+.card .ico {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(99,102,241,.15); color: var(--ac);
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 12px;
+}
+.card h3 { font-size: 1.05rem; margin-bottom: 6px; color: #fff; }
+.card p { color: var(--mut); font-size: 0.92rem; }
+#cartSummary, #fullAccessCard {
+  text-align: left;
+  min-height: 280px;
+}
+#cartSummary { border-color: var(--ac); box-shadow: 0 0 0 1px var(--ac); }
+#fullAccessCard { border-color: #22c55e; box-shadow: 0 0 0 1px #22c55e; }
+
+.ref-box {
+  background: linear-gradient(135deg, #1e1b4b, #0f172a);
+  border: 1px solid #312e81; border-radius: 20px; padding: 36px; margin-top: 12px;
+}
+.ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px; }
+.ref-item {
+  background: rgba(255,255,255,0.04); border-radius: 14px; padding: 20px; border: 1px solid #334155;
+}
+.ref-item .num { font-size: 1.8rem; font-weight: 800; color: var(--ac2); }
+.ref-item p { color: var(--mut); margin-top: 8px; font-size: 0.95rem; }
+
+.about-text, .contact-box { color: var(--mut); max-width: 640px; }
+.contact-box a { color: var(--ac2); }
+
+.cta-band {
+  text-align: center; padding: 56px 24px; margin: 40px 0 20px;
+  background: var(--card); border-radius: 20px; border: 1px solid #1e293b;
+}
+.cta-band h2 { margin-bottom: 10px; }
+.cta-band p { color: var(--mut); margin-bottom: 22px; }
+
+footer {
+  text-align: center; padding: 28px; color: var(--mut); font-size: 0.85rem;
+  border-top: 1px solid #1e293b; margin-top: 40px;
+}
+@media (max-width: 800px) {
+  .hero, .ref-grid { grid-template-columns: 1fr; }
+  .nav-mid { display: none; }
+  .nav { padding: 14px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="nav-outer">
+  <nav class="nav">
+    <a href="/" class="brand">
+      {% if site_logo %}<img src="{{ site_logo }}" alt="">{% else %}<div class="brand-mark">P</div>{% endif %}
+      {{ site_name or 'Portfolio SaaS' }}
+    </a>
+    <div class="nav-mid">
+      <a href="#home">Home</a>
+      <a href="#services">Services</a>
+      <a href="#referral">Referral</a>
+      <a href="#plans">Plans</a>
+      <a 
+      <a href="#about">About Us</a>
+      <a href="{{ url_for('contact_page') }}">Contact Us</a>
+    </div>
+    <div class="nav-actions">
+      <a class="btn btn-ghost" href="{{ url_for('login') }}">Login</a>
+      <a class="btn btn-primary" href="{{ url_for('register') }}">Register Free</a>
+    </div>
+  </nav>
+</div>
+
+<div class="wrap">
+  <section class="hero" id="home">
+    <div>
+      <h1>Build your portfolio.<br><span>Run your business OS.</span></h1>
+      <p>{{ welcome_message or tagline or 'Portfolio, resume, cover letter and 18 productivity systems — one account, cloud-synced, ready to publish and grow.' }}</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="{{ url_for('register') }}">Get started free</a>
+        <a class="btn btn-ghost" href="#services">Browse services</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <h3>What you get</h3>
+      <ul>
+        <li><strong>Portfolio website</strong> — templates, live edit, public link</li>
+        <li><strong>Resume & cover letter</strong> — builders in your dashboard</li>
+        <li><strong>9 Productivity OS</strong> — unlock the tools you need</li>
+        <li><strong>Referral rewards</strong> — 100 paid → 1 year free · 500 → 5%</li>
+        <li><strong>Your data in the cloud</strong> — login from any device</li>
+      </ul>
+    </div>
+  </section><section class="section" id="services">
+    <h2>Our Services</h2>
+    <p class="lead">Select the tools you need. Prices add up. Open them on your dashboard after you continue.</p>
+    <form id="servicesForm" method="POST" action="{{ url_for('cart_checkout') }}">
+      <div class="grid" id="productGrid" style="margin-bottom:24px;">
+        {% for p in products %}
+        <div class="card product-card" data-id="{{ p.id }}" data-price="{{ p.price }}" data-name="{{ p.name }}">
+          <input type="checkbox" name="product_id" value="{{ p.id }}" class="product-check" style="position:absolute;opacity:0;pointer-events:none;">
+          <div class="sel-tick">✓</div>
+          <div class="ico">{% if p.image %}<img src="{{ p.image }}" alt="" style="width:28px;height:28px;border-radius:8px;object-fit:cover;">{% else %}{{ p.icon or '📦' }}{% endif %}</div>
+          <h3>{{ p.name }}</h3>
+          <p style="min-height:2.6em;margin-bottom:8px;">{{ p.desc }}</p>
+          <p class="plan-price">${{ '%.2f'|format(p.price) }}</p>
+        </div>
+        {% else %}
+        <p class="lead">No products configured yet.</p>
+        {% endfor %}
+      </div>
+
+      <div class="plans-grid" style="margin-top:8px;grid-template-columns:repeat(2,minmax(0,300px));">
+        <div class="card" id="cartSummary" style="border-color:var(--ac);box-shadow:0 0 0 1px var(--ac);text-align:left;">
+          <div class="ico">✓</div>
+          <h3>Your selection</h3>
+          <p id="cartList" style="color:var(--mut);font-size:0.9rem;min-height:56px;text-align:left;">No services selected yet. Click cards above.</p>
+          <p class="plan-price">$<span id="cartTotal">0.00</span></p>
+          <p style="color:var(--mut);font-size:0.9rem;margin-bottom:8px;"><span id="cartCount">0</span> product(s) selected</p>
+          <ul style="list-style:none;color:var(--mut);font-size:0.85rem;padding:0;text-align:left;margin:10px 0 16px;">
+            <li style="padding:4px 0;">✓ Selected tools unlock in your menu</li>
+            <li style="padding:4px 0;">✓ Continue to checkout / login</li>
+          </ul>
+          <button type="submit" class="btn btn-primary" id="cartBtn" disabled style="opacity:0.5;width:100%;">Continue to purchase</button>
+        </div>
+        <div class="card" id="fullAccessCard">
+          <div class="ico">★</div>
+          <h3>Full Access</h3>
+          <p class="plan-price">${{ '%.2f'|format(full_access_price or 99.99) }}</p>
+          <ul style="list-style:none;color:var(--mut);font-size:0.85rem;padding:0;text-align:left;margin:10px 0 16px;">
+            <li style="padding:4px 0;">✓ All core tools</li>
+            <li style="padding:4px 0;">✓ All 9 Productivity OS modules</li>
+            <li style="padding:4px 0;">✓ Best value unlock</li>
+          </ul>
+          <button type="submit" name="full_access" value="1" class="btn btn-primary" style="width:100%;background:linear-gradient(135deg,#16a34a,#22c55e);">Get Full Access</button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+
+
+<section class="section" id="referral">
+    <h2>Referral rewards</h2>
+    <p class="lead">Share your code. When people register and buy a subscription, you benefit.</p>
+    <div class="ref-box">
+      <div class="ref-grid">
+        <div class="ref-item">
+          <div class="num">100</div>
+          <p><strong style="color:#fff">Refer 100 people</strong> who purchase a subscription — unlock <strong style="color:#fff">1 year free</strong> access to this platform.</p>
+        </div>
+        <div class="ref-item">
+          <div class="num">500</div>
+          <p><strong style="color:#fff">Refer 500 people</strong> who purchase a subscription — earn <strong style="color:#fff">5% commission</strong> on the income from those subscriptions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<section class="section section-center" id="plans">
+    <h2>Subscription plans</h2>
+    <p class="lead">Start free, then upgrade when you are ready. Prices in USD / month — configurable by admin.</p>
+    <div class="plans-grid">
+      <a class="card plan-free" href="{{ url_for('register') }}">
+        <div class="ico">✦</div>
+        <h3>Free Trial</h3>
+        <p class="plan-price">$0<span> / {{ trial_days or 7 }} days</span></p>
+        <ul style="list-style:none;color:var(--mut);font-size:0.9rem;padding:0;text-align:left;">
+          <li style="padding:4px 0;">✓ {{ trial_days or 7 }}-day free trial</li>
+          <li style="padding:4px 0;">✓ Portfolio, Resume, Cover Letter</li>
+          <li style="padding:4px 0;">✓ Publish your public link</li>
+          <li style="padding:4px 0;">✓ Upgrade anytime via Get Plus</li>
+        </ul>
+      </a>
+      {% for plan in plans %}
+      <form method="POST" action="{{ url_for('cart_checkout') }}">
+        <input type="hidden" name="plan_key" value="{{ plan.key }}">
+        <button type="submit" class="card" style="width:100%;text-align:left;font:inherit;cursor:pointer;border:{% if plan.featured %}1px solid var(--ac){% else %}1px solid #1e293b{% endif %};{% if plan.featured %}box-shadow:0 0 0 1px var(--ac);{% endif %}">
+          <div class="ico">$</div>
+          <h3>{{ plan.name }}{% if plan.featured %} · Popular{% endif %}</h3>
+          <p class="plan-price">${{ '%.2f'|format(plan.price) }}<span> / mo</span></p>
+          <ul style="list-style:none;color:var(--mut);font-size:0.9rem;padding:0;text-align:left;">
+            {% for f in plan.features %}
+            <li style="padding:4px 0;">✓ {{ f }}</li>
+            {% endfor %}
+          </ul>
+        </button>
+      </form>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section section-center" id="about">
+    <h2>About Us</h2>
+    <div class="about-card">
+      <p>{{ site_name or 'Portfolio SaaS' }} helps freelancers, job seekers and professionals build a polished online portfolio, resume and cover letter — then share a public link in seconds. Our referral program rewards members who grow the community.</p>
+    </div>
+  </section>
+
+  <section class="section section-center" id="contact">
+    <h2>Contact Us</h2>
+    <div class="contact-card" style="text-align:center;">
+      <p style="margin-bottom:16px;">Need help or have a question? Send us a message — our team will reply through the platform.</p>
+      <a class="btn btn-primary" href="{{ url_for('contact_page') }}">Help</a>
+    </div>
+  </section>
+
+  <div class="cta-band">
+    <h2>Ready to build your presence?</h2>
+    <p>Create a free account, choose a design, and publish your portfolio today.</p>
+    <a class="btn btn-primary" href="{{ url_for('register') }}">Register now</a>
+  </div>
+
+  <footer>&copy; {{ site_name or 'Portfolio SaaS' }} · Build. Publish. Earn.</footer>
+</div>
+
+<script>
+(function(){
+  const cards = document.querySelectorAll('.product-card');
+  const totalEl = document.getElementById('cartTotal');
+  const listEl = document.getElementById('cartList');
+  const countEl = document.getElementById('cartCount');
+  const btn = document.getElementById('cartBtn');
+  function refresh(){
+    let total = 0;
+    const names = [];
+    cards.forEach(c => {
+      const cb = c.querySelector('.product-check');
+      if (cb && cb.checked) {
+        total += parseFloat(c.dataset.price || 0);
+        names.push(c.dataset.name);
+        c.classList.add('is-selected');
+      } else {
+        c.classList.remove('is-selected');
+      }
+    });
+    if (totalEl) totalEl.textContent = total.toFixed(2);
+    if (countEl) countEl.textContent = String(names.length);
+    if (listEl) {
+      listEl.innerHTML = names.length
+        ? names.map(n => '<div style="padding:3px 0;">✓ ' + n + '</div>').join('')
+        : 'No services selected yet. Click cards above.';
+    }
+    if (btn) {
+      btn.disabled = names.length === 0;
+      btn.style.opacity = names.length ? '1' : '0.5';
+    }
+  }
+  cards.forEach(c => {
+    c.addEventListener('click', function(e){
+      if (e.target.closest('button')) return;
+      const cb = c.querySelector('.product-check');
+      if (!cb) return;
+      cb.checked = !cb.checked;
+      refresh();
+    });
+  });
+  refresh();
+})();
+</script>
+
+</body>
+</html>

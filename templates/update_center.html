@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Update Center - Portfolio SaaS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Update Center</h1>
+        <p class="text-muted">Update or repair the system via ZIP</p>
+    </div>
+</div>
+
+<!-- Current Version -->
+<div class="card version-card">
+    <div class="card-label">Installed Version</div>
+    <div class="version-number">{{ version }}</div>
+</div>
+
+<!-- Upload Section -->
+<div class="card">
+    <h3>Upload Update ZIP</h3>
+    <p class="text-muted small">
+        The ZIP must contain a VERSION file + the files you want to update. Do not include .venv or data folders.
+    </p>
+    <form method="POST" action="{{ url_for('update_upload') }}" enctype="multipart/form-data" class="upload-form">
+        <input type="file" name="zipfile" accept=".zip" required>
+        <button type="submit" class="btn btn-danger btn-block">Upload & Stage</button>
+    </form>
+</div>
+
+<!-- Apply -->
+<div class="card">
+    <h3>Apply Staged Update</h3>
+    <p class="text-muted small">Click the button below to apply the staged update. An automatic backup will be created first.</p>
+    <form method="POST" action="{{ url_for('update_apply') }}">
+        <button type="submit" class="btn btn-success btn-block">Apply Update</button>
+    </form>
+</div>
+
+<!-- Rollback -->
+<div class="card">
+    <h3>Rollback (Restore from Backup)</h3>
+    {% if backups %}
+        <div class="backup-list">
+            {% for b in backups %}
+            <div class="backup-item">
+                <div class="backup-info">
+                    <strong>{{ b.id }}</strong>
+                    <span class="text-muted">{{ b.from_version }} · {{ b.files }} files · {{ b.date }}</span>
+                </div>
+                <form method="POST" action="{{ url_for('update_rollback', backup_id=b.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-outline btn-sm" onclick="return confirm('Are you sure you want to rollback?')">Rollback</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">No backups available yet.</p>
+    {% endif %}
+</div>
+
+<!-- Version History -->
+<div class="card">
+    <h3>Version History</h3>
+    <div class="history-list">
+        {% for h in history %}
+        <div class="history-item">
+            <div class="history-version">
+                <strong>v{{ h.version }}</strong>
+                <span class="text-muted">— {{ h.message }}</span>
+            </div>
+            <div class="history-date">{{ h.date }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="tips">
+    <p><strong>Tips:</strong></p>
+    <ul>
+        <li>When creating an update ZIP, include the changed files + a VERSION file.</li>
+        <li>Do not include .venv, data, or any sensitive folders in the ZIP.</li>
+        <li>After applying an update, restart the server (Ctrl+C then run again).</li>
+    </ul>
+</div>
+{% endblock %}

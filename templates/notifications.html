@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Notifications - Portfolio SaaS{% endblock %}
+{% block topbar_title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Notifications</h1>
+</div>
+{% if notifications %}
+<div style="display:flex;flex-direction:column;gap:12px;max-width:720px;">
+  {% for n in notifications %}
+  <div class="card" style="padding:16px 18px;{% if not n.read %}border-left:4px solid #6366f1;{% endif %}">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+      <div>
+        <strong>{{ n.title }}</strong>
+        <p class="text-muted small" style="margin-top:4px;white-space:pre-wrap;">{{ n.body }}</p>
+        {% if n.from %}<p class="text-muted small" style="margin-top:6px;">From: {{ n.from }}</p>{% endif %}
+      </div>
+      <span class="text-muted small" style="white-space:nowrap;">{{ n.created_at[:16]|replace('T',' ') if n.created_at else '' }}</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card" style="padding:24px;">
+  <p class="text-muted">No notifications yet.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digital Product Seller — {{ site_name }}</title>
+<style>
+:root{
+  --bg:#f5f3ff; --ink:#0f172a; --muted:#64748b; --accent:#4f46e5; --accent2:#f43f5e;
+  --side:#1e1b4b; --side2:#312e81; --danger:#dc2626; --ok:#059669; --warn:#d97706;
+  --card:#fff; --line:#e0e7ff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+a{color:var(--accent);text-decoration:none}
+.side{position:fixed;inset:0 auto 0 0;width:260px;background:linear-gradient(180deg,var(--side),var(--side2));color:#e0e7ff;display:flex;flex-direction:column;z-index:20}
+.side-brand{display:flex;align-items:center;gap:10px;padding:18px 16px;font-weight:800;font-size:15px;border-bottom:1px solid rgba(255,255,255,.08)}
+.side-brand .ico{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#f43f5e);display:grid;place-items:center;font-size:16px}
+.side-nav{flex:1;overflow-y:auto;padding:10px 10px 16px;scrollbar-width:thin;scrollbar-color:#6366f1 transparent}
+.side-nav::-webkit-scrollbar{width:4px}.side-nav::-webkit-scrollbar-thumb{background:#6366f1;border-radius:4px}
+.nav-group{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a5b4fc;padding:12px 10px 6px}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:#c7d2fe;font-size:13px;font-weight:600;margin-bottom:2px}
+.nav:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav.active{background:rgba(99,102,241,.45);color:#fff}
+.nav .g{width:18px;text-align:center;opacity:.9}
+.nav .badge{margin-left:auto;background:rgba(244,63,94,.9);color:#fff;font-size:10px;padding:2px 7px;border-radius:999px}
+.side-foot{padding:12px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.side-foot img,.side-foot .av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#4338ca}
+.side-foot .meta{flex:1;min-width:0}.side-foot .meta b{display:block;font-size:12px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-foot .meta span{font-size:11px;color:#a5b4fc}
+.side-foot .exit{padding:6px 10px;border-radius:8px;background:rgba(255,255,255,.1);color:#e0e7ff;font-size:12px;font-weight:600;border:0;cursor:pointer;text-decoration:none}
+.main{margin-left:260px;min-height:100vh}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 24px;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;flex-wrap:wrap}
+.top h1{margin:0;font-size:20px;font-weight:800}
+.top .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.search-wrap{position:relative}
+.search-row{display:flex;align-items:center;gap:8px}
+.search-row input{height:40px;border:1px solid #e2e8f0;border-radius:10px;padding:0 12px;min-width:220px;font:inherit}
+.search-row button{height:40px;border:0;border-radius:10px;padding:0 14px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+.search-dd{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;min-width:320px;max-height:360px;overflow:auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 12px 40px rgba(15,23,42,.12);z-index:50;padding:6px}
+.search-dd.open{display:block}
+.search-dd .hit{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;text-decoration:none;color:inherit}
+.search-dd .hit:hover{background:#f5f3ff}
+.search-dd .hit .k{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--accent);min-width:72px}
+.search-dd .empty-hit{padding:14px 12px;color:var(--muted);font-size:13px}
+.btn-back{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;color:var(--ink);font-weight:600;font-size:13px;cursor:pointer;text-decoration:none}
+.btn-back:hover{border-color:var(--accent);color:var(--accent)}
+.wrap{padding:20px 24px 40px;max-width:1200px}
+.hero{background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 45%,#f43f5e 100%);color:#fff;border-radius:18px;padding:28px;margin-bottom:18px;box-shadow:0 12px 40px rgba(79,70,229,.28)}
+.hero h2{margin:0 0 6px;font-size:24px}
+.hero p{margin:0;opacity:.92;font-size:14px;max-width:560px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:6px;transition:.15s}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,23,42,.06)}
+.kpi span{font-size:12px;color:var(--muted);font-weight:600}
+.kpi b{font-size:24px;font-weight:800;line-height:1}
+.kpi-c1{background:linear-gradient(145deg,#eef2ff,#fff);border-color:#c7d2fe}.kpi-c1 b{color:#4338ca}
+.kpi-c2{background:linear-gradient(145deg,#fff1f2,#fff);border-color:#fecdd3}.kpi-c2 b{color:#e11d48}
+.kpi-c3{background:linear-gradient(145deg,#ecfdf5,#fff);border-color:#a7f3d0}.kpi-c3 b{color:#047857}
+.kpi-c4{background:linear-gradient(145deg,#fff7ed,#fff);border-color:#fed7aa}.kpi-c4 b{color:#c2410c}
+.kpi-c5{background:linear-gradient(145deg,#f0f9ff,#fff);border-color:#bae6fd}.kpi-c5 b{color:#0369a1}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 4px 16px rgba(15,23,42,.04)}
+.panel h3{margin:0 0 12px;font-size:15px}
+.row-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;color:var(--ink)}
+.btn:hover{background:#f8fafc}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#4338ca}
+.btn-danger{background:#fef2f2;color:var(--danger);border-color:#fecaca}
+.btn-ok{background:#ecfdf5;color:var(--ok);border-color:#a7f3d0}
+.btn-soft{background:#fff;color:#334155;border:1px solid #e2e8f0}
+.btn-sm{padding:6px 10px;font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}.side{width:72px}.main{margin-left:72px}.side .nav span.lbl,.side-brand span.lbl,.side-foot .meta{display:none}}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid #e2e8f0;border-radius:10px;font:inherit;background:#fff}
+.field textarea{min-height:72px;resize:vertical}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.card h4{margin:0;font-size:15px}
+.card .meta{font-size:12px;color:var(--muted)}
+.badge{display:inline-flex!important;align-items:center;width:fit-content!important;max-width:max-content;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;align-self:flex-start}
+.card > .badge,.card .badge{align-self:flex-start;flex:0 0 auto}
+.guide-card .btn{align-self:flex-start;width:auto!important;display:inline-flex;justify-content:center;padding:8px 16px}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 2px 10px rgba(15,23,42,.03)}
+.page-head h2{margin:0;font-size:18px}
+.page-head .sub{font-size:12px;color:var(--muted);margin-top:4px;font-weight:500}
+.ai-out-card{position:relative;padding-top:36px}
+.ai-out-card .btn-copy{position:absolute;top:10px;right:10px;width:auto!important;padding:6px 12px}
+.badge-active,.badge-paid,.badge-completed,.badge-delivered,.badge-live{background:#ecfdf5;color:#065f46}
+.badge-pending,.badge-draft,.badge-processing{background:#fff7ed;color:#9a3412}
+.badge-refunded,.badge-cancelled,.badge-inactive{background:#fef2f2;color:#991b1b}
+.badge-scheduled{background:#eef2ff;color:#3730a3}
+.card-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
+.empty{color:var(--muted);padding:20px 0;text-align:center;font-size:14px}
+.flash{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px}
+.flash-danger{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-box{background:#fff;border-radius:16px;padding:20px;max-width:520px;width:100%;max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(15,23,42,.25);scrollbar-width:thin;scrollbar-color:#94a3b8 transparent}
+.modal-box::-webkit-scrollbar{width:4px}.modal-box::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:4px}
+.modal-box h3{margin:0 0 14px;font-size:17px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.qa{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.qa .btn{background:#fff}
+.qa .btn:hover{border-color:var(--accent);color:var(--accent)}
+.check{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9}
+.check input{margin-top:3px}
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th,.table td{text-align:left;padding:10px 8px;border-bottom:1px solid #f1f5f9}
+.table th{font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.04em}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.guide-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.guide-card h4{margin:0;font-size:14px}
+.muted{color:var(--muted);font-size:13px}
+.price{font-weight:800;color:var(--accent)}
+/* page-head defined above */
+</style>
+</head>
+<body>
+<aside class="side">
+  <div class="side-brand"><span class="ico">🛒</span><span class="lbl">Digital Product Seller</span></div>
+  <nav class="side-nav">
+    <div class="nav-group">Workspace</div>
+    <a class="nav {% if page=='home' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='home') }}"><span class="g">⌂</span><span class="lbl">Overview</span></a>
+    <a class="nav {% if page=='start-here' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='start-here') }}"><span class="g">★</span><span class="lbl">Start Here</span></a>
+    <div class="nav-group">Catalog</div>
+    <a class="nav {% if page=='products' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='products') }}"><span class="g">📦</span><span class="lbl">Products</span>{% if counts.products %}<span class="badge">{{ counts.products }}</span>{% endif %}</a>
+    <a class="nav {% if page=='bundles' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='bundles') }}"><span class="g">🎁</span><span class="lbl">Bundles</span></a>
+    <a class="nav {% if page=='coupons' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='coupons') }}"><span class="g">🏷</span><span class="lbl">Coupons</span></a>
+    <div class="nav-group">Sales</div>
+    <a class="nav {% if page=='orders' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='orders') }}"><span class="g">🧾</span><span class="lbl">Orders</span>{% if counts.pending_orders %}<span class="badge">{{ counts.pending_orders }}</span>{% endif %}</a>
+    <a class="nav {% if page=='customers' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='customers') }}"><span class="g">👥</span><span class="lbl">Customers</span></a>
+    <a class="nav {% if page=='promote' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='promote') }}"><span class="g">📣</span><span class="lbl">Promote</span></a>
+    <a class="nav {% if page=='deliveries' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='deliveries') }}"><span class="g">📤</span><span class="lbl">Deliveries</span></a>
+    <a class="nav {% if page=='affiliates' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='affiliates') }}"><span class="g">🤝</span><span class="lbl">Affiliates</span></a>
+    <div class="nav-group">Growth</div>
+    <a class="nav {% if page=='launches' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='launches') }}"><span class="g">🚀</span><span class="lbl">Launches</span></a>
+    <a class="nav {% if page=='reviews' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='reviews') }}"><span class="g">⭐</span><span class="lbl">Reviews</span></a>
+    <a class="nav {% if page=='analytics' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='analytics') }}"><span class="g">📊</span><span class="lbl">Analytics</span></a>
+    <a class="nav {% if page=='expenses' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='expenses') }}"><span class="g">💸</span><span class="lbl">Expenses</span></a>
+    <div class="nav-group">Tools</div>
+    <a class="nav {% if page=='messages' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='messages') }}"><span class="g">✉</span><span class="lbl">Messages</span></a>
+    <a class="nav {% if page=='ai' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='ai') }}"><span class="g">✨</span><span class="lbl">AI Assist</span></a>
+    <a class="nav {% if page=='settings' %}active{% endif %}" href="{{ url_for('digital_product_seller', page='settings') }}"><span class="g">⚙</span><span class="lbl">Settings & Export</span></a>
+  </nav>
+  <div class="side-foot">
+    {% if user.photo %}<img src="{{ user.photo }}" alt="">{% else %}<div class="av"></div>{% endif %}
+    <div class="meta"><b>{{ user.full_name or user.username }}</b><span>@{{ user.username }}</span></div>
+    <a class="exit" href="{{ url_for('dashboard') }}">Exit</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="top">
+    <div>
+      <h1>{% if page=='home' %}Overview{% elif page=='start-here' %}Start Here{% else %}{{ page.replace('-',' ')|title }}{% endif %}</h1>
+      <div class="sub">Digital Product Seller · {{ site_name }}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div class="search-wrap" id="dpsSearchWrap">
+        <form class="search-row" id="dpsSearchForm" action="{{ url_for('digital_product_seller', page='search') }}" method="get" autocomplete="off">
+          <input type="search" name="q" id="dpsSearchInput" placeholder="Search products, orders, customers…" value="{{ q or '' }}">
+          <button type="submit">Search</button>
+        </form>
+        <div class="search-dd" id="dpsSearchDd"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}{% for cat, msg in messages %}
+        <div class="flash {% if cat=='danger' %}flash-danger{% endif %}">{{ msg }}</div>
+      {% endfor %}{% endif %}
+    {% endwith %}
+
+    {% if page != 'home' %}
+    <div style="margin-bottom:12px">
+      <a class="btn-back" href="{{ url_for('digital_product_seller', page='home') }}">← Back</a>
+    </div>
+    {% endif %}
+
+    {% if page == 'home' %}
+    <div class="hero">
+      <h2>Your digital store command center</h2>
+      <p>Track products, orders, customers, coupons, launches and revenue — a full seller workspace built as a better alternative to scattered Notion boards.</p>
+      <div class="qa">
+        <button type="button" class="btn" onclick="dpsOpen('modalProduct','home')">+ New product</button>
+        <button type="button" class="btn" onclick="dpsOpen('modalOrder','home')">+ Log sale</button>
+        <a class="btn" href="{{ url_for('digital_product_seller', page='customers') }}">Customers</a>
+        <a class="btn" href="{{ url_for('digital_product_seller', page='launches') }}">Launches</a>
+      </div>
+    </div>
+    <div class="kpis">
+      <a class="kpi kpi-c1" href="{{ url_for('digital_product_seller', page='products') }}"><span>Products</span><b>{{ counts.products }}</b></a>
+      <a class="kpi kpi-c2" href="{{ url_for('digital_product_seller', page='orders') }}"><span>Orders</span><b>{{ counts.orders }}</b></a>
+      <a class="kpi kpi-c3" href="{{ url_for('digital_product_seller', page='orders') }}"><span>Revenue</span><b>{{ counts.revenue }}</b></a>
+      <a class="kpi kpi-c4" href="{{ url_for('digital_product_seller', page='customers') }}"><span>Customers</span><b>{{ counts.customers }}</b></a>
+      <a class="kpi kpi-c5" href="{{ url_for('digital_product_seller', page='orders') }}"><span>Pending</span><b>{{ counts.pending_orders }}</b></a>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Recent orders</h3>
+        {% set recent = (data.orders or [])[:5] %}
+        {% if recent %}
+        <table class="table">
+          <tr><th>Order</th><th>Product</th><th>Amount</th><th>Status</th></tr>
+          {% for o in recent %}
+          <tr>
+            <td>{{ o.order_number or o.id }}</td>
+            <td>{{ o.product_name or '—' }}</td>
+            <td class="price">{{ o.amount or 0 }}</td>
+            <td><span class="badge badge-{{ (o.status or 'pending')|lower }}">{{ o.status or 'Pending' }}</span></td>
+          </tr>
+          {% endfor %}
+        </table>
+        {% else %}<p class="empty">No orders yet. Log your first sale.</p>{% endif %}
+        <p style="margin-top:10px"><a href="{{ url_for('digital_product_seller', page='orders') }}">All orders →</a></p>
+      </div>
+      <div class="panel">
+        <h3>Top products</h3>
+        {% if data.products %}
+        <div class="cards" style="grid-template-columns:1fr">
+          {% for p in (data.products or [])[:5] %}
+          <div class="card" style="padding:10px">
+            <h4>{{ p.name }}</h4>
+            <div class="meta">{{ p.category or 'General' }} · <span class="price">{{ p.price or 0 }} {{ data.settings.currency or 'USD' }}</span></div>
+            <span class="badge badge-{{ (p.status or 'active')|lower }}">{{ p.status or 'Active' }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}<p class="empty">Add your first digital product to start selling.</p>{% endif %}
+      </div>
+    </div>
+
+    {% elif page == 'start-here' %}
+    <div class="panel">
+      <h3>Getting started checklist</h3>
+      {% set cl = (data.settings.checklist if data.settings is defined else {}) or {} %}
+      {% macro check_row(key, title, desc) -%}
+      <form method="post" action="{{ url_for('digital_product_seller_action') }}" class="check dps-check-form" style="cursor:pointer">
+        <input type="hidden" name="action" value="toggle_checklist">
+        <input type="hidden" name="page" value="start-here">
+        <input type="hidden" name="key" value="{{ key }}">
+        <input type="hidden" name="checked" value="{{ '1' if cl.get(key) else '0' }}" class="dps-check-val">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;width:100%;margin:0">
+          <input type="checkbox" class="dps-check-box" {% if cl.get(key) %}checked{% endif %} style="margin-top:3px">
+          <div><b>{{ title }}</b><div class="muted">{{ desc }}</div></div>
+        </label>
+      </form>
+      {%- endmacro %}
+      {{ check_row('product', 'Add your first product', 'Name, price, delivery link or license notes') }}
+      {{ check_row('customer', 'Add a customer', 'Or create one automatically when you log an order') }}
+      {{ check_row('order', 'Log a test order', 'Track status from Pending → Paid → Delivered') }}
+      {{ check_row('coupon', 'Create a coupon', 'Percentage or fixed discount for launches') }}
+      <script>
+      (function(){
+        document.querySelectorAll('.dps-check-form').forEach(function(form){
+          var box = form.querySelector('.dps-check-box');
+          var hid = form.querySelector('.dps-check-val');
+          if(!box || !hid) return;
+          box.addEventListener('change', function(){
+            hid.value = box.checked ? '1' : '0';
+            form.submit();
+          });
+        });
+      })();
+      </script>
+    </div>
+    <div class="guide-grid">
+      <div class="guide-card"><h4>📦 Products</h4><p class="muted">Catalog of ebooks, courses, templates, software.</p><a class="btn btn-sm btn-primary" href="{{ url_for('digital_product_seller', page='products') }}">Open</a></div>
+      <div class="guide-card"><h4>🧾 Orders</h4><p class="muted">Sales pipeline and payment status.</p><a class="btn btn-sm btn-primary" href="{{ url_for('digital_product_seller', page='orders') }}">Open</a></div>
+      <div class="guide-card"><h4>🚀 Launches</h4><p class="muted">Plan launch windows and revenue goals.</p><a class="btn btn-sm btn-primary" href="{{ url_for('digital_product_seller', page='launches') }}">Open</a></div>
+      <div class="guide-card"><h4>🤝 Affiliates</h4><p class="muted">Partners, codes and commission rates.</p><a class="btn btn-sm btn-primary" href="{{ url_for('digital_product_seller', page='affiliates') }}">Open</a></div>
+      <div class="guide-card"><h4>✨ AI Assist</h4><p class="muted">Product copy & launch emails (your API key).</p><a class="btn btn-sm btn-primary" href="{{ url_for('digital_product_seller', page='ai') }}">Open</a></div>
+      <div class="guide-card"><h4>⚙ Settings</h4><p class="muted">Currency, tax, export/import backup.</p><a class="btn btn-sm btn-primary" href="{{ url_for('digital_product_seller', page='settings') }}">Open</a></div>
+    </div>
+
+    {% elif page == 'products' %}
+    <div class="page-head"><div><h2>Products</h2><div class="sub">Manage your digital catalog — ebooks, courses, templates and software.</div></div><button type="button" class="btn btn-primary" onclick="dpsOpen('modalProduct','products')">+ New product</button></div>
+    {% if data.products %}
+    <div class="cards">
+      {% for p in data.products %}
+      <div class="card">
+        {% if p.image_url %}
+        <div style="margin:-4px -4px 10px;border-radius:12px;overflow:hidden;height:140px;background:#eef2ff">
+          <img src="{{ p.image_url }}" alt="{{ p.name }}" style="width:100%;height:140px;object-fit:cover;display:block">
+        </div>
+        {% endif %}
+        <h4>{{ p.name }}</h4>
+        <div class="meta">SKU: {{ p.sku or '—' }} · {{ p.category or 'General' }}</div>
+        <div class="price">{{ p.price or 0 }} {{ data.settings.currency or 'USD' }}</div>
+        <span class="badge badge-{{ (p.status or 'active')|lower }}">{{ p.status or 'Active' }}</span>
+        {% if p.description %}<p class="muted" style="margin:0;font-size:12px">{{ p.description[:120] }}{% if p.description|length>120 %}…{% endif %}</p>{% endif %}
+        {% set _slug = (data.settings.store_slug or user.username)|lower|replace(' ','-') %}
+        {% set _plink = url_for('dps_public_product', slug=_slug, product_id=p.id, _external=True) %}
+        <div class="meta" style="word-break:break-all">Checkout: <a href="{{ _plink }}" target="_blank" rel="noopener">{{ _plink }}</a></div>
+        {% if p.delivery_url %}<div class="meta">File: <a href="{{ p.delivery_url }}" target="_blank" rel="noopener" download>{{ p.file_name or 'Download file' }}</a></div>
+        <div class="meta" style="word-break:break-all;font-size:11px">{{ p.delivery_url }}</div>{% endif %}
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm btn-soft" onclick='dpsEditProduct({{ p|tojson }})'>Edit</button>
+          <button type="button" class="btn btn-sm btn-primary" data-link="{{ _plink }}" onclick="dpsCopyLink(this)">Copy product link</button>
+          <form method="post" action="{{ url_for('digital_product_seller_action') }}" onsubmit="return confirm('Delete this product?')">
+            <input type="hidden" name="action" value="delete_product"><input type="hidden" name="page" value="products"><input type="hidden" name="item_id" value="{{ p.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<div class="panel"><p class="empty">No products yet. Create your first digital product.</p></div>{% endif %}
+
+    {% elif page == 'orders' %}
+    <div class="page-head"><div><h2>Orders</h2><div class="sub">Track every sale from pending payment to delivery.</div></div><button type="button" class="btn btn-primary" onclick="dpsOpen('modalOrder','orders')">+ Log sale</button></div>
+    {% if data.orders %}
+    <div class="panel" style="overflow-x:auto">
+      <table class="table">
+        <tr><th>Order #</th><th>Customer</th><th>Product</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr>
+        {% for o in data.orders %}
+        <tr>
+          <td>{{ o.order_number or o.id }}</td>
+          <td>{{ o.customer_name or o.customer_email or '—' }}</td>
+          <td>{{ o.product_name or '—' }}</td>
+          <td class="price">{{ o.amount or 0 }}</td>
+          <td><span class="badge badge-{{ (o.status or 'pending')|lower }}">{{ o.status or 'Pending' }}</span></td>
+          <td>{{ o.order_date or '—' }}</td>
+          <td style="white-space:nowrap">
+            <button type="button" class="btn btn-sm btn-soft" onclick='dpsEditOrder({{ o|tojson }})'>Edit</button>
+            <form method="post" action="{{ url_for('digital_product_seller_action') }}" style="display:inline" onsubmit="return confirm('Delete order?')">
+              <input type="hidden" name="action" value="delete_order"><input type="hidden" name="page" value="orders"><input type="hidden" name="item_id" value="{{ o.id }}">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% else %}<div class="panel"><p class="empty">No orders yet.</p></div>{% endif %}
+
+    {% elif page == 'customers' %}
+    <div class="page-head"><div><h2>Customers</h2><div class="sub">Buyers and contacts linked to your store.</div></div><button type="button" class="btn btn-primary" onclick="dpsOpen('modalCustomer','customers')">+ New customer</button></div>
+    {% if data.customers %}
+    <div class="cards">
+      {% for c in data.customers %}
+      <div class="card">
+        <h4>{{ c.name or c.email }}</h4>
+        <div class="meta">{{ c.email or '—' }}{% if c.phone %} · {{ c.phone }}{% endif %}</div>
+        {% if c.country %}<div class="meta">{{ c.country }}</div>{% endif %}
+        <span class="badge badge-{{ (c.status or 'active')|lower }}">{{ c.status or 'Active' }}</span>
+        <div class="meta" style="margin-top:6px"><b>Purchases:</b> {{ c._purchase_count or 0 }} product(s)</div>
+        {% if c._purchased_products %}
+        <div class="meta" style="font-size:12px">Bought: {{ c._purchased_products|join(', ') }}</div>
+        {% else %}
+        <div class="meta" style="font-size:12px">No paid orders yet</div>
+        {% endif %}
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm btn-soft" onclick='dpsEditCustomer({{ c|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('digital_product_seller_action') }}" onsubmit="return confirm('Delete customer?')">
+            <input type="hidden" name="action" value="delete_customer"><input type="hidden" name="page" value="customers"><input type="hidden" name="item_id" value="{{ c.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<div class="panel"><p class="empty">No customers yet.</p></div>{% endif %}
+
+    {% elif page == 'coupons' %}
+    <div class="page-head"><div><h2>Coupons</h2><div class="sub">Discount codes for launches and promotions.</div></div><button type="button" class="btn btn-primary" onclick="dpsOpen('modalCoupon','coupons')">+ New coupon</button></div>
+    {% if data.coupons %}
+    <div class="cards">
+      {% for c in data.coupons %}
+      <div class="card">
+        <h4>{{ c.code }}</h4>
+        <div class="meta">{{ c.type or 'percent' }} · value {{ c.value or 0 }} · used {{ c.used_count or 0 }}{% if c.max_uses %}/{{ c.max_uses }}{% endif %}</div>
+        {% if c.expires_on %}<div class="meta">Expires {{ c.expires_on }}</div>{% endif %}
+        <span class="badge badge-{{ (c.status or 'active')|lower }}">{{ c.status or 'Active' }}</span>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm btn-soft" onclick='dpsEditCoupon({{ c|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('digital_product_seller_action') }}" onsubmit="return confirm('Delete coupon?')">
+            <input type="hidden" name="action" value="delete_coupon"><input type="hidden" name="page" value="coupons"><input type="hidden" name="item_id" value="{{ c.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<div class="panel"><p class="empty">No coupons yet.</p></div>{% endif %}
+
+    {% elif page == 'bundles' %}
+    <div class="page-head"><div><h2>Bundles</h2><div class="sub">Package multiple products for higher average order value.</div></div><button type="button" class="btn btn-primary" onclick="dpsOpen('modalBundle','bundles')">+ New bundle</button></div>
+    {% if data.bundles %}
+    <div class="cards">
+      {% for b in data.bundles %}
+      {% set _slug = (data.settings.store_slug or user.username)|lower|replace(' ','-') %}
+      {% set _blink = url_for('dps_public_bundle', slug=_slug, bundle_id=b.id, _external=True) %}
+      <div class="card">
+        {% if b.image_url %}
+        <div style="margin:-4px -4px 10px;border-radius:12px;overflow:hidden;height:120px;background:#eef2ff">
+          <img src="{{ b.image_url }}" alt="{{ b.name }}" style="width:100%;height:120px;object-fit:cover;display:block">
+        </div>
+        {% endif %}
+        <h4>{{ b.name }}</h4>
+        <div class="price">{{ b.price or 0 }} {{ data.settings.currency or 'USD' }}</div>
+        <div class="meta">{% if b._product_names %}{{ b._product_names|join(', ') }}{% else %}{{ (b.product_ids or [])|length }} products{% endif %}</div>
+        <span class="badge badge-{{ (b.status or 'active')|lower }}">{{ b.status or 'Active' }}</span>
+        <div class="meta" style="word-break:break-all;font-size:11px">Checkout: <a href="{{ _blink }}" target="_blank" rel="noopener">{{ _blink }}</a></div>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm btn-soft" onclick='dpsEditBundle({{ b|tojson }})'>Edit</button>
+          <button type="button" class="btn btn-sm btn-primary" data-link="{{ _blink }}" onclick="dpsCopyLink(this)">Copy bundle link</button>
+          <a class="btn btn-sm btn-soft" href="{{ _blink }}" target="_blank" rel="noopener">Open checkout</a>
+          <form method="post" action="{{ url_for('digital_product_seller_action') }}" onsubmit="return confirm('Delete bundle?')">
+            <input type="hidden" name="action" value="delete_bundle"><input type="hidden" name="page" value="bundles"><input type="hidden" name="item_id" value="{{ b.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<div class="panel"><p class="empty">No bundles yet. Package products together for higher AOV.</p></div>{% endif %}
+
+    {% elif page == 'launches' %}
+    <div class="page-head"><div><h2>Launches</h2><div class="sub">Plan launch windows, goals and campaign status.</div></div><button type="button" class="btn btn-primary" onclick="dpsOpen('modalLaunch','launches')">+ New launch</button></div>
+    {% if data.launches %}
+    <div class="cards">
+      {% for L in data.launches %}
+      <div class="card">
+        <h4>{{ L.title }}</h4>
+        <div class="meta">{{ L.starts_on or '?' }} → {{ L.ends_on or '?' }}</div>
+        <div class="meta">Goal: {{ L.goal_sales or '—' }} sales · {{ L.goal_revenue or '—' }} revenue</div>
+        <span class="badge badge-{{ (L.status or 'draft')|lower }}">{{ L.status or 'Draft' }}</span>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm btn-soft" onclick='dpsEditLaunch({{ L|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('digital_product_seller_action') }}" onsubmit="return confirm('Delete launch?')">
+            <input type="hidden" name="action" value="delete_launch"><input type="hidden" name="page" value="launches"><input type="hidden" name="item_id" value="{{ L.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<div class="panel"><p class="empty">Plan your next product launch here.</p></div>{% endif %}
+
+    {% elif page == 'affiliates' %}
+    <div class="page-head"><div><h2>Affiliates</h2><div class="sub">Partners, referral codes and commission rates.</div></div><button type="button" class="btn btn-primary" onclick="dpsOpen('modalAffiliate','affiliates')">+ New affiliate</button></div>
+    {% if data.affiliates %}
+    <div class="cards">
+      {% for a in data.affiliates %}
+      <div class="card">
+        <h4>{{ a.name }}</h4>
+        <div class="meta">{{ a.email or '—' }} · code <b>{{ a.code }}</b></div>
+        <div class="meta">Commission {{ a.commission_pct or 0 }}%</div>
+        <span class="badge badge-{{ (a.status or 'active')|lower }}">{{ a.status or 'Active' }}</span>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm btn-soft" onclick='dpsEditAffiliate({{ a|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('digital_product_seller_action') }}" onsubmit="return confirm('Delete affiliate?')">
+            <input type="hidden" name="action" value="delete_affiliate"><input type="hidden" name="page" value="affiliates"><input type="hidden" name="item_id" value="{{ a.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<div class="panel"><p class="empty">No affiliates yet.</p></div>{% endif %}
+
+    {% elif page == 'reviews' %}
+    <div class="page-head"><div><h2>Reviews</h2><div class="sub">Collect and showcase social proof for your products.</div></div><button type="button" class="btn btn-primary" onclick="dpsOpen('modalReview','reviews')">+ Add review</button></div>
+    {% if data.reviews %}
+    <div class="cards">
+      {% for r in data.reviews %}
+      <div class="card">
+        <h4>{{ r.title or (r.product_name or 'Review') }}</h4>
+        <div class="meta">★ {{ r.rating or '—' }} · {{ r.customer_name or 'Anonymous' }} · {{ r.review_date or '' }}</div>
+        <p class="muted" style="margin:0">{{ r.body or '' }}</p>
+        <span class="badge badge-{{ (r.status or 'published')|lower }}">{{ r.status or 'Published' }}</span>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm btn-soft" onclick='dpsEditReview({{ r|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('digital_product_seller_action') }}" onsubmit="return confirm('Delete review?')">
+            <input type="hidden" name="action" value="delete_review"><input type="hidden" name="page" value="reviews"><input type="hidden" name="item_id" value="{{ r.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<div class="panel"><p class="empty">Collect social proof for your products.</p></div>{% endif %}
+
+    {% elif page == 'deliveries' %}
+    <div class="page-head"><div><h2>Deliveries</h2><div class="sub">File links and license keys sent to customers.</div></div><button type="button" class="btn btn-primary" onclick="dpsOpen('modalDelivery','deliveries')">+ Log delivery</button></div>
+    {% if data.deliveries %}
+    <div class="cards">
+      {% for d in data.deliveries %}
+      <div class="card">
+        <h4>{{ d.product_name or 'Delivery' }}</h4>
+        <div class="meta">{{ d.customer_email or d.customer_name or '—' }} · {{ d.delivered_on or '' }}</div>
+        {% if d.delivery_url %}<div class="meta"><a href="{{ d.delivery_url }}" target="_blank" rel="noopener">Download link</a></div>{% endif %}
+        {% if d.license_key %}<div class="meta">Key: <code>{{ d.license_key }}</code></div>{% endif %}
+        <span class="badge badge-{{ (d.status or 'delivered')|lower }}">{{ d.status or 'Delivered' }}</span>
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm btn-soft" onclick='dpsEditDelivery({{ d|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('digital_product_seller_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_delivery"><input type="hidden" name="page" value="deliveries"><input type="hidden" name="item_id" value="{{ d.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<div class="panel"><p class="empty">Track file links and license keys sent to buyers.</p></div>{% endif %}
+
+    {% elif page == 'expenses' %}
+    <div class="page-head"><div><h2>Expenses</h2><div class="sub">Ads, tools and costs — so profit stays accurate.</div></div><button type="button" class="btn btn-primary" onclick="dpsOpen('modalExpense','expenses')">+ Add expense</button></div>
+    {% if data.expenses %}
+    <div class="panel"><table class="table">
+      <tr><th>Title</th><th>Category</th><th>Amount</th><th>Date</th><th></th></tr>
+      {% for e in data.expenses %}
+      <tr>
+        <td>{{ e.title }}</td><td>{{ e.category or '—' }}</td><td class="price">{{ e.amount or 0 }}</td><td>{{ e.expense_date or '—' }}</td>
+        <td>
+          <button type="button" class="btn btn-sm btn-soft" onclick='dpsEditExpense({{ e|tojson }})'>Edit</button>
+          <form method="post" action="{{ url_for('digital_product_seller_action') }}" style="display:inline" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_expense"><input type="hidden" name="page" value="expenses"><input type="hidden" name="item_id" value="{{ e.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table></div>
+    {% else %}<div class="panel"><p class="empty">Track ads, tools and costs to see real profit.</p></div>{% endif %}
+
+    {% elif page == 'analytics' %}
+    <div class="page-head"><div><h2>Analytics</h2><div class="sub">Revenue, orders and profit at a glance.</div></div></div>
+    <div class="kpis">
+      <div class="kpi kpi-c3"><span>Revenue (paid)</span><b>{{ counts.revenue }}</b></div>
+      <div class="kpi kpi-c1"><span>Paid orders</span><b>{{ counts.paid_orders }}</b></div>
+      <div class="kpi kpi-c4"><span>Pending</span><b>{{ counts.pending_orders }}</b></div>
+      <div class="kpi kpi-c2"><span>Refunded</span><b>{{ counts.refunded }}</b></div>
+      <div class="kpi kpi-c5"><span>Customers</span><b>{{ counts.customers }}</b></div>
+      <div class="kpi kpi-c1"><span>Active products</span><b>{{ counts.active_products }}</b></div>
+    </div>
+    <div class="panel">
+      <h3>Profit snapshot</h3>
+      {% set ns = namespace(exp=0) %}
+      {% for e in data.expenses or [] %}{% set ns.exp = ns.exp + (e.amount|float if e.amount else 0) %}{% endfor %}
+      <p class="muted">Revenue {{ counts.revenue }} − Expenses {{ ns.exp|round(2) }} = <b class="price">{{ (counts.revenue - ns.exp)|round(2) }}</b> {{ data.settings.currency or 'USD' }}</p>
+      <p class="muted" style="margin-top:8px">Tip: keep logging every paid order and expense for accurate margins. Payment gateways can be connected later without changing this workspace.</p>
+    </div>
+
+    {% elif page == 'messages' %}
+    <div class="page-head"><div><h2>Messages</h2><div class="sub">Support replies and launch email drafts.</div></div><button type="button" class="btn btn-primary" onclick="dpsOpen('modalMessage','messages')">+ New message</button></div>
+    {% if data.messages %}
+    <div class="cards">
+      {% for m in data.messages %}
+      <div class="card" style="position:relative">
+        {% if (m.status or '')|lower in ('new', 'unread', '') and (m.source or '') == 'storefront' %}
+        <span style="position:absolute;top:10px;right:12px;background:#ef4444;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;letter-spacing:.04em">NEW</span>
+        {% elif (m.status or '')|lower == 'new' %}
+        <span style="position:absolute;top:10px;right:12px;background:#ef4444;color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px">NEW</span>
+        {% endif %}
+        <h4>{{ m.subject or 'Message' }}</h4>
+        <div class="meta">{{ m.customer_name or '' }} {{ m.customer_email or '—' }} · {{ m.channel or 'email' }} · {{ m.status or 'draft' }}{% if m.source %} · {{ m.source }}{% endif %}</div>
+        <p class="muted" style="margin:0;white-space:pre-wrap"><b>Customer:</b> {{ m.body or '' }}</p>
+        {% if m.seller_reply %}<p class="muted" style="margin:8px 0 0;white-space:pre-wrap;color:#4f46e5"><b>Your reply:</b> {{ m.seller_reply }}</p>{% endif %}
+        <div class="card-actions">
+          <button type="button" class="btn btn-sm btn-soft" onclick='dpsEditMessage({{ m|tojson }})'>Reply / Edit</button>
+          <form method="post" action="{{ url_for('digital_product_seller_action') }}" onsubmit="return confirm('Delete?')">
+            <input type="hidden" name="action" value="delete_message"><input type="hidden" name="page" value="messages"><input type="hidden" name="item_id" value="{{ m.id }}">
+            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<div class="panel"><p class="empty">Draft support replies and launch emails here.</p></div>{% endif %}
+
+    {% elif page == 'ai' %}
+    <div class="panel">
+      <h3>AI Assist</h3>
+      <p class="muted">Generate product descriptions, sales pages and launch emails. {% if openai_configured %}<span class="badge badge-active">API key configured</span>{% else %}<span class="badge badge-pending">No API key — add in Settings</span>{% endif %}</p>
+      <form method="post" action="{{ url_for('digital_product_seller_action') }}">
+        <input type="hidden" name="action" value="ai_generate"><input type="hidden" name="page" value="ai">
+        <div class="field"><label>Kind</label>
+          <select name="kind"><option>product description</option><option>sales page</option><option>launch email</option><option>coupon promo</option><option>affiliate pitch</option></select>
+        </div>
+        <div class="field"><label>Prompt</label><textarea name="prompt" rows="4" placeholder="Describe the product, audience and tone…" required></textarea></div>
+        <button class="btn btn-primary" type="submit">Generate</button>
+        <a class="btn btn-soft" href="{{ url_for('digital_product_seller', page='settings') }}">Settings / API key</a>
+      </form>
+    </div>
+    {% if data.ai_log %}
+    <div class="panel"><h3>Recent AI outputs</h3>
+      {% for a in data.ai_log[:8] %}
+      <div class="card ai-out-card" style="margin-bottom:10px">
+        <button type="button" class="btn btn-sm btn-soft btn-copy" data-copy="{{ a.output|e }}" onclick="dpsCopy(this)">Copy</button>
+        <div class="meta">{{ a.kind }} · {{ a.created_at }}</div>
+        <p class="muted" style="white-space:pre-wrap;margin:6px 0 0">{{ a.output }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% elif page == 'settings' %}
+    {% set store_slug_val = data.settings.store_slug or user.username %}
+    {% set store_url = url_for('dps_public_store', slug=store_slug_val, _external=True) %}
+    <div class="panel" style="margin-bottom:16px">
+      <h3 style="margin-top:0">Public storefront</h3>
+      <p class="muted">Share this link so customers can browse Active products and checkout online. Orders auto-create Paid entries, customers and deliveries.</p>
+      <div class="field"><label>Store URL</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input id="dpsStoreUrl" type="text" readonly value="{{ store_url }}" style="flex:1;min-width:220px">
+          <button type="button" class="btn btn-primary" onclick="dpsCopyText(document.getElementById('dpsStoreUrl').value, this)">Copy store link</button>
+          <a class="btn btn-soft" href="{{ url_for('dps_public_store', slug=store_slug_val) }}" target="_blank" rel="noopener">Visit storefront</a>
+        </div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>Store settings</h3>
+        <form method="post" action="{{ url_for('digital_product_seller_action') }}" enctype="multipart/form-data">
+          <input type="hidden" name="action" value="save_settings"><input type="hidden" name="page" value="settings">
+          <div class="field"><label>Store name</label><input name="store_name" value="{{ data.settings.store_name or '' }}" placeholder="My Digital Shop"></div>
+          <div class="field"><label>Store slug (URL path)</label><input name="store_slug" value="{{ data.settings.store_slug or user.username }}" placeholder="my-shop"><div class="muted" style="margin-top:4px">Public path: /store/your-slug</div></div>
+          <div class="field"><label>Tagline</label><input name="store_tagline" value="{{ data.settings.store_tagline or '' }}" placeholder="Instant digital downloads"></div>
+          <div class="field"><label>Logo</label>
+            <input type="file" name="store_logo_file" accept="image/*">
+            <input name="store_logo" value="{{ data.settings.store_logo or '' }}" placeholder="or paste logo URL" style="margin-top:6px">
+            {% if data.settings.store_logo %}<div class="muted" style="margin-top:4px">Current: <a href="{{ data.settings.store_logo }}" target="_blank">view</a></div>{% endif %}
+          </div>
+          <div class="field"><label>Banner image URL (optional)</label><input name="store_banner" value="{{ data.settings.store_banner or '' }}"></div>
+          <div class="field"><label>Checkout note</label><input name="payment_note" value="{{ data.settings.payment_note or '' }}" placeholder="Instant delivery after checkout"></div>
+          <div class="field"><label>About text (storefront)</label><textarea name="about_text" rows="3" placeholder="Tell customers about your shop…">{{ data.settings.about_text or '' }}</textarea></div>
+          <div class="field"><label>Footer text</label><input name="footer_text" value="{{ data.settings.footer_text or '' }}" placeholder="Short footer blurb"></div>
+          <hr style="border:0;border-top:1px solid #e2e8f0;margin:14px 0">
+
+          <div class="field"><label>Currency</label>
+            <select name="currency">
+              {% for cur in ['USD','EUR','GBP','BDT','INR','AUD','CAD'] %}
+              <option value="{{ cur }}" {% if (data.settings.currency or 'USD')==cur %}selected{% endif %}>{{ cur }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field"><label>Timezone</label>
+            <select name="timezone">
+              {% for tz in ['Asia/Dhaka','UTC','Asia/Kolkata','Asia/Dubai','Europe/London','America/New_York','America/Los_Angeles','Australia/Sydney'] %}
+              <option value="{{ tz }}" {% if (data.settings.timezone or 'Asia/Dhaka')==tz %}selected{% endif %}>{{ tz }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field"><label>Tax rate (%)</label><input name="tax_rate" value="{{ data.settings.tax_rate or '0' }}"></div>
+          <div class="field"><label>Support email</label><input name="support_email" type="email" value="{{ data.settings.support_email or '' }}"></div>
+          <button class="btn btn-primary" type="submit">Save settings</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h3>OpenAI API key</h3>
+        <p class="muted">Your key stays in your account JSON. Used only for AI Assist in this module.</p>
+        <form method="post" action="{{ url_for('digital_product_seller_action') }}">
+          <input type="hidden" name="action" value="save_openai_key"><input type="hidden" name="page" value="settings">
+          <div class="field"><label>API key</label><input type="password" name="openai_user_key" value="{{ data.settings.openai_user_key or '' }}" placeholder="sk-..." autocomplete="off"></div>
+          <button class="btn btn-primary" type="submit">Save key</button>
+        </form>
+        <hr style="border:0;border-top:1px solid #e2e8f0;margin:18px 0">
+        <h3>Backup</h3>
+        <form method="post" action="{{ url_for('digital_product_seller_action') }}" style="margin-bottom:10px">
+          <input type="hidden" name="action" value="export_json"><input type="hidden" name="page" value="settings">
+          <button class="btn btn-primary" type="submit">Download backup JSON</button>
+        </form>
+        <form method="post" action="{{ url_for('digital_product_seller_action') }}" enctype="multipart/form-data">
+          <input type="hidden" name="action" value="import_json"><input type="hidden" name="page" value="settings">
+          <div class="field"><label>Import & merge</label><input type="file" name="file" accept="application/json,.json" required></div>
+          <button class="btn btn-soft" type="submit">Import & merge</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h3 style="margin-top:0">Hero slider &amp; logo</h3>
+      <p class="muted">Uploaded slides appear here as cards. Choose file → Upload. Click × to remove. Logo upload is separate.</p>
+      {% set slides = data.settings.hero_slides or [] %}
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+        {% for s in slides %}
+        <div style="position:relative;width:140px;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;background:#f8fafc;box-shadow:0 4px 12px rgba(15,23,42,.06)">
+          {% if s.image %}<img src="{{ s.image }}" alt="" style="width:140px;height:84px;object-fit:cover;display:block">{% else %}<div style="height:84px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#94a3b8">No img</div>{% endif %}
+          <div style="padding:6px 8px;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.title or 'Slide' }}</div>
+          <form method="post" action="{{ url_for('digital_product_seller_action') }}" style="position:absolute;top:6px;right:6px;margin:0">
+            <input type="hidden" name="action" value="delete_slide_ajax"><input type="hidden" name="page" value="settings">
+            <input type="hidden" name="slide_id" value="{{ s.id or loop.index0 }}">
+            <button type="submit" title="Delete" style="background:#ef4444;color:#fff;width:24px;height:24px;border-radius:50%;border:0;cursor:pointer;font-size:14px;font-weight:700;line-height:1">×</button>
+          </form>
+        </div>
+        {% else %}
+        <p class="muted" style="margin:0">No slider images yet.</p>
+        {% endfor %}
+        {% if data.settings.store_logo %}
+        <div style="position:relative;width:140px;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;background:#eef2ff">
+          <img src="{{ data.settings.store_logo }}" alt="logo" style="width:140px;height:84px;object-fit:contain;display:block;padding:8px">
+          <div style="padding:6px 8px;font-size:11px;font-weight:600">Logo</div>
+        </div>
+        {% endif %}
+      </div>
+      <form method="post" action="{{ url_for('digital_product_seller_action') }}" enctype="multipart/form-data" style="display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:14px;padding:12px;background:#f8fafc;border-radius:12px">
+        <input type="hidden" name="action" value="upload_slide"><input type="hidden" name="page" value="settings">
+        <div class="field" style="margin:0;flex:1;min-width:180px"><label>Slide image</label><input type="file" name="slide_image" accept="image/*" required></div>
+        <div class="field" style="margin:0;min-width:140px"><label>Title (optional)</label><input name="new_slide_title" placeholder="Welcome"></div>
+        <div class="field" style="margin:0;min-width:140px"><label>Subtitle</label><input name="new_slide_subtitle" placeholder="Instant delivery"></div>
+        <button class="btn btn-primary" type="submit">Upload</button>
+      </form>
+      <form method="post" action="{{ url_for('digital_product_seller_action') }}" enctype="multipart/form-data" style="display:flex;flex-wrap:wrap;gap:10px;align-items:end;padding:12px;background:#f8fafc;border-radius:12px">
+        <input type="hidden" name="action" value="upload_logo"><input type="hidden" name="page" value="settings">
+        <div class="field" style="margin:0;flex:1;min-width:180px"><label>Logo image</label><input type="file" name="store_logo_file" accept="image/*" required></div>
+        <button class="btn btn-primary" type="submit">Upload logo</button>
+      </form>
+    </div>
+
+
+
+    {% elif page == 'promote' %}
+    <div class="page-head">
+      <div>
+        <h2>Promote / Marketing</h2>
+        <div class="sub">1) Create campaign → 2) Select customers → 3) View campaigns → Send</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn btn-primary" onclick="dpsOpen('modalPromote','promote')">+ New campaign</button>
+        <button type="button" class="btn btn-soft" onclick="dpsOpen('modalCampaignsList')">View campaigns</button>
+      </div>
+    </div>
+    <div class="panel" style="margin-bottom:16px;background:#eef2ff;border:1px solid #c7d2fe">
+      <p style="margin:0;font-size:13px;color:#312e81"><b>How it works:</b> Save a campaign with <b>+ New campaign</b>. Tick customers below. Open <b>View campaigns</b>, select one campaign, then click <b>Send to selected customers</b>.</p>
+    </div>
+
+    <div class="panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <label style="font-size:13px;font-weight:600;color:#64748b">Show</label>
+          <select id="promoPageSize" onchange="promoRender()" style="padding:8px 10px;border-radius:8px;border:1px solid #e2e8f0">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+          </select>
+          <span class="muted" id="promoCountLabel" style="font-size:13px"></span>
+        </div>
+        <label style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px">
+          <input type="checkbox" id="promoSelectAll" onchange="promoToggleAll(this.checked)"> Select all (page)
+        </label>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="table" id="promoTable" style="width:100%">
+          <thead>
+            <tr>
+              <th style="text-align:left">Name</th>
+              <th style="text-align:left">Email</th>
+              <th style="text-align:left">Phone</th>
+              <th style="text-align:right;width:120px">Select</th>
+            </tr>
+          </thead>
+          <tbody id="promoTbody">
+            {% for c in data.customers or [] %}
+            <tr class="promo-row" data-name="{{ (c.name or '')|e }}" data-email="{{ (c.email or '')|e }}" data-phone="{{ (c.phone or '')|e }}" data-id="{{ c.id }}">
+              <td style="text-align:left;font-weight:600">{{ c.name or '—' }}</td>
+              <td style="text-align:left">{{ c.email or '—' }}</td>
+              <td style="text-align:left">{{ c.phone or '—' }}</td>
+              <td style="text-align:right">
+                <input class="promote-cb" type="checkbox" name="customer_ids" value="{{ c.id }}" data-phone="{{ c.phone or '' }}" data-email="{{ c.email or '' }}">
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="empty">No customers yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:14px" id="promoPager"></div>
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn btn-primary" onclick="dpsOpen('modalPromote','promote')">Compose &amp; send</button>
+        <button type="button" class="btn btn-soft" onclick="dpsOpenWhatsApp()">WhatsApp first selected</button>
+      </div>
+    </div>
+
+    <script>
+    (function(){
+      var page = 1;
+      function rows(){ return Array.prototype.slice.call(document.querySelectorAll('#promoTbody .promo-row')); }
+      window.promoToggleAll = function(on){
+        rows().forEach(function(r){ if(r.style.display!=='none'){ var cb=r.querySelector('.promote-cb'); if(cb) cb.checked=!!on; } });
+      };
+      window.promoRender = function(){
+        var all = rows();
+        var size = parseInt((document.getElementById('promoPageSize')||{}).value||'20',10)||20;
+        var total = all.length;
+        var pages = Math.max(1, Math.ceil(total/size));
+        if(page>pages) page=pages;
+        all.forEach(function(r,i){
+          var show = i >= (page-1)*size && i < page*size;
+          r.style.display = show ? '' : 'none';
+        });
+        var lab = document.getElementById('promoCountLabel');
+        if(lab) lab.textContent = total ? ('Showing page '+page+' of '+pages+' · '+total+' customers') : '0 customers';
+        var pager = document.getElementById('promoPager');
+        if(!pager) return;
+        pager.innerHTML = '';
+        function btn(label, p, disabled){
+          var b=document.createElement('button'); b.type='button'; b.className='btn btn-sm btn-soft'; b.textContent=label;
+          b.disabled=!!disabled; b.onclick=function(){ page=p; promoRender(); };
+          pager.appendChild(b);
+        }
+        btn('Prev', Math.max(1,page-1), page<=1);
+        for(var i=1;i<=pages && i<=8;i++){
+          var b=document.createElement('button'); b.type='button';
+          b.className='btn btn-sm '+(i===page?'btn-primary':'btn-soft');
+          b.textContent=String(i); b.onclick=(function(p){return function(){page=p;promoRender();};})(i);
+          pager.appendChild(b);
+        }
+        btn('Next', Math.min(pages,page+1), page>=pages);
+        var sa=document.getElementById('promoSelectAll'); if(sa) sa.checked=false;
+      };
+      promoRender();
+    })();
+    window.dpsOpenWhatsApp = function(){
+      var cbs = document.querySelectorAll('.promote-cb:checked');
+      if(!cbs.length){ alert('Select at least one customer'); return; }
+      var body = (document.querySelector('#promoteForm textarea[name=body]')||{}).value || '';
+      var phone = (cbs[0].getAttribute('data-phone')||'').replace(/[^0-9+]/g,'');
+      var url = 'https://wa.me/' + phone.replace(/^\+/,'') + (body ? ('?text='+encodeURIComponent(body)) : '');
+      window.open(url, '_blank');
+    };
+    </script>
+
+    {% elif page == 'search' %}
+    <div class="panel">
+      <h3>Search results for “{{ q }}”</h3>
+      {% if search_hits %}
+      <div class="cards">
+        {% for h in search_hits %}
+        <a class="card" href="{{ url_for('digital_product_seller', page=h.page) }}">
+          <div class="meta">{{ h.kind }}</div>
+          <h4>{{ h.title }}</h4>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="empty">No results found for “{{ q }}”</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</main>
+
+{# ——— Modals ——— #}
+{% macro modal_shell(id, title) -%}
+<div class="modal" id="{{ id }}" onclick="if(event.target===this)dpsClose('{{ id }}')">
+  <div class="modal-box">
+    <h3>{{ title }}</h3>
+    {{ caller() }}
+  </div>
+</div>
+{%- endmacro %}
+
+{% call modal_shell('modalProduct', 'Product') %}
+<form method="post" action="{{ url_for('digital_product_seller_action') }}" id="formProduct" enctype="multipart/form-data">
+  <input type="hidden" name="action" value="save_product"><input type="hidden" name="page" value="products"><input type="hidden" name="item_id" id="product_item_id" value="">
+  <div class="field"><label>Name</label><input name="name" id="product_name" required></div>
+  <div class="grid2">
+    <div class="field"><label>SKU</label><input name="sku" id="product_sku"></div>
+    <div class="field"><label>Category</label><input name="category" id="product_category" placeholder="Ebook, Course, Template…"></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>Price</label><input name="price" id="product_price" type="number" step="0.01" value="0"></div>
+    <div class="field"><label>Status</label><select name="status" id="product_status"><option>Active</option><option>Draft</option><option>Archived</option></select></div>
+  </div>
+  <div class="field"><label>Description</label><textarea name="description" id="product_description" rows="3"></textarea></div>
+  <div class="field"><label>Digital product file (upload)</label>
+    <input type="file" name="product_file" id="product_file" accept=".pdf,.zip,.rar,.7z,.epub,.mp3,.mp4,.doc,.docx,.png,.jpg,.jpeg,.webp,.txt,.csv,.fig,.psd,.ai">
+    <div class="muted" style="margin-top:4px">Upload the real file buyers will download (PDF, ZIP, course pack, etc.)</div>
+  </div>
+  <div class="field"><label>Or external download URL</label>
+    <input name="delivery_url" id="product_delivery_url" placeholder="https://drive.google.com/... (optional if you uploaded a file)">
+  </div>
+  <div class="field"><label>Product image (cover)</label>
+    <input type="file" name="image_file" id="product_image_file" accept="image/*">
+    <div class="muted" style="margin-top:4px">Or paste image URL below</div>
+    <input name="image_url" id="product_image_url" placeholder="https://…" style="margin-top:6px">
+  </div>
+  <div class="field"><label>License notes</label><input name="license_notes" id="product_license_notes"></div>
+  <div class="field"><label>Tags</label><input name="tags" id="product_tags" placeholder="comma separated"></div>
+  <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalProduct')">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+</form>
+{% endcall %}
+
+{% call modal_shell('modalOrder', 'Order / Sale') %}
+<form method="post" action="{{ url_for('digital_product_seller_action') }}" id="formOrder">
+  <input type="hidden" name="action" value="save_order"><input type="hidden" name="page" value="orders"><input type="hidden" name="item_id" id="order_item_id" value="">
+  <div class="grid2">
+    <div class="field"><label>Order number</label><input name="order_number" id="order_number" placeholder="Auto if empty"></div>
+    <div class="field"><label>Order date</label><input name="order_date" id="order_date" type="date" value="{{ today }}"></div>
+  </div>
+  <div class="field"><label>Product</label>
+    <select name="product_id" id="order_product_id">
+      <option value="">—</option>
+      {% for p in data.products or [] %}<option value="{{ p.id }}">{{ p.name }} ({{ p.price }})</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field"><label>Customer</label>
+    <select name="customer_id" id="order_customer_id">
+      <option value="">— new / email below —</option>
+      {% for c in data.customers or [] %}<option value="{{ c.id }}">{{ c.name or c.email }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>Customer name</label><input name="customer_name" id="order_customer_name"></div>
+    <div class="field"><label>Customer email</label><input name="customer_email" id="order_customer_email" type="email"></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>Amount</label><input name="amount" id="order_amount" type="number" step="0.01" value="0"></div>
+    <div class="field"><label>Status</label><select name="status" id="order_status"><option>Pending</option><option>Paid</option><option>Processing</option><option>Delivered</option><option>Completed</option><option>Refunded</option><option>Cancelled</option></select></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>Payment method</label><input name="payment_method" id="order_payment_method" placeholder="Stripe, PayPal, Card, Payoneer…"></div>
+    <div class="field"><label>Coupon code</label><input name="coupon_code" id="order_coupon_code"></div>
+  </div>
+  <div class="field"><label>Affiliate code</label><input name="affiliate_code" id="order_affiliate_code"></div>
+  <div class="field"><label>Notes</label><textarea name="notes" id="order_notes" rows="2"></textarea></div>
+  <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalOrder')">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+</form>
+{% endcall %}
+
+{% call modal_shell('modalCustomer', 'Customer') %}
+<form method="post" action="{{ url_for('digital_product_seller_action') }}" id="formCustomer">
+  <input type="hidden" name="action" value="save_customer"><input type="hidden" name="page" value="customers"><input type="hidden" name="item_id" id="customer_item_id" value="">
+  <div class="field"><label>Name</label><input name="name" id="customer_name" required></div>
+  <div class="field"><label>Email</label><input name="email" id="customer_email" type="email"></div>
+  <div class="grid2">
+    <div class="field"><label>Phone</label><input name="phone" id="customer_phone"></div>
+    <div class="field"><label>Country</label><input name="country" id="customer_country"></div>
+  </div>
+  <div class="field"><label>Status</label><select name="status" id="customer_status"><option>Active</option><option>Inactive</option></select></div>
+  <div class="field"><label>Tags</label><input name="tags" id="customer_tags"></div>
+  <div class="field"><label>Notes</label><textarea name="notes" id="customer_notes" rows="2"></textarea></div>
+  <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalCustomer')">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+</form>
+{% endcall %}
+
+{% call modal_shell('modalCoupon', 'Coupon') %}
+<form method="post" action="{{ url_for('digital_product_seller_action') }}" id="formCoupon">
+  <input type="hidden" name="action" value="save_coupon"><input type="hidden" name="page" value="coupons"><input type="hidden" name="item_id" id="coupon_item_id" value="">
+  <div class="field"><label>Code</label><input name="code" id="coupon_code" required></div>
+  <div class="grid2">
+    <div class="field"><label>Type</label><select name="type" id="coupon_type"><option value="percent">Percent</option><option value="fixed">Fixed amount</option></select></div>
+    <div class="field"><label>Value</label><input name="value" id="coupon_value" type="number" step="0.01" value="10"></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>Max uses</label><input name="max_uses" id="coupon_max_uses" type="number" value="100"></div>
+    <div class="field"><label>Used count</label><input name="used_count" id="coupon_used_count" type="number" value="0"></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>Expires on</label><input name="expires_on" id="coupon_expires_on" type="date"></div>
+    <div class="field"><label>Status</label><select name="status" id="coupon_status"><option>Active</option><option>Inactive</option></select></div>
+  </div>
+  <div class="field"><label>Notes</label><textarea name="notes" id="coupon_notes" rows="2"></textarea></div>
+  <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalCoupon')">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+</form>
+{% endcall %}
+
+{% call modal_shell('modalBundle', 'Bundle') %}
+<form method="post" action="{{ url_for('digital_product_seller_action') }}" id="formBundle" enctype="multipart/form-data">
+  <input type="hidden" name="action" value="save_bundle"><input type="hidden" name="page" value="bundles"><input type="hidden" name="item_id" id="bundle_item_id" value="">
+  <div class="field"><label>Name</label><input name="name" id="bundle_name" required></div>
+  <div class="grid2">
+    <div class="field"><label>Price</label><input name="price" id="bundle_price" type="number" step="0.01" value="0"></div>
+    <div class="field"><label>Status</label><select name="status" id="bundle_status"><option>Active</option><option>Draft</option></select></div>
+  </div>
+  <div class="field"><label>Products in bundle</label>
+    <select name="product_ids" id="bundle_product_ids" multiple size="5" style="min-height:100px">
+      {% for p in data.products or [] %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+    </select>
+    <div class="muted">Hold Ctrl/Cmd to select multiple</div>
+  </div>
+  <div class="field"><label>Description</label><textarea name="description" id="bundle_description" rows="2"></textarea></div>
+  <div class="field"><label>Bundle image</label>
+    <input type="file" name="image_file" id="bundle_image_file" accept="image/*">
+    <input name="image_url" id="bundle_image_url" placeholder="or image URL" style="margin-top:6px">
+  </div>
+  <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalBundle')">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+</form>
+{% endcall %}
+
+{% call modal_shell('modalLaunch', 'Launch') %}
+<form method="post" action="{{ url_for('digital_product_seller_action') }}" id="formLaunch">
+  <input type="hidden" name="action" value="save_launch"><input type="hidden" name="page" value="launches"><input type="hidden" name="item_id" id="launch_item_id" value="">
+  <div class="field"><label>Title</label><input name="title" id="launch_title" required></div>
+  <div class="field"><label>Product</label>
+    <select name="product_id" id="launch_product_id"><option value="">—</option>{% for p in data.products or [] %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>Starts</label><input name="starts_on" id="launch_starts_on" type="date"></div>
+    <div class="field"><label>Ends</label><input name="ends_on" id="launch_ends_on" type="date"></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>Goal sales</label><input name="goal_sales" id="launch_goal_sales" type="number"></div>
+    <div class="field"><label>Goal revenue</label><input name="goal_revenue" id="launch_goal_revenue" type="number" step="0.01"></div>
+  </div>
+  <div class="field"><label>Status</label><select name="status" id="launch_status"><option>Draft</option><option>Scheduled</option><option>Live</option><option>Completed</option></select></div>
+  <div class="field"><label>Notes</label><textarea name="notes" id="launch_notes" rows="2"></textarea></div>
+  <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalLaunch')">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+</form>
+{% endcall %}
+
+{% call modal_shell('modalAffiliate', 'Affiliate') %}
+<form method="post" action="{{ url_for('digital_product_seller_action') }}" id="formAffiliate">
+  <input type="hidden" name="action" value="save_affiliate"><input type="hidden" name="page" value="affiliates"><input type="hidden" name="item_id" id="affiliate_item_id" value="">
+  <div class="field"><label>Name</label><input name="name" id="affiliate_name" required></div>
+  <div class="grid2">
+    <div class="field"><label>Email</label><input name="email" id="affiliate_email" type="email"></div>
+    <div class="field"><label>Code</label><input name="code" id="affiliate_code" required></div>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>Commission %</label><input name="commission_pct" id="affiliate_commission_pct" type="number" step="0.1" value="20"></div>
+    <div class="field"><label>Status</label><select name="status" id="affiliate_status"><option>Active</option><option>Inactive</option></select></div>
+  </div>
+  <div class="field"><label>Payout info</label><input name="payout_info" id="affiliate_payout_info" placeholder="PayPal / Payoneer / bank"></div>
+  <div class="field"><label>Notes</label><textarea name="notes" id="affiliate_notes" rows="2"></textarea></div>
+  <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalAffiliate')">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+</form>
+{% endcall %}
+
+{% call modal_shell('modalReview', 'Review') %}
+<form method="post" action="{{ url_for('digital_product_seller_action') }}" id="formReview">
+  <input type="hidden" name="action" value="save_review"><input type="hidden" name="page" value="reviews"><input type="hidden" name="item_id" id="review_item_id" value="">
+  <div class="field"><label>Product</label>
+    <select name="product_id" id="review_product_id"><option value="">—</option>{% for p in data.products or [] %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select>
+  </div>
+  <div class="grid2">
+    <div class="field"><label>Customer name</label><input name="customer_name" id="review_customer_name"></div>
+    <div class="field"><label>Rating (1-5)</label><input name="rating" id="review_rating" type="number" min="1" max="5" value="5"></div>
+  </div>
+  <div class="field"><label>Title</label><input name="title" id="review_title"></div>
+  <div class="field"><label>Body</label><textarea name="body" id="review_body" rows="3"></textarea></div>
+  <div class="grid2">
+    <div class="field"><label>Date</label><input name="review_date" id="review_review_date" type="date" value="{{ today }}"></div>
+    <div class="field"><label>Status</label><select name="status" id="review_status"><option>Published</option><option>Hidden</option></select></div>
+  </div>
+  <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalReview')">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+</form>
+{% endcall %}
+
+{% call modal_shell('modalDelivery', 'Delivery') %}
+<form method="post" action="{{ url_for('digital_product_seller_action') }}" id="formDelivery">
+  <input type="hidden" name="action" value="save_delivery"><input type="hidden" name="page" value="deliveries"><input type="hidden" name="item_id" id="delivery_item_id" value="">
+  <div class="field"><label>Product</label>
+    <select name="product_id" id="delivery_product_id"><option value="">—</option>{% for p in data.products or [] %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select>
+  </div>
+  <div class="field"><label>Customer email</label><input name="customer_email" id="delivery_customer_email" type="email"></div>
+  <div class="field"><label>Delivery URL</label><input name="delivery_url" id="delivery_delivery_url"></div>
+  <div class="field"><label>License key</label><input name="license_key" id="delivery_license_key"></div>
+  <div class="grid2">
+    <div class="field"><label>Delivered on</label><input name="delivered_on" id="delivery_delivered_on" type="date" value="{{ today }}"></div>
+    <div class="field"><label>Status</label><select name="status" id="delivery_status"><option>Delivered</option><option>Pending</option><option>Failed</option></select></div>
+  </div>
+  <div class="field"><label>Notes</label><textarea name="notes" id="delivery_notes" rows="2"></textarea></div>
+  <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalDelivery')">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+</form>
+{% endcall %}
+
+{% call modal_shell('modalExpense', 'Expense') %}
+<form method="post" action="{{ url_for('digital_product_seller_action') }}" id="formExpense">
+  <input type="hidden" name="action" value="save_expense"><input type="hidden" name="page" value="expenses"><input type="hidden" name="item_id" id="expense_item_id" value="">
+  <div class="field"><label>Title</label><input name="title" id="expense_title" required></div>
+  <div class="grid2">
+    <div class="field"><label>Category</label><input name="category" id="expense_category" placeholder="Ads, Tools, Fees…"></div>
+    <div class="field"><label>Amount</label><input name="amount" id="expense_amount" type="number" step="0.01" value="0"></div>
+  </div>
+  <div class="field"><label>Date</label><input name="expense_date" id="expense_expense_date" type="date" value="{{ today }}"></div>
+  <div class="field"><label>Notes</label><textarea name="notes" id="expense_notes" rows="2"></textarea></div>
+  <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalExpense')">Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>
+</form>
+{% endcall %}
+
+{% call modal_shell('modalMessage', 'Message') %}
+<form method="post" action="{{ url_for('digital_product_seller_action') }}" id="formMessage">
+  <input type="hidden" name="action" value="save_message"><input type="hidden" name="page" value="messages"><input type="hidden" name="item_id" id="message_item_id" value="">
+  <div class="field"><label>Customer</label>
+    <select id="message_customer_id" name="customer_id" onchange="dpsMsgCustomerChange(this)">
+      <option value="">— select customer or type email below —</option>
+      {% for c in data.customers or [] %}
+      <option value="{{ c.id }}" data-email="{{ c.email or '' }}" data-name="{{ c.name or '' }}">{{ c.name or c.email }}{% if c.email %} ({{ c.email }}){% endif %}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field"><label>Customer email</label><input name="customer_email" id="message_customer_email" type="email" placeholder="or type email manually"></div>
+  <div class="field"><label>Subject</label><input name="subject" id="message_subject" required></div>
+  <div class="field"><label>Customer name</label><input name="customer_name" id="message_customer_name" placeholder="optional"></div>
+  <div class="field"><label>Body (customer message)</label><textarea name="body" id="message_body" rows="3" required></textarea></div>
+  <div class="field"><label>Your reply (visible on storefront My messages)</label><textarea name="seller_reply" id="message_seller_reply" rows="3" placeholder="Type reply for the customer…"></textarea></div>
+  <div class="grid2">
+    <div class="field"><label>Channel</label><select name="channel" id="message_channel"><option>email</option><option>storefront</option><option>whatsapp</option><option>other</option></select></div>
+    <div class="field"><label>Status</label><select name="status" id="message_status"><option>draft</option><option>new</option><option>replied</option><option>sent</option></select></div>
+  </div>
+  <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalMessage')">Cancel</button><button class="btn btn-primary" type="submit">Save reply</button></div>
+</form>
+{% endcall %}
+
+{% call modal_shell('modalPromote', 'New campaign') %}
+<form method="post" action="{{ url_for('digital_product_seller_action') }}" id="promoteForm" enctype="multipart/form-data">
+  <input type="hidden" name="action" value="promote_save"><input type="hidden" name="page" value="promote">
+  <div class="field"><label>Channel</label>
+    <select name="channel">
+      <option value="email">Email (in-app + mailto)</option>
+      <option value="whatsapp">WhatsApp</option>
+      <option value="message">In-app message / notification</option>
+    </select>
+  </div>
+  <div class="field"><label>Subject</label><input name="subject" value="Special offer from our store" required></div>
+  <div class="field"><label>Message</label><textarea name="body" rows="5" required placeholder="Write your campaign message…"></textarea></div>
+  <div class="field"><label>Attachment (image or file)</label>
+    <input type="file" name="attachment" accept="image/*,.pdf,.doc,.docx,.zip,.txt">
+    <div class="muted" style="margin-top:4px">Optional — attaches like an email file</div>
+  </div>
+  <p class="muted" style="font-size:12px;margin:0 0 10px">Campaign is saved as draft. Select customers on the page, then open View campaigns to send.</p>
+  <div class="modal-actions">
+    <button type="button" class="btn btn-soft" onclick="dpsClose('modalPromote')">Cancel</button>
+    <button class="btn btn-primary" type="submit">Save campaign</button>
+  </div>
+</form>
+{% endcall %}
+
+
+<div class="modal" id="modalCampaignsList" onclick="if(event.target===this)dpsClose('modalCampaignsList')">
+  <div class="modal-box" style="max-width:640px">
+    <h3>Saved campaigns</h3>
+    <p class="muted" style="margin-top:0">Select a campaign, then send to the customers checked on the Promote page.</p>
+    {% if data.campaigns %}
+    <form method="post" action="{{ url_for('digital_product_seller_action') }}" id="formSendCampaign" onsubmit="return dpsAttachSelectedCustomers(this)">
+      <input type="hidden" name="action" value="promote_send"><input type="hidden" name="page" value="promote">
+      <div id="sendCustomerIds"></div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin:12px 0;max-height:360px;overflow:auto;scrollbar-width:thin">
+        {% for camp in data.campaigns[:30] %}
+        <label style="display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid #e2e8f0;border-radius:12px;cursor:pointer;background:#f8fafc">
+          <input type="radio" name="campaign_id" value="{{ camp.id }}" {% if loop.first %}checked{% endif %} style="margin-top:4px">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700">{{ camp.subject or 'Campaign' }}</div>
+            <div class="meta">{{ camp.channel or 'email' }} · {{ camp.status or 'draft' }} · sent {{ camp.recipient_count or 0 }} · {{ (camp.created_at or '')[:16].replace('T',' ') }}</div>
+            <div class="muted" style="font-size:13px;margin-top:4px;white-space:pre-wrap">{{ (camp.body or '')[:180] }}{% if (camp.body or '')|length > 180 %}…{% endif %}</div>
+            {% if camp.attachment_url %}<div class="meta">📎 {{ camp.attachment_name or 'file' }}</div>{% endif %}
+          </div>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-soft" onclick="dpsClose('modalCampaignsList')">Close</button>
+        <button class="btn btn-primary" type="submit">Send to selected customers</button>
+      </div>
+    </form>
+    {% else %}
+    <p class="empty">No campaigns yet. Create one with + New campaign.</p>
+    <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalCampaignsList')">Close</button></div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="modal" id="modalViewCampaign" onclick="if(event.target===this)dpsClose('modalViewCampaign')">
+  <div class="modal-box">
+    <h3>Campaign details</h3>
+    <div id="viewCampaignBody" class="muted" style="white-space:pre-wrap;font-size:14px;color:#334155"></div>
+    <div class="modal-actions"><button type="button" class="btn btn-soft" onclick="dpsClose('modalViewCampaign')">Close</button></div>
+  </div>
+</div>
+
+
+
+<script>
+window.dpsOpen = function(id, returnPage){
+  var el=document.getElementById(id);
+  if(!el){ console.warn('Modal not found:', id); alert('Could not open: '+id); return; }
+  var pageInput = el.querySelector('input[name="page"]');
+  if(pageInput && returnPage) pageInput.value = returnPage;
+  // new entry: clear item_id unless edit filled it after
+  if(returnPage){
+    var iid = el.querySelector('input[name="item_id"]');
+    if(iid && !el.dataset.editing) iid.value = '';
+  }
+  el.dataset.editing = '';
+  el.classList.add('open');
+};
+window.dpsOpenEdit = function(id){
+  var el=document.getElementById(id);
+  if(el){ el.dataset.editing = '1'; el.classList.add('open'); }
+};
+window.dpsClose = function(id){ var el=document.getElementById(id); if(el) el.classList.remove('open'); };
+function dpsFill(prefix, obj, fields){
+  var idEl = document.getElementById(prefix + '_item_id');
+  if(idEl) idEl.value = obj.id || '';
+  fields.forEach(function(f){
+    var el = document.getElementById(prefix + '_' + f);
+    if(!el) return;
+    var v = obj[f];
+    if(el.tagName === 'SELECT' && el.multiple && Array.isArray(v)){
+      Array.prototype.forEach.call(el.options, function(opt){ opt.selected = v.indexOf(opt.value) >= 0; });
+    } else if(el.tagName === 'SELECT'){
+      el.value = v || el.options[0] && el.options[0].value || '';
+    } else {
+      el.value = (v == null ? '' : v);
+    }
+  });
+}
+window.dpsEditProduct = function(o){ dpsFill('product', o, ['name','sku','category','price','status','description','delivery_url','image_url','license_notes','tags']); dpsOpenEdit('modalProduct'); };
+window.dpsEditOrder = function(o){ dpsFill('order', o, ['order_number','order_date','product_id','customer_id','customer_name','customer_email','amount','status','payment_method','coupon_code','affiliate_code','notes']); dpsOpenEdit('modalOrder'); };
+window.dpsEditCustomer = function(o){ dpsFill('customer', o, ['name','email','phone','country','status','tags','notes']); dpsOpenEdit('modalCustomer'); };
+window.dpsEditCoupon = function(o){ dpsFill('coupon', o, ['code','type','value','max_uses','used_count','expires_on','status','notes']); dpsOpenEdit('modalCoupon'); };
+window.dpsEditBundle = function(o){ dpsFill('bundle', o, ['name','price','status','description','image_url']); var el=document.getElementById('bundle_product_ids'); if(el && o.product_ids){ Array.prototype.forEach.call(el.options, function(opt){ opt.selected = o.product_ids.indexOf(opt.value)>=0; }); } dpsOpenEdit('modalBundle'); };
+window.dpsEditLaunch = function(o){ dpsFill('launch', o, ['title','product_id','starts_on','ends_on','goal_sales','goal_revenue','status','notes']); dpsOpenEdit('modalLaunch'); };
+window.dpsEditAffiliate = function(o){ dpsFill('affiliate', o, ['name','email','code','commission_pct','status','payout_info','notes']); dpsOpenEdit('modalAffiliate'); };
+window.dpsEditReview = function(o){ dpsFill('review', o, ['product_id','customer_name','rating','title','body','review_date','status']); dpsOpenEdit('modalReview'); };
+window.dpsEditDelivery = function(o){ dpsFill('delivery', o, ['product_id','customer_email','delivery_url','license_key','delivered_on','status','notes']); dpsOpenEdit('modalDelivery'); };
+window.dpsEditExpense = function(o){ dpsFill('expense', o, ['title','category','amount','expense_date','notes']); dpsOpenEdit('modalExpense'); };
+window.dpsEditMessage = function(o){ dpsFill('message', o, ['customer_id','customer_email','customer_name','subject','body','channel','status','seller_reply']); dpsOpenEdit('modalMessage'); };
+window.dpsCopyText = function(text, btn){
+  if(!text){ alert('No link'); return; }
+  function done(){ if(btn){ var o=btn.textContent; btn.textContent='Copied!'; setTimeout(function(){ btn.textContent=o; },1400); } }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(function(){
+      var ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); done();
+    });
+  } else {
+    var ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); done();
+  }
+};
+window.dpsCopyLink = function(btn){
+  var link = btn.getAttribute('data-link') || '';
+  dpsCopyText(link, btn);
+};
+window.dpsCopy = function(btn){
+  var t = btn.getAttribute('data-copy') || '';
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(function(){ btn.textContent='Copied'; setTimeout(function(){ btn.textContent='Copy'; },1200); });
+};
+
+(function(){
+  var input = document.getElementById('dpsSearchInput');
+  var dd = document.getElementById('dpsSearchDd');
+  var form = document.getElementById('dpsSearchForm');
+  if(!input || !dd) return;
+  var timer = null;
+  function render(hits, q){
+    dd.innerHTML = '';
+    if(!hits || !hits.length){
+      dd.innerHTML = '<div class="empty-hit">No results found for \"'+(q||'')+'\"</div>';
+      dd.classList.add('open');
+      return;
+    }
+    hits.forEach(function(h){
+      var a = document.createElement('a');
+      a.className = 'hit';
+      a.href = "{{ url_for('digital_product_seller', page='HOME') }}".replace('HOME', h.page || 'home');
+      a.innerHTML = '<span class="k"></span><span></span>';
+      a.querySelector('.k').textContent = h.kind || '';
+      a.querySelector('span:last-child').textContent = h.title || '';
+      dd.appendChild(a);
+    });
+    dd.classList.add('open');
+  }
+  function run(){
+    var q = (input.value || '').trim();
+    if(!q){ dd.classList.remove('open'); return; }
+    fetch("{{ url_for('digital_product_seller_search_api') }}?q="+encodeURIComponent(q), {credentials:'same-origin'})
+      .then(function(r){ return r.json(); })
+      .then(function(data){ render(data.hits || [], q); })
+      .catch(function(){ dd.classList.remove('open'); });
+  }
+  input.addEventListener('input', function(){ clearTimeout(timer); timer=setTimeout(run, 180); });
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); run(); var first=dd.querySelector('.hit'); if(first) location.href=first.href; }});
+  if(form) form.addEventListener('submit', function(e){ e.preventDefault(); run(); var first=dd.querySelector('.hit'); if(first) location.href=first.href; else if((input.value||'').trim()) location.href=form.action+'?q='+encodeURIComponent(input.value.trim()); });
+  document.addEventListener('click', function(e){ if(!document.getElementById('dpsSearchWrap').contains(e.target)) dd.classList.remove('open'); });
+})();
+
+// sidebar scroll memory
+(function(){
+  var nav = document.querySelector('.side-nav');
+  if(!nav) return;
+  var key = 'dps_side_scroll';
+  try { nav.scrollTop = parseInt(sessionStorage.getItem(key)||'0',10)||0; } catch(e){}
+  nav.addEventListener('scroll', function(){ try{ sessionStorage.setItem(key, String(nav.scrollTop)); }catch(e){} });
+})();
+</script>
+</body>
+</html>

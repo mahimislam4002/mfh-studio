@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Settings - Portfolio SaaS{% endblock %}
+{% block topbar_title %}Settings{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Settings</h1>
+    <p class="text-muted">Account username and password</p>
+</div>
+<form method="POST" class="edit-form">
+    <div class="form-section">
+        <h3>Username</h3>
+        <div class="form-group">
+            <label>Current Username</label>
+            <input type="text" value="{{ user.username }}" disabled>
+        </div>
+        <div class="form-group">
+            <label>New Username</label>
+            <input type="text" name="new_username" value="" placeholder="Leave empty to keep current" pattern="[a-zA-Z0-9_]{3,20}">
+            <p class="text-muted small" style="margin-top:6px;">3–20 letters, numbers or underscore. Your public portfolio link uses this username.</p>
+        </div>
+    </div>
+    <div class="form-section">
+        <h3>Change Password</h3>
+        <div class="form-group">
+            <label>Current Password</label>
+            <input type="password" name="old_password">
+        </div>
+        <div class="form-group">
+            <label>New Password</label>
+            <input type="password" name="new_password" minlength="4">
+        </div>
+        <div class="form-group">
+            <label>Confirm New Password</label>
+            <input type="password" name="confirm_password" minlength="4">
+        </div>
+        <p class="text-muted small">Leave password fields empty if you only want to change username.</p>
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+    </div>
+</form>
+{% endblock %}

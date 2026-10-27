@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Portfolio SaaS{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-header" style="margin-bottom:24px;">
+    <div>
+        <h1 style="font-size:1.5rem;font-weight:700;">Welcome, {{ user.full_name }}</h1>
+        <p class="text-muted">Overview of your account and the platform</p>
+    </div>
+    <div>
+        {% if is_lifetime %}
+        <div class="plan-badge" style="background:#dcfce7;color:#166534;">LIFETIME FREE</div>
+        {% elif trial_days_left is not none and trial_days_left > 0 %}
+        <div class="plan-badge" style="background:#fef3c7;color:#92400e;">FREE TRIAL · {{ trial_days_left }}d left</div>
+        {% elif trial_expired %}
+        <div class="plan-badge" style="background:#fee2e2;color:#991b1b;">TRIAL ENDED</div>
+        {% else %}
+        <div class="plan-badge">{{ user.plan | upper }} Plan</div>
+        {% endif %}
+    </div>
+</div>
+
+{% if trial_expired and not is_lifetime %}
+<div class="card" style="padding:16px 20px;margin-bottom:20px;border-left:4px solid #ef4444;background:#fef2f2;">
+    <strong>Your free trial has ended.</strong>
+    <span class="text-muted"> Choose a subscription plan to keep full access.</span>
+    <a href="{{ url_for('subscription_page') }}" class="btn btn-primary btn-sm" style="margin-left:12px;">Get Plus</a>
+</div>
+{% elif trial_days_left is not none and trial_days_left > 0 and not is_lifetime %}
+<div class="card" style="padding:16px 20px;margin-bottom:20px;border-left:4px solid #f59e0b;background:#fffbeb;">
+    <strong>Free trial:</strong>
+    <span class="text-muted"> {{ trial_days_left }} day(s) remaining.</span>
+    <a href="{{ url_for('subscription_page') }}" class="btn btn-outline btn-sm" style="margin-left:12px;">View plans</a>
+</div>
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Portfolio Status</div>
+        <div class="stat-value">
+            {% if portfolio.published %}
+                <span class="badge badge-success">Published</span>
+            {% else %}
+                <span class="badge badge-warning">Draft</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Active Template</div>
+        <div class="stat-value" style="font-size:1.1rem;">{{ (portfolio.template or 'None') | replace('_', ' ') | title }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">My Referrals (signups)</div>
+        <div class="stat-value">{{ ref_total }}</div>
+        <p class="text-muted small" style="margin-top:8px;">Total who used your code</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Paid referrals</div>
+        <div class="stat-value">{{ ref_paid }}</div>
+        <p class="text-muted small" style="margin-top:8px;">Bought a subscription</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Referral Code</div>
+        <div class="stat-value code" style="font-size:1rem;">{{ user.referral_code }}</div>
+    </div>
+</div>
+
+{# Referral reward progress — all users including admin can see #}
+<div class="stats-grid" style="margin-top:8px;">
+    <div class="stat-card" style="grid-column: span 2; min-width:0;">
+        <div class="stat-label">Goal: 100 paid referrals → 1 year free</div>
+        <div class="stat-value" style="font-size:1.4rem;">{{ ref_paid }} / 100</div>
+        <div style="height:10px;background:#e2e8f0;border-radius:6px;margin:12px 0;overflow:hidden;">
+            <div style="height:100%;width:{{ [100, (ref_paid / 100 * 100)|int]|min }}%;background:linear-gradient(90deg,#22c55e,#16a34a);border-radius:6px;"></div>
+        </div>
+        <p class="text-muted small">{{ [0, 100 - ref_paid]|max }} more paid referrals needed. Only subscribers count.</p>
+        <form method="POST" action="{{ url_for('apply_year_free') }}" style="margin-top:10px;">
+            {% if user.year_free_applied %}
+            <button type="button" class="btn btn-sm btn-outline" disabled>Pending — Applied</button>
+            {% elif ref_paid >= 100 %}
+            <button type="submit" class="btn btn-sm btn-primary">Apply for Free Plan (1 Year)</button>
+            {% else %}
+            <button type="button" class="btn btn-sm btn-outline" disabled>Apply for Free Plan (1 Year) — Locked</button>
+            {% endif %}
+        </form>
+    </div>
+    <div class="stat-card" style="grid-column: span 2; min-width:0;">
+        <div class="stat-label">Goal: 500 paid referrals → 5% income</div>
+        <div class="stat-value" style="font-size:1.4rem;">{{ ref_paid }} / 500</div>
+        <div style="height:10px;background:#e2e8f0;border-radius:6px;margin:12px 0;overflow:hidden;">
+            <div style="height:100%;width:{{ [100, (ref_paid / 500 * 100)|int]|min }}%;background:linear-gradient(90deg,#6366f1,#4f46e5);border-radius:6px;"></div>
+        </div>
+        <p class="text-muted small">{{ [0, 500 - ref_paid]|max }} more paid referrals needed for 5% commission unlock.</p>
+        <form method="POST" action="{{ url_for('apply_commission') }}" style="margin-top:10px;">
+            {% if user.commission_applied %}
+            <button type="button" class="btn btn-sm btn-outline" disabled>Pending — Applied</button>
+            {% elif ref_paid >= 500 %}
+            <button type="submit" class="btn btn-sm btn-primary">Apply for 5% Referral Income</button>
+            {% else %}
+            <button type="button" class="btn btn-sm btn-outline" disabled>Apply for 5% Referral Income — Locked</button>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% if session.get('role') == 'admin' %}
+<div class="stats-grid" style="margin-top:8px;">
+    <div class="stat-card">
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value">{{ total_users }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Published Portfolios</div>
+        <div class="stat-value">{{ published_count }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">On Free Trial</div>
+        <div class="stat-value">{{ trial_users }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Paid Subscribers</div>
+        <div class="stat-value">{{ paid_subscribers }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Lifetime Free</div>
+        <div class="stat-value">{{ lifetime_users }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Referral Year-Free</div>
+        <div class="stat-value">{{ referral_year_free }}</div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
